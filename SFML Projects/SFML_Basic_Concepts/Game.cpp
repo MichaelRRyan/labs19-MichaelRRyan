@@ -5,7 +5,6 @@
 /// </summary>
 
 #include "Game.h"
-#include <iostream>
 
 
 
@@ -18,33 +17,65 @@ Game::Game()
 {
 	m_window.setVerticalSyncEnabled(true);
 
-	// Wrong
-	// Creating a texture as a local variable means it's deleted once the function is completed.
-	// Creating it here means the texture comes up as a white rectangle with the same size as the sprite.
-	// sf::Texture texture;
+	int currentLevel = 1;
 
+	try
+	{
+		LevelLoader::load(currentLevel, m_level);
+	}
+	catch (std::exception &e)
+	{
+		std::cout << "Level load failed." << std::endl;
+		std::cout << e.what() << std::endl;
+		throw(e);
+	}
 
-	// Correct
+	// Load tank sprite
 	if (!m_texture.loadFromFile("E-100.png"))
 	{
-		std::string s("Error loading texture");
+		std::string s("Error loading tank texture");
 		throw std::exception(s.c_str());
 	}
 
-	m_sprite.setTexture(m_texture);
+	if (!m_bgTexture.loadFromFile(m_level.m_background.m_fileName))
+	{
+		std::string s("Error loading background texture");
+		throw std::exception(s.c_str());
+	}
 
-	// Setting the origin like this will make the centre the sprite. Since the position of the sprite is
-	// set to { 0, 0 }, 3/4 of the sprite will be outside the screen
-	m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, m_sprite.getGlobalBounds().height / 2.0f);
+	if (!m_spriteSheetTexture.loadFromFile("SpriteSheet.png"))
+	{
+		std::string s("Error loading sprite sheet texture");
+		throw std::exception(s.c_str());
+	}
 
-	// Sets the position of the sprite so it's fully visible
-	// Static casts the window size to perfectly centre the sprite on screen
-	m_sprite.setPosition(static_cast<float>(ScreenSize::s_width / 2), static_cast<float>(ScreenSize::s_height / 2) - 50.0f);
+	// Extract the wall image from the sprite sheet
+	sf::Sprite sprite;
+	sf::IntRect wallRect(2, 129, 33, 23);
+	sprite.setTexture(m_spriteSheetTexture);
+	sprite.setTextureRect(wallRect);
 
-	// Most sprites should be facing right by default, this one is not
-	// Applying a rotation of negative 90 degrees should fix that
-	// Rotates the tank by negative 90 degrees clockwise
-	m_sprite.rotate(-90.0f);
+	for (auto &obstacle : m_level.m_obstacles)
+	{
+		// Set the position of the obstacles using the level data
+		sprite.setPosition(obstacle.m_position);
+		sprite.setRotation(obstacle.m_rotation);
+		m_obstacles.push_back(sprite);
+	}
+
+
+	m_sprite.setTexture(m_spriteSheetTexture);
+	m_sprite.setTextureRect(sf::IntRect{ {0,42}, {88,88} });
+
+	m_tankTurret.setTexture(m_spriteSheetTexture);
+	m_tankTurret.setTextureRect(sf::IntRect{ {0,0}, {102,34} });
+
+	m_bgSprite.setTexture(m_bgTexture);
+
+	m_sprite.setPosition(m_level.m_tank.m_position);
+	m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, 23.0f);
+	m_tankTurret.setOrigin(40, m_tankTurret.getGlobalBounds().height / 2.0f);
+
 }
 
 ////////////////////////////////////////////////////////////
@@ -121,6 +152,16 @@ void Game::update(double dt)
 		m_tankRotation += m_turnSpeed;
 	}
 
+	// Get rotate input
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+	{
+		m_tankTurretRotation -= m_turnSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+	{
+		m_tankTurretRotation += m_turnSpeed;
+	}
+
 	// Get movement input
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
@@ -135,9 +176,13 @@ void Game::update(double dt)
 
 	// Move the sprite
 	m_sprite.move(m_movement);
+	m_tankTurret.setPosition(m_sprite.getPosition());
 
 	// Convert the angle (radians) to degrees and set the sprite rotation
-	m_sprite.setRotation((m_tankRotation * 180.0f/ acosf(-1.0f)) - 90.0f);
+	float tankAngle = m_tankRotation * 180.0f / acosf(-1.0f);
+	float tankTurretAngle = m_tankTurretRotation * 180.0f / acosf(-1.0f);
+	m_sprite.setRotation(tankAngle);
+	m_tankTurret.setRotation(tankAngle + tankTurretAngle);
 }
 
 ////////////////////////////////////////////////////////////
@@ -145,7 +190,14 @@ void Game::render()
 {
 	m_window.clear(sf::Color(0, 0, 0, 0));
 
+	m_window.draw(m_bgSprite);
 	m_window.draw(m_sprite);
+	m_window.draw(m_tankTurret);
+
+	for (sf::Sprite &obstacle : m_obstacles)
+	{
+		m_window.draw(obstacle);
+	}
 
 	m_window.display();
 }

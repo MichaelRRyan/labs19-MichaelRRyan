@@ -6,7 +6,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "ScreenSize.h"
+#include "LevelLoader.h"
 
 /// <summary>
 /// @author RP
@@ -76,9 +78,20 @@ protected:
 
 	// Sprites
 	sf::Texture m_texture;
+	sf::Texture m_bgTexture;
+	sf::Texture m_spriteSheetTexture;
+
 	sf::Sprite m_sprite;
+	sf::Sprite m_tankTurret;
+	sf::Sprite m_bgSprite;
+	std::vector<sf::Sprite> m_obstacles;
+
 	float m_turnSpeed = 0.02f;
 	float m_moveSpeed = 2.0f;
 
 	float m_tankRotation = 0.0f;
+	float m_tankTurretRotation = 0.0f;
+
+	// Load the game level data
+	LevelData m_level;
 };
