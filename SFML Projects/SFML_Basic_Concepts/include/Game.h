@@ -9,6 +9,7 @@
 #include <iostream>
 #include "ScreenSize.h"
 #include "LevelLoader.h"
+#include "Tank.h"
 
 /// <summary>
 /// @author RP
@@ -86,11 +87,8 @@ protected:
 	sf::Sprite m_bgSprite;
 	std::vector<sf::Sprite> m_obstacles;
 
-	float m_turnSpeed = 0.02f;
-	float m_moveSpeed = 2.0f;
-
-	float m_tankRotation = 0.0f;
-	float m_tankTurretRotation = 0.0f;
+	// Instance of a tank object as a player controlled object
+	Tank m_tank;
 
 	// Load the game level data
 	LevelData m_level;

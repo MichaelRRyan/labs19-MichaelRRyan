@@ -7,13 +7,13 @@
 #include "Game.h"
 
 
-
 // Updates per milliseconds
 static double const MS_PER_UPDATE = 10.0;
 
 ////////////////////////////////////////////////////////////
-Game::Game()
-	: m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default)
+Game::Game() :
+	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
+	m_tank{ m_texture, { 0.0f, 0.0f } }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -31,9 +31,9 @@ Game::Game()
 	}
 
 	// Load tank sprite
-	if (!m_texture.loadFromFile("E-100.png"))
+	if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
 	{
-		std::string s("Error loading tank texture");
+		std::string s("Error loading spritesheet texture");
 		throw std::exception(s.c_str());
 	}
 
@@ -43,16 +43,10 @@ Game::Game()
 		throw std::exception(s.c_str());
 	}
 
-	if (!m_spriteSheetTexture.loadFromFile("SpriteSheet.png"))
-	{
-		std::string s("Error loading sprite sheet texture");
-		throw std::exception(s.c_str());
-	}
-
 	// Extract the wall image from the sprite sheet
 	sf::Sprite sprite;
 	sf::IntRect wallRect(2, 129, 33, 23);
-	sprite.setTexture(m_spriteSheetTexture);
+	sprite.setTexture(m_texture);
 	sprite.setTextureRect(wallRect);
 
 	for (auto &obstacle : m_level.m_obstacles)
@@ -63,19 +57,8 @@ Game::Game()
 		m_obstacles.push_back(sprite);
 	}
 
-
-	m_sprite.setTexture(m_spriteSheetTexture);
-	m_sprite.setTextureRect(sf::IntRect{ {0,42}, {88,88} });
-
-	m_tankTurret.setTexture(m_spriteSheetTexture);
-	m_tankTurret.setTextureRect(sf::IntRect{ {0,0}, {102,34} });
-
 	m_bgSprite.setTexture(m_bgTexture);
-
-	m_sprite.setPosition(m_level.m_tank.m_position);
-	m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, 23.0f);
-	m_tankTurret.setOrigin(40, m_tankTurret.getGlobalBounds().height / 2.0f);
-
+	m_tank.setPosition(m_level.m_tank.m_position);
 }
 
 ////////////////////////////////////////////////////////////
@@ -129,9 +112,16 @@ void Game::processGameEvents(sf::Event& event)
 			m_window.close();
 			break;
 		case sf::Keyboard::Up:
-			// Up key was pressed...
+			m_tank.increaseSpeed();
 			break;
-		default:
+		case sf::Keyboard::Down:
+			m_tank.decreaseSpeed();
+			break;
+		case sf::Keyboard::Left:
+			m_tank.decreaseRotation();
+			break;
+		case sf::Keyboard::Right:
+			m_tank.increaseRotation();
 			break;
 		}
 	}
@@ -140,49 +130,7 @@ void Game::processGameEvents(sf::Event& event)
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
-	sf::Vector2f m_movement;
-
-	// Get rotate input
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-	{
-		m_tankRotation -= m_turnSpeed;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-	{
-		m_tankRotation += m_turnSpeed;
-	}
-
-	// Get rotate input
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-	{
-		m_tankTurretRotation -= m_turnSpeed;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-	{
-		m_tankTurretRotation += m_turnSpeed;
-	}
-
-	// Get movement input
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-	{
-		m_movement = { cos(m_tankRotation), sin(m_tankRotation) };
-		m_movement *= m_moveSpeed;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-	{
-		m_movement = { cos(m_tankRotation), sin(m_tankRotation) };
-		m_movement *= -m_moveSpeed;
-	}
-
-	// Move the sprite
-	m_sprite.move(m_movement);
-	m_tankTurret.setPosition(m_sprite.getPosition());
-
-	// Convert the angle (radians) to degrees and set the sprite rotation
-	float tankAngle = m_tankRotation * 180.0f / acosf(-1.0f);
-	float tankTurretAngle = m_tankTurretRotation * 180.0f / acosf(-1.0f);
-	m_sprite.setRotation(tankAngle);
-	m_tankTurret.setRotation(tankAngle + tankTurretAngle);
+	m_tank.update(dt);
 }
 
 ////////////////////////////////////////////////////////////
@@ -191,8 +139,8 @@ void Game::render()
 	m_window.clear(sf::Color(0, 0, 0, 0));
 
 	m_window.draw(m_bgSprite);
-	m_window.draw(m_sprite);
-	m_window.draw(m_tankTurret);
+
+	m_tank.render(m_window);
 
 	for (sf::Sprite &obstacle : m_obstacles)
 	{
