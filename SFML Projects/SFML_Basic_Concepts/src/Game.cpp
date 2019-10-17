@@ -111,17 +111,8 @@ void Game::processGameEvents(sf::Event& event)
 		case sf::Keyboard::Escape:
 			m_window.close();
 			break;
-		case sf::Keyboard::Up:
-			m_tank.increaseSpeed();
-			break;
-		case sf::Keyboard::Down:
-			m_tank.decreaseSpeed();
-			break;
-		case sf::Keyboard::Left:
-			m_tank.decreaseRotation();
-			break;
-		case sf::Keyboard::Right:
-			m_tank.increaseRotation();
+		case sf::Keyboard::C:
+			m_tank.toggleCentring();
 			break;
 		}
 	}
