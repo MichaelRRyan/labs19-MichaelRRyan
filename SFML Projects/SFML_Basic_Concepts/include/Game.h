@@ -10,6 +10,7 @@
 #include "ScreenSize.h"
 #include "LevelLoader.h"
 #include "Tank.h"
+#include "XBox360Controller.h"
 
 /// <summary>
 /// @author RP
@@ -99,6 +100,9 @@ protected:
 
 	// Instance of a tank object as a player controlled object
 	Tank m_tank;
+	Tank m_controllerTank;
+
+	XBox360Controller m_controller;
 
 	// Load the game level data
 	LevelData m_level;

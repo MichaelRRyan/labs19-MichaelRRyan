@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "MathUtility.h"
 #include "CollisionDetector.h"
+#include "XBox360Controller.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -68,9 +69,19 @@ public:
 	void centreTurret();
 
 	/// <summary>
+	/// @brief set the previous variables
+	/// </summary>
+	void setPrevious();
+
+	/// <summary>
 	/// @brief handles key input from the player to move the tank
 	/// </summary>
-	void HandleKeyInput();
+	void handleKeyInput();
+
+	/// <summary>
+	/// @brief handles controller input from the player to move the tank
+	/// </summary>
+	void handleControllerInput(XBox360Controller t_controller);
 
 	/// <summary>
 	/// @brief Checks for collisions between the tank and the walls.

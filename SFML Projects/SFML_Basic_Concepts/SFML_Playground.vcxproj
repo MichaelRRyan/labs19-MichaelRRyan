@@ -29,6 +29,7 @@
     <ClInclude Include="include\OrientedBoundingBox.h" />
     <ClInclude Include="include\ScreenSize.h" />
     <ClInclude Include="include\Tank.h" />
+    <ClInclude Include="include\XBox360Controller.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CollisionDetector.cpp" />
@@ -38,6 +39,7 @@
     <ClCompile Include="src\MathUtility.cpp" />
     <ClCompile Include="src\OrientedBoundingBox.cpp" />
     <ClCompile Include="src\Tank.cpp" />
+    <ClCompile Include="src\XBox360Controller.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F10133B9-852C-4A93-A994-DC0D1C009AD5}</ProjectGuid>

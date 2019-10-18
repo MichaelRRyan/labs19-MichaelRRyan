@@ -13,12 +13,6 @@ Tank::Tank(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites) :
 
 void Tank::update(double dt)
 {	
-	// Get input and move the tank
-	m_previousSpeed = m_speed;
-	m_previousRotation = m_rotation;
-	m_previousTurretRotation = m_turretRotation;
-	HandleKeyInput();
-
 	// Clamp the speed to a minimum and maximum speed
 	std::clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT);
 
@@ -155,7 +149,15 @@ void Tank::centreTurret()
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::HandleKeyInput()
+void Tank::setPrevious()
+{
+	m_previousSpeed = m_speed;
+	m_previousRotation = m_rotation;
+	m_previousTurretRotation = m_turretRotation;
+}
+
+////////////////////////////////////////////////////////////
+void Tank::handleKeyInput()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
@@ -182,6 +184,39 @@ void Tank::HandleKeyInput()
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
 		increaseTurretRotation();
+		m_centringTurret = false;
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Tank::handleControllerInput(XBox360Controller t_controller)
+{
+	if (t_controller.currentState.LeftThumbStick.y < -25.0f)
+	{
+		increaseSpeed();
+	}
+	else if (t_controller.currentState.LeftThumbStick.y > 25.0f)
+	{
+		decreaseSpeed();
+	}
+
+	if (t_controller.currentState.LeftThumbStick.x > 25.0f)
+	{
+		increaseRotation();
+	}
+	else if (t_controller.currentState.LeftThumbStick.x < -25.0f)
+	{
+		decreaseRotation();
+	}
+
+	if (t_controller.currentState.RightThumbStick.x > 25.0f)
+	{
+		increaseTurretRotation();
+		m_centringTurret = false;
+	}
+	else if (t_controller.currentState.RightThumbStick.x < -25.0f)
+	{
+		decreaseTurretRotation();
 		m_centringTurret = false;
 	}
 }

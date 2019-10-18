@@ -13,7 +13,8 @@ static double const MS_PER_UPDATE = 10.0;
 ////////////////////////////////////////////////////////////
 Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
-	m_tank{ m_texture, m_wallSprites }
+	m_tank{ m_texture, m_wallSprites },
+	m_controllerTank{ m_texture, m_wallSprites }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -61,6 +62,8 @@ Game::Game() :
 	m_tank.setPosition(m_level.m_tank.m_position);
 
 	generateWalls();
+
+	m_controller.connect();
 }
 
 ////////////////////////////////////////////////////////////
@@ -141,7 +144,15 @@ void Game::generateWalls()
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
+	m_controller.update();
+
+	m_tank.setPrevious();
+	m_tank.handleKeyInput();
 	m_tank.update(dt);
+
+	m_controllerTank.setPrevious();
+	m_controllerTank.handleControllerInput(m_controller);
+	m_controllerTank.update(dt);
 }
 
 ////////////////////////////////////////////////////////////
@@ -152,6 +163,7 @@ void Game::render()
 	m_window.draw(m_bgSprite);
 
 	m_tank.render(m_window);
+	m_controllerTank.render(m_window);
 
 	for (sf::Sprite const & obstacle : m_wallSprites)
 	{
@@ -160,8 +172,3 @@ void Game::render()
 
 	m_window.display();
 }
-
-
-
-
-
