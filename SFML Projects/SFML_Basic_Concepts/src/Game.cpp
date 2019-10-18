@@ -13,7 +13,7 @@ static double const MS_PER_UPDATE = 10.0;
 ////////////////////////////////////////////////////////////
 Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
-	m_tank{ m_texture, { 0.0f, 0.0f } }
+	m_tank{ m_texture, m_wallSprites }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -43,22 +43,24 @@ Game::Game() :
 		throw std::exception(s.c_str());
 	}
 
-	// Extract the wall image from the sprite sheet
-	sf::Sprite sprite;
-	sf::IntRect wallRect(2, 129, 33, 23);
-	sprite.setTexture(m_texture);
-	sprite.setTextureRect(wallRect);
+	//// Extract the wall image from the sprite sheet
+	//sf::Sprite sprite;
+	//sf::IntRect wallRect(2, 129, 33, 23);
+	//sprite.setTexture(m_texture);
+	//sprite.setTextureRect(wallRect);
 
-	for (auto &obstacle : m_level.m_obstacles)
-	{
-		// Set the position of the obstacles using the level data
-		sprite.setPosition(obstacle.m_position);
-		sprite.setRotation(obstacle.m_rotation);
-		m_obstacles.push_back(sprite);
-	}
+	//for (auto &obstacle : m_level.m_obstacles)
+	//{
+	//	// Set the position of the obstacles using the level data
+	//	sprite.setPosition(obstacle.m_position);
+	//	sprite.setRotation(obstacle.m_rotation);
+	//	m_obstacles.push_back(sprite);
+	//}
 
 	m_bgSprite.setTexture(m_bgTexture);
 	m_tank.setPosition(m_level.m_tank.m_position);
+
+	generateWalls();
 }
 
 ////////////////////////////////////////////////////////////
@@ -119,6 +121,24 @@ void Game::processGameEvents(sf::Event& event)
 }
 
 ////////////////////////////////////////////////////////////
+void Game::generateWalls()
+{
+	sf::IntRect wallRect{ 2, 129, 33, 23 };
+
+	// Create the walls
+	for (ObstacleData const& obstacle : m_level.m_obstacles)
+	{
+		sf::Sprite sprite;
+		sprite.setTexture(m_texture);
+		sprite.setTextureRect(wallRect);
+		sprite.setOrigin(sprite.getGlobalBounds().width / 2, sprite.getGlobalBounds().height / 2);
+		sprite.setPosition(obstacle.m_position);
+		sprite.setRotation(obstacle.m_rotation);
+		m_wallSprites.push_back(sprite);
+	}
+}
+
+////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
 	m_tank.update(dt);
@@ -133,7 +153,7 @@ void Game::render()
 
 	m_tank.render(m_window);
 
-	for (sf::Sprite &obstacle : m_obstacles)
+	for (sf::Sprite const & obstacle : m_wallSprites)
 	{
 		m_window.draw(obstacle);
 	}

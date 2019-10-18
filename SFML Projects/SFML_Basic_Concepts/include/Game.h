@@ -74,6 +74,13 @@ protected:
 	/// <param name="event">system event</param>
 	void processGameEvents(sf::Event&);
 
+	/// <summary>
+	/// @brief Creates the wall sprites and loads them into a vector.
+	/// Note that sf::Sprite is considered a light weight class, so 
+	///  storing copies (instead of pointers to sf::Sprite) in std::vector is acceptable.
+	/// </summary>
+	void generateWalls();
+
 	// main window
 	sf::RenderWindow m_window;
 
@@ -86,6 +93,9 @@ protected:
 	sf::Sprite m_tankTurret;
 	sf::Sprite m_bgSprite;
 	std::vector<sf::Sprite> m_obstacles;
+
+	// Wall sprites
+	std::vector<sf::Sprite> m_wallSprites;
 
 	// Instance of a tank object as a player controlled object
 	Tank m_tank;
