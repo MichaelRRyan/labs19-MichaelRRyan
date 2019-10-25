@@ -68,7 +68,7 @@ void Tank::update(double dt)
 
 	if (m_fireTimer > 0.0f)
 	{
-		m_fireTimer -= 1.0f * (dt / 1000.0f);
+		m_fireTimer -= dt / 1000.0f;
 	}
 	else if (m_fireTimer != 0.0f)
 	{

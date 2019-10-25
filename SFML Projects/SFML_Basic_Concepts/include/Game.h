@@ -85,6 +85,9 @@ protected:
 	// main window
 	sf::RenderWindow m_window;
 
+	sf::Font m_font;
+	sf::Text m_timerText;
+
 	// Sprites
 	sf::Texture m_texture;
 	sf::Texture m_bgTexture;
@@ -106,4 +109,7 @@ protected:
 
 	// Load the game level data
 	LevelData m_level;
+
+	double m_gameTimer;
+	sf::Clock m_clockTimer;
 };

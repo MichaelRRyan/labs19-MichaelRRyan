@@ -14,9 +14,23 @@ static double const MS_PER_UPDATE = 10.0;
 Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
 	m_tank{ m_texture, m_wallSprites },
-	m_controllerTank{ m_texture, m_wallSprites }
+	m_controllerTank{ m_texture, m_wallSprites },
+	m_gameTimer{ 0.0 }
 {
 	m_window.setVerticalSyncEnabled(true);
+
+	if (!m_font.loadFromFile("./resources/fonts/arial.ttf"))
+	{
+		std::string s("Error loading font file");
+		throw std::exception(s.c_str());
+	}
+
+	m_timerText.setFont(m_font);
+	m_timerText.setString("PRESS SPACE TO START");
+	m_timerText.setCharacterSize(40u);
+	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
+	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
+	
 
 	int currentLevel = 1;
 
@@ -106,6 +120,17 @@ void Game::processGameEvents(sf::Event& event)
 		case sf::Keyboard::C:
 			m_tank.toggleCentring();
 			break;
+		case sf::Keyboard::Space:
+			if (m_gameTimer == 0.0)
+			{
+				m_gameTimer = 60.0;
+				m_clockTimer.restart();
+				m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
+				m_timerText.setCharacterSize(40u);
+				m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
+				m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
+			}
+			break;
 		}
 	}
 }
@@ -131,15 +156,34 @@ void Game::generateWalls()
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
+	
 	m_controller.update();
 
-	m_tank.setPrevious();
-	m_tank.handleKeyInput();
-	m_tank.update(dt);
+	if (m_gameTimer > 0.0)
+	{
+		m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
 
-	m_controllerTank.setPrevious();
-	m_controllerTank.handleControllerInput(m_controller);
-	m_controllerTank.update(dt);
+		m_tank.setPrevious();
+		m_tank.handleKeyInput();
+		m_tank.update(dt);
+
+		m_controllerTank.setPrevious();
+		m_controllerTank.handleControllerInput(m_controller);
+		m_controllerTank.update(dt);
+
+		// Timer
+		sf::Time m_timeSinceLastUpdate = m_clockTimer.restart();
+		m_gameTimer -= m_timeSinceLastUpdate.asSeconds();
+
+		if (m_gameTimer < 0.0)
+		{
+			m_gameTimer = 0.0;
+			m_timerText.setString("PRESS SPACE TO START");
+			m_timerText.setCharacterSize(40u);
+			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
+			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -156,6 +200,8 @@ void Game::render()
 	{
 		m_window.draw(obstacle);
 	}
+	
+	m_window.draw(m_timerText);
 
 	m_window.display();
 }
