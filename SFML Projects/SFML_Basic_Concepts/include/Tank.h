@@ -3,6 +3,7 @@
 #include "MathUtility.h"
 #include "CollisionDetector.h"
 #include "XBox360Controller.h"
+#include "Bullet.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -90,6 +91,8 @@ public:
 	/// <returns>True if collision detected between tank and wall.</returns>
 	bool checkWallCollision();
 
+	void checkBulletWallCollisions();
+
 	/// <summary>
 	/// @brief Stops the tank if moving and applies a small increase in speed in the opposite direction of travel.
 	/// If the tank speed is currently 0, the rotation is set to a value that is less than the previous rotation value
@@ -120,6 +123,7 @@ private:
 	const double SPEED_LIMIT;
 	const double ACCELERATION;
 	const double TURN_SPEED;
+	const float FIRE_DELAY{ 1.0f };
 
 	double m_previousSpeed{ 0.0 };
 	double m_speed{ 0.0 };
@@ -130,7 +134,11 @@ private:
 	double m_previousTurretRotation{ 0.0 };
 	double m_turretRotation{ 0.0 };
 
+	float m_fireTimer{ 0 };
+
 	bool m_enableRotation{ true };
 	bool m_centringTurret{ false };
 	bool m_centringClockwise{ false };
+
+	Bullet* m_bullet;
 };

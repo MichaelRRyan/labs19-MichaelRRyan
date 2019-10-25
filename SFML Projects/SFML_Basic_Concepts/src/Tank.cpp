@@ -6,7 +6,8 @@ Tank::Tank(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites) :
 	FRICTION{ 0.99 },
 	SPEED_LIMIT{ 100.0 },
 	ACCELERATION{ 2.0 },
-	TURN_SPEED{ 0.8 }
+	TURN_SPEED{ 0.8 },
+	m_bullet{ nullptr }
 {
 	initSprites();
 }
@@ -53,13 +54,38 @@ void Tank::update(double dt)
 	{
 		m_enableRotation = true;
 	}
+
+	checkBulletWallCollisions();
+
+	if (m_bullet != nullptr)
+	{
+		bool stillAlive = m_bullet->update(dt);
+		if (!stillAlive)
+		{
+			m_bullet = nullptr;
+		}
+	}
+
+	if (m_fireTimer > 0.0f)
+	{
+		m_fireTimer -= 1.0f * (dt / 1000.0f);
+	}
+	else if (m_fireTimer != 0.0f)
+	{
+		m_fireTimer = 0.0f;
+	}
 }
 
 void Tank::render(sf::RenderWindow & window) 
 {
 	window.draw(m_tankBase);
 	window.draw(m_turret);
+	if (m_bullet != nullptr)
+	{
+		window.draw(m_bullet->getBody());
+	}
 }
+
 
 void Tank::setPosition(sf::Vector2f t_position)
 {
@@ -186,6 +212,12 @@ void Tank::handleKeyInput()
 		increaseTurretRotation();
 		m_centringTurret = false;
 	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && m_bullet == nullptr && m_fireTimer == 0)
+	{
+		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
+		m_fireTimer = FIRE_DELAY;
+	}	
 }
 
 ////////////////////////////////////////////////////////////
@@ -219,6 +251,12 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 		decreaseTurretRotation();
 		m_centringTurret = false;
 	}
+
+	if (t_controller.currentState.A && m_bullet == nullptr && m_fireTimer == 0)
+	{
+		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
+		m_fireTimer = FIRE_DELAY;
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -234,6 +272,23 @@ bool Tank::checkWallCollision()
 		}
 	}
 	return false;
+}
+
+void Tank::checkBulletWallCollisions()
+{
+	if (m_bullet != nullptr)
+	{
+		for (sf::Sprite const& sprite : m_wallSprites)
+		{
+			// Checks if either the tank base or turret has collided with the current wall sprite
+			if (CollisionDetector::collision(m_bullet->getBody(), sprite))
+			{
+				delete m_bullet;
+				m_bullet = nullptr;
+				break;
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////

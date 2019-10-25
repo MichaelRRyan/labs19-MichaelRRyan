@@ -44,22 +44,9 @@ Game::Game() :
 		throw std::exception(s.c_str());
 	}
 
-	//// Extract the wall image from the sprite sheet
-	//sf::Sprite sprite;
-	//sf::IntRect wallRect(2, 129, 33, 23);
-	//sprite.setTexture(m_texture);
-	//sprite.setTextureRect(wallRect);
-
-	//for (auto &obstacle : m_level.m_obstacles)
-	//{
-	//	// Set the position of the obstacles using the level data
-	//	sprite.setPosition(obstacle.m_position);
-	//	sprite.setRotation(obstacle.m_rotation);
-	//	m_obstacles.push_back(sprite);
-	//}
-
 	m_bgSprite.setTexture(m_bgTexture);
 	m_tank.setPosition(m_level.m_tank.m_position);
+	m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
 
 	generateWalls();
 
