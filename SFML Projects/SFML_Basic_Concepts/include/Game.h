@@ -11,6 +11,7 @@
 #include "LevelLoader.h"
 #include "Tank.h"
 #include "XBox360Controller.h"
+#include "Target.h"
 
 /// <summary>
 /// @author RP
@@ -82,6 +83,11 @@ protected:
 	/// </summary>
 	void generateWalls();
 
+	/// <summary>
+	/// @brief Creates the target objects and loads them into a vector.
+	/// </summary>
+	void generateTargets();
+
 	// main window
 	sf::RenderWindow m_window;
 
@@ -100,6 +106,7 @@ protected:
 
 	// Wall sprites
 	std::vector<sf::Sprite> m_wallSprites;
+	std::vector<Target> m_targets;
 
 	// Instance of a tank object as a player controlled object
 	Tank m_tank;

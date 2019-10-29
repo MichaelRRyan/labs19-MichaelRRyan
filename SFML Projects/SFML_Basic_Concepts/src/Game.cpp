@@ -63,6 +63,7 @@ Game::Game() :
 	m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
 
 	generateWalls();
+	generateTargets();
 
 	m_controller.connect();
 }
@@ -153,6 +154,38 @@ void Game::generateWalls()
 	}
 }
 
+void Game::generateTargets()
+{
+	sf::IntRect targetRect{ 64, 107, 105, 47 };
+
+	// Create the walls
+	for (TargetData const& target : m_level.m_targets)
+	{
+		Target targetObject;
+		targetObject.m_sprite.setTexture(m_texture);
+		targetObject.m_sprite.setTextureRect(targetRect);
+		targetObject.m_sprite.setOrigin(targetObject.m_sprite.getGlobalBounds().width / 2, targetObject.m_sprite.getGlobalBounds().height / 2);
+
+		// Decides the random offset
+		float xPosition = target.m_position.x + rand() % (target.m_randomOffset * 2 + 1) - target.m_randomOffset;
+		targetObject.m_sprite.setPosition(xPosition, target.m_position.y);
+
+		// Check the target is not colliding with a wall in the current position
+		for (sf::Sprite const& obstacle : m_wallSprites)
+		{
+			while (CollisionDetector::collision(targetObject.m_sprite, obstacle)) // While the tank is colliding
+			{
+				targetObject.m_sprite.move(5.0f,0.0f); // Move the tank 5 pixels right
+			}
+		}
+
+		targetObject.m_sprite.setRotation(target.m_rotation);
+		targetObject.m_secondsToLive = target.m_durationSeconds;
+
+		m_targets.push_back(targetObject);
+	}
+}
+
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
@@ -171,9 +204,20 @@ void Game::update(double dt)
 		m_controllerTank.handleControllerInput(m_controller);
 		m_controllerTank.update(dt);
 
+		
+
 		// Timer
 		sf::Time m_timeSinceLastUpdate = m_clockTimer.restart();
 		m_gameTimer -= m_timeSinceLastUpdate.asSeconds();
+
+		// Decrease the target's time to live
+		for (Target& target : m_targets)
+		{
+			if (target.m_secondsToLive > 0.0f)
+			{
+				target.m_secondsToLive -= m_timeSinceLastUpdate.asSeconds();
+			}
+		}
 
 		if (m_gameTimer < 0.0)
 		{
@@ -195,6 +239,15 @@ void Game::render()
 
 	m_tank.render(m_window);
 	m_controllerTank.render(m_window);
+
+	// Draw the targets
+	for (Target const & target : m_targets)
+	{
+		if (target.m_secondsToLive > 0.0f)
+		{
+			m_window.draw(target.m_sprite);
+		}
+	}
 
 	for (sf::Sprite const & obstacle : m_wallSprites)
 	{

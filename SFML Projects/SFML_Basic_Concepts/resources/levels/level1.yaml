@@ -84,3 +84,12 @@ obstacles:
    - type: wall
      position: {x: 1032, y: 632}
      rotation: 0
+targets:
+   - type: popup
+     position: {x: 200, y: 720, randomOffset: 20}
+     rotation: 50
+     duration: 5
+   - type: popup
+     position: {x: 300, y: 600, randomOffset: 50}
+     rotation: -70
+     duration: 5
