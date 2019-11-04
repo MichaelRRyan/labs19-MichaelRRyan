@@ -13,8 +13,8 @@ static double const MS_PER_UPDATE = 10.0;
 ////////////////////////////////////////////////////////////
 Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
-	m_tank{ m_texture, m_wallSprites },
-	m_controllerTank{ m_texture, m_wallSprites },
+	m_tank{ m_texture, m_wallSprites, m_targets },
+	m_controllerTank{ m_texture, m_wallSprites, m_targets },
 	m_gameTimer{ 0.0 }
 {
 	m_window.setVerticalSyncEnabled(true);
@@ -64,6 +64,8 @@ Game::Game() :
 
 	generateWalls();
 	generateTargets();
+
+	m_timerCircle.setFillColor(sf::Color{ 255, 0, 0, 150 });
 
 	m_controller.connect();
 }
@@ -118,12 +120,13 @@ void Game::processGameEvents(sf::Event& event)
 		case sf::Keyboard::Escape:
 			m_window.close();
 			break;
-		case sf::Keyboard::C:
+		case sf::Keyboard::S:
 			m_tank.toggleCentring();
 			break;
 		case sf::Keyboard::Space:
 			if (m_gameTimer == 0.0)
 			{
+				m_tank.setPosition(m_TANK_POSITIONS[rand() % 4]);
 				m_gameTimer = 60.0;
 				m_clockTimer.restart();
 				m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
@@ -237,15 +240,22 @@ void Game::render()
 
 	m_window.draw(m_bgSprite);
 
-	m_tank.render(m_window);
-	m_controllerTank.render(m_window);
-
-	// Draw the targets
-	for (Target const & target : m_targets)
+	if (m_gameTimer > 0.0)
 	{
-		if (target.m_secondsToLive > 0.0f)
+		m_tank.render(m_window);
+		m_controllerTank.render(m_window);
+
+		// Draw the targets
+		for (Target const& target : m_targets)
 		{
-			m_window.draw(target.m_sprite);
+			if (target.m_secondsToLive > 0.0f)
+			{
+				m_timerCircle.setRadius(target.m_secondsToLive * 10);
+				m_timerCircle.setOrigin(m_timerCircle.getRadius(), m_timerCircle.getRadius());
+				m_timerCircle.setPosition(target.m_sprite.getPosition());
+				m_window.draw(target.m_sprite);
+				m_window.draw(m_timerCircle);
+			}
 		}
 	}
 

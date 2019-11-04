@@ -4,6 +4,7 @@
 #include "CollisionDetector.h"
 #include "XBox360Controller.h"
 #include "Bullet.h"
+#include "Target.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -20,7 +21,7 @@ public:
 	/// </summary>
 	/// <param name="texture">A reference to the sprite sheet texture</param>
 	///< param name="texture">A reference to the container of wall sprites</param>  
-	Tank(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites);
+	Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
 	void update(double dt);
 	void render(sf::RenderWindow& window);
 	void setPosition(sf::Vector2f t_position);
@@ -91,7 +92,17 @@ public:
 	/// <returns>True if collision detected between tank and wall.</returns>
 	bool checkWallCollision();
 
+	/// <summary>
+	/// @brief Checks for collisions between the bullet and the walls.
+	/// 
+	/// </summary>
 	void checkBulletWallCollisions();
+
+	/// <summary>
+	/// @brief Checks for collisions between the bullet and the targets.
+	/// 
+	/// </summary>
+	void checkBulletTargetCollisions();
 
 	/// <summary>
 	/// @brief Stops the tank if moving and applies a small increase in speed in the opposite direction of travel.
@@ -117,6 +128,7 @@ private:
 
 	// A reference to the container of wall sprites.
 	std::vector<sf::Sprite>& m_wallSprites;
+	std::vector<Target>& m_targets;
 
 	// The tank speed.
 	const double FRICTION;

@@ -86,10 +86,26 @@ obstacles:
      rotation: 0
 targets:
    - type: popup
-     position: {x: 200, y: 720, randomOffset: 20}
+     position: {x: 200, y: 720, randomOffset: 100}
      rotation: 50
-     duration: 5
+     duration: 8
    - type: popup
-     position: {x: 300, y: 600, randomOffset: 50}
+     position: {x: 600, y: 600, randomOffset: 100}
      rotation: -70
-     duration: 5
+     duration: 8
+   - type: popup
+     position: {x: 1200, y: 300, randomOffset: 100}
+     rotation: 20
+     duration: 8
+   - type: popup
+     position: {x: 200, y: 200, randomOffset: 100}
+     rotation: 50
+     duration: 8
+   - type: popup
+     position: {x: 1000, y: 800, randomOffset: 100}
+     rotation: -10
+     duration: 8
+   - type: popup
+     position: {x: 700, y: 200, randomOffset: 100}
+     rotation: 180
+     duration: 8

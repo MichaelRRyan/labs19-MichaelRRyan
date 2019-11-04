@@ -119,4 +119,13 @@ protected:
 
 	double m_gameTimer;
 	sf::Clock m_clockTimer;
+
+	const float m_TANK_OFFSET{ 100.0f };
+	const sf::Vector2f m_TANK_POSITIONS[4]{
+		{m_TANK_OFFSET, m_TANK_OFFSET},
+		{m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET},
+		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
+		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} };
+
+	sf::CircleShape m_timerCircle;
 };

@@ -1,8 +1,9 @@
 #include "Tank.h"
 
-Tank::Tank(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites) :
-	m_texture{ texture },
-	m_wallSprites{ wallSprites },
+Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
+	m_texture{ t_texture },
+	m_wallSprites{ t_wallSprites },
+	m_targets{ t_targets },
 	FRICTION{ 0.99 },
 	SPEED_LIMIT{ 100.0 },
 	ACCELERATION{ 2.0 },
@@ -56,6 +57,7 @@ void Tank::update(double dt)
 	}
 
 	checkBulletWallCollisions();
+	checkBulletTargetCollisions();
 
 	if (m_bullet != nullptr)
 	{
@@ -207,13 +209,13 @@ void Tank::handleKeyInput()
 		decreaseTurretRotation();
 		m_centringTurret = false;
 	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 	{
 		increaseTurretRotation();
 		m_centringTurret = false;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && m_bullet == nullptr && m_fireTimer == 0)
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && m_bullet == nullptr && m_fireTimer == 0)
 	{
 		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
@@ -285,6 +287,25 @@ void Tank::checkBulletWallCollisions()
 			{
 				delete m_bullet;
 				m_bullet = nullptr;
+				break;
+			}
+		}
+	}
+}
+
+void Tank::checkBulletTargetCollisions()
+{
+	if (m_bullet != nullptr)
+	{
+		for (Target & target : m_targets)
+		{
+			// Checks if either the tank base or turret has collided with the current target and the target is alive
+			if (target.m_secondsToLive > 0.0
+				&& CollisionDetector::collision(m_bullet->getBody(), target.m_sprite))
+			{
+				delete m_bullet;
+				m_bullet = nullptr;
+				target.m_secondsToLive = 0;
 				break;
 			}
 		}
