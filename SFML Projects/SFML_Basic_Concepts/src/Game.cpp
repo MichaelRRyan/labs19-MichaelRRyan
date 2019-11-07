@@ -15,7 +15,9 @@ Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
 	m_tank{ m_texture, m_wallSprites, m_targets },
 	m_controllerTank{ m_texture, m_wallSprites, m_targets },
-	m_gameTimer{ 0.0 }
+	m_gameTimer{ 0.0 },
+	m_targetsSpawned{ 0 },
+	m_ROUND_TIME{ 60.0 }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -127,7 +129,7 @@ void Game::processGameEvents(sf::Event& event)
 			if (m_gameTimer == 0.0)
 			{
 				m_tank.setPosition(m_TANK_POSITIONS[rand() % 4]);
-				m_gameTimer = 60.0;
+				m_gameTimer = m_ROUND_TIME;
 				m_clockTimer.restart();
 				m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
 				m_timerText.setCharacterSize(40u);
@@ -184,6 +186,7 @@ void Game::generateTargets()
 
 		targetObject.m_sprite.setRotation(target.m_rotation);
 		targetObject.m_secondsToLive = target.m_durationSeconds;
+		targetObject.m_active = false;
 
 		m_targets.push_back(targetObject);
 	}
@@ -192,7 +195,6 @@ void Game::generateTargets()
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
-	
 	m_controller.update();
 
 	if (m_gameTimer > 0.0)
@@ -207,18 +209,39 @@ void Game::update(double dt)
 		m_controllerTank.handleControllerInput(m_controller);
 		m_controllerTank.update(dt);
 
-		
-
 		// Timer
 		sf::Time m_timeSinceLastUpdate = m_clockTimer.restart();
 		m_gameTimer -= m_timeSinceLastUpdate.asSeconds();
 
+		// Spawn new enemy
+		if (m_targets.size() > 0 && round(m_gameTimer) == m_ROUND_TIME / m_targetsSpawned)
+		{
+			for (Target& target : m_targets)
+			{
+				if (!target.m_active)
+				{
+					target.m_active = true;
+					break;
+				}
+			}
+
+		}
+
 		// Decrease the target's time to live
 		for (Target& target : m_targets)
 		{
-			if (target.m_secondsToLive > 0.0f)
+			if (target.m_active)
 			{
-				target.m_secondsToLive -= m_timeSinceLastUpdate.asSeconds();
+				if (target.m_secondsToLive > 0.0f)
+				{
+					target.m_secondsToLive -= m_timeSinceLastUpdate.asSeconds();
+
+					if (target.m_secondsToLive <= 0.0f)
+					{
+						target.m_secondsToLive = 0.0;
+						target.m_active = false;
+					}
+				}
 			}
 		}
 
@@ -248,13 +271,16 @@ void Game::render()
 		// Draw the targets
 		for (Target const& target : m_targets)
 		{
-			if (target.m_secondsToLive > 0.0f)
+			if (target.m_active)
 			{
-				m_timerCircle.setRadius(target.m_secondsToLive * 10);
-				m_timerCircle.setOrigin(m_timerCircle.getRadius(), m_timerCircle.getRadius());
-				m_timerCircle.setPosition(target.m_sprite.getPosition());
-				m_window.draw(target.m_sprite);
-				m_window.draw(m_timerCircle);
+				if (target.m_secondsToLive > 0.0f)
+				{
+					m_timerCircle.setRadius(target.m_secondsToLive * 10);
+					m_timerCircle.setOrigin(m_timerCircle.getRadius(), m_timerCircle.getRadius());
+					m_timerCircle.setPosition(target.m_sprite.getPosition());
+					m_window.draw(target.m_sprite);
+					m_window.draw(m_timerCircle);
+				}
 			}
 		}
 	}

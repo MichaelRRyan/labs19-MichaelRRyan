@@ -117,6 +117,7 @@ protected:
 	// Load the game level data
 	LevelData m_level;
 
+	const double m_ROUND_TIME;
 	double m_gameTimer;
 	sf::Clock m_clockTimer;
 
@@ -128,4 +129,5 @@ protected:
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} };
 
 	sf::CircleShape m_timerCircle;
+	int m_targetsSpawned;
 };

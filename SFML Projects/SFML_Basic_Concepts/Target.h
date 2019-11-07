@@ -9,6 +9,7 @@ public:
 	Target() = default;
 	sf::Sprite m_sprite;
 	float m_secondsToLive;
+	bool m_active;
 };
 
 #endif // !TARGET_H
