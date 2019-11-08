@@ -33,6 +33,11 @@ public:
 	int getScore();
 
 	/// <summary>
+	/// @brief Sets the tank's score value
+	/// </summary>
+	void resetScore();
+
+	/// <summary>
 	/// @brief Increases the speed by 1, max speed is capped at 100.
 	/// 
 	/// </summary>

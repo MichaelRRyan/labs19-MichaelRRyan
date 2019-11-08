@@ -131,14 +131,25 @@ void Game::processGameEvents(sf::Event& event)
 			if (m_gameTimer == 0.0)
 			{
 				m_tank.setPosition(m_TANK_POSITIONS[rand() % 4]);
+				m_tank.resetScore();
+
+				// Set the timers
 				m_gameTimer = m_ROUND_TIME;
 				m_spawnTimer.restart();
 				m_clockTimer.restart();
+				
+				// Set text
 				m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
 				m_timerText.setCharacterSize(40u);
 				m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 				m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
+
+				// Set targets
 				m_targetsSpawned = 0;
+				for (Target& target : m_targets)
+				{
+					target.resetTarget(m_wallSprites);
+				}
 			}
 			break;
 		}

@@ -106,6 +106,11 @@ int Tank::getScore()
 	return m_score;
 }
 
+void Tank::resetScore()
+{
+	m_score = 0;
+}
+
 ////////////////////////////////////////////////////////////
 void Tank::increaseSpeed()
 {
