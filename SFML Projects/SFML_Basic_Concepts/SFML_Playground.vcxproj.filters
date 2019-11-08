@@ -47,7 +47,7 @@
     <ClInclude Include="include\Bullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Target.h">
+    <ClInclude Include="include\Target.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -79,7 +79,7 @@
     <ClCompile Include="src\Bullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Target.cpp">
+    <ClCompile Include="src\Target.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

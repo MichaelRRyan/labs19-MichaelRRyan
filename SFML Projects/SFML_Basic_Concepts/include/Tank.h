@@ -27,6 +27,12 @@ public:
 	void setPosition(sf::Vector2f t_position);
 
 	/// <summary>
+	/// @brief Returns the tank's score value
+	/// </summary>
+	/// <returns>Tank's score</returns>
+	int getScore();
+
+	/// <summary>
 	/// @brief Increases the speed by 1, max speed is capped at 100.
 	/// 
 	/// </summary>
@@ -102,7 +108,7 @@ public:
 	/// @brief Checks for collisions between the bullet and the targets.
 	/// 
 	/// </summary>
-	void checkBulletTargetCollisions();
+	bool checkBulletTargetCollisions();
 
 	/// <summary>
 	/// @brief Stops the tank if moving and applies a small increase in speed in the opposite direction of travel.
@@ -153,4 +159,7 @@ private:
 	bool m_centringClockwise{ false };
 
 	Bullet* m_bullet;
+
+	// Score
+	int m_score;
 };

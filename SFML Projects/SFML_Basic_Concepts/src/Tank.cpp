@@ -8,7 +8,8 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	SPEED_LIMIT{ 100.0 },
 	ACCELERATION{ 2.0 },
 	TURN_SPEED{ 0.8 },
-	m_bullet{ nullptr }
+	m_bullet{ nullptr },
+	m_score{ 0 }
 {
 	initSprites();
 }
@@ -57,7 +58,12 @@ void Tank::update(double dt)
 	}
 
 	checkBulletWallCollisions();
-	checkBulletTargetCollisions();
+
+	// Checks bullet-target collisions and increases score if a target hit
+	if (checkBulletTargetCollisions())
+	{
+		m_score += 10;
+	}
 
 	if (m_bullet != nullptr)
 	{
@@ -93,6 +99,11 @@ void Tank::setPosition(sf::Vector2f t_position)
 {
 	m_tankBase.setPosition(t_position);
 	m_turret.setPosition(t_position);
+}
+
+int Tank::getScore()
+{
+	return m_score;
 }
 
 ////////////////////////////////////////////////////////////
@@ -293,23 +304,28 @@ void Tank::checkBulletWallCollisions()
 	}
 }
 
-void Tank::checkBulletTargetCollisions()
+bool Tank::checkBulletTargetCollisions()
 {
+	bool collision{ false };
+
 	if (m_bullet != nullptr)
 	{
 		for (Target & target : m_targets)
 		{
 			// Checks if either the tank base or turret has collided with the current target and the target is alive
-			if (target.m_secondsToLive > 0.0
-				&& CollisionDetector::collision(m_bullet->getBody(), target.m_sprite))
+			if (target.active()
+				&& CollisionDetector::collision(m_bullet->getBody(), target.getSprite()))
 			{
 				delete m_bullet;
 				m_bullet = nullptr;
-				target.m_secondsToLive = 0;
+				target.setActive(false);
+				collision = true;
 				break;
 			}
 		}
 	}
+
+	return collision;
 }
 
 ////////////////////////////////////////////////////////////

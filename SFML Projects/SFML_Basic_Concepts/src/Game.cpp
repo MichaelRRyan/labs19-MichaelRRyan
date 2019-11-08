@@ -32,8 +32,10 @@ Game::Game() :
 	m_timerText.setCharacterSize(40u);
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
-	
 
+	m_playerScoreText.setFont(m_font);
+	m_playerScoreText.setCharacterSize(40u);
+	
 	int currentLevel = 1;
 
 	try
@@ -130,11 +132,13 @@ void Game::processGameEvents(sf::Event& event)
 			{
 				m_tank.setPosition(m_TANK_POSITIONS[rand() % 4]);
 				m_gameTimer = m_ROUND_TIME;
+				m_spawnTimer.restart();
 				m_clockTimer.restart();
 				m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
 				m_timerText.setCharacterSize(40u);
 				m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 				m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
+				m_targetsSpawned = 0;
 			}
 			break;
 		}
@@ -166,30 +170,12 @@ void Game::generateTargets()
 	// Create the walls
 	for (TargetData const& target : m_level.m_targets)
 	{
-		Target targetObject;
-		targetObject.m_sprite.setTexture(m_texture);
-		targetObject.m_sprite.setTextureRect(targetRect);
-		targetObject.m_sprite.setOrigin(targetObject.m_sprite.getGlobalBounds().width / 2, targetObject.m_sprite.getGlobalBounds().height / 2);
-
-		// Decides the random offset
-		float xPosition = target.m_position.x + rand() % (target.m_randomOffset * 2 + 1) - target.m_randomOffset;
-		targetObject.m_sprite.setPosition(xPosition, target.m_position.y);
-
-		// Check the target is not colliding with a wall in the current position
-		for (sf::Sprite const& obstacle : m_wallSprites)
-		{
-			while (CollisionDetector::collision(targetObject.m_sprite, obstacle)) // While the tank is colliding
-			{
-				targetObject.m_sprite.move(5.0f,0.0f); // Move the tank 5 pixels right
-			}
-		}
-
-		targetObject.m_sprite.setRotation(target.m_rotation);
-		targetObject.m_secondsToLive = target.m_durationSeconds;
-		targetObject.m_active = false;
-
+		Target targetObject(m_texture, targetRect, target.m_position, target.m_randomOffset, target.m_rotation, target.m_durationSeconds);
+		targetObject.resetTarget(m_wallSprites);
 		m_targets.push_back(targetObject);
 	}
+
+	m_numberOfTargets = m_targets.size();
 }
 
 ////////////////////////////////////////////////////////////
@@ -210,38 +196,30 @@ void Game::update(double dt)
 		m_controllerTank.update(dt);
 
 		// Timer
-		sf::Time m_timeSinceLastUpdate = m_clockTimer.restart();
-		m_gameTimer -= m_timeSinceLastUpdate.asSeconds();
+		sf::Time timeSinceLastUpdate = m_clockTimer.restart();
+		m_gameTimer -= timeSinceLastUpdate.asSeconds();
 
-		// Spawn new enemy
-		if (m_targets.size() > 0 && round(m_gameTimer) == m_ROUND_TIME / m_targetsSpawned)
+		// Spawn new target
+		if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
 		{
-			for (Target& target : m_targets)
+			if (m_targetsSpawned < m_numberOfTargets)
 			{
-				if (!target.m_active)
-				{
-					target.m_active = true;
-					break;
-				}
+				m_targets[m_targetsSpawned].setActive(true);
+				m_targetsSpawned++;
+				m_spawnTimer.restart();
 			}
-
+			else
+			{
+				std::cout << "Attempting to spawn a target out of range" << std::endl;
+			}
 		}
 
 		// Decrease the target's time to live
 		for (Target& target : m_targets)
 		{
-			if (target.m_active)
+			if (target.active())
 			{
-				if (target.m_secondsToLive > 0.0f)
-				{
-					target.m_secondsToLive -= m_timeSinceLastUpdate.asSeconds();
-
-					if (target.m_secondsToLive <= 0.0f)
-					{
-						target.m_secondsToLive = 0.0;
-						target.m_active = false;
-					}
-				}
+				target.update(timeSinceLastUpdate);
 			}
 		}
 
@@ -253,6 +231,8 @@ void Game::update(double dt)
 			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
 		}
+
+		m_playerScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()) + "\nPlayer2's Score: " + std::to_string(m_controllerTank.getScore()));
 	}
 }
 
@@ -271,16 +251,9 @@ void Game::render()
 		// Draw the targets
 		for (Target const& target : m_targets)
 		{
-			if (target.m_active)
+			if (target.active())
 			{
-				if (target.m_secondsToLive > 0.0f)
-				{
-					m_timerCircle.setRadius(target.m_secondsToLive * 10);
-					m_timerCircle.setOrigin(m_timerCircle.getRadius(), m_timerCircle.getRadius());
-					m_timerCircle.setPosition(target.m_sprite.getPosition());
-					m_window.draw(target.m_sprite);
-					m_window.draw(m_timerCircle);
-				}
+				target.draw(m_window, m_timerCircle);
 			}
 		}
 	}
@@ -291,6 +264,7 @@ void Game::render()
 	}
 	
 	m_window.draw(m_timerText);
+	m_window.draw(m_playerScoreText);
 
 	m_window.display();
 }

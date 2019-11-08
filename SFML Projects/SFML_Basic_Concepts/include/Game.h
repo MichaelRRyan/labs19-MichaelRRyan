@@ -93,6 +93,7 @@ protected:
 
 	sf::Font m_font;
 	sf::Text m_timerText;
+	sf::Text m_playerScoreText;
 
 	// Sprites
 	sf::Texture m_texture;
@@ -117,9 +118,12 @@ protected:
 	// Load the game level data
 	LevelData m_level;
 
+	// Timers
 	const double m_ROUND_TIME;
-	double m_gameTimer;
+
 	sf::Clock m_clockTimer;
+	sf::Clock m_spawnTimer;
+	double m_gameTimer;
 
 	const float m_TANK_OFFSET{ 100.0f };
 	const sf::Vector2f m_TANK_POSITIONS[4]{
@@ -130,4 +134,5 @@ protected:
 
 	sf::CircleShape m_timerCircle;
 	int m_targetsSpawned;
+	int m_numberOfTargets;
 };
