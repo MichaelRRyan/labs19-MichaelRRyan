@@ -34,11 +34,13 @@ Game::Game() :
 	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
 
 	m_playerOneScoreText.setFont(m_font);
-	m_playerOneScoreText.setCharacterSize(40u);
+	m_playerOneScoreText.setCharacterSize(35u);
+	m_playerOneScoreText.setFillColor(sf::Color::Black);
 
 	m_playerTwoScoreText.setFont(m_font);
-	m_playerTwoScoreText.setCharacterSize(40u);
+	m_playerTwoScoreText.setCharacterSize(35u);
 	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
+	m_playerTwoScoreText.setFillColor(sf::Color::Black);
 	
 	int currentLevel = 1;
 
@@ -134,8 +136,19 @@ void Game::processGameEvents(sf::Event& event)
 		case sf::Keyboard::Space:
 			if (m_gameTimer == 0.0)
 			{
-				m_tank.setPosition(m_TANK_POSITIONS[rand() % 4]);
+				int tankOnePosition = rand() % 4;
+				m_tank.setPosition(m_TANK_POSITIONS[tankOnePosition]);
 				m_tank.resetScore();
+
+				int tankTwoPosition = rand() % 4;
+
+				while (tankTwoPosition == tankOnePosition)
+				{
+					tankTwoPosition = rand() % 4;
+				}
+
+				m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
+				m_controllerTank.resetScore();
 
 				// Set the timers
 				m_gameTimer = m_ROUND_TIME;
@@ -147,6 +160,9 @@ void Game::processGameEvents(sf::Event& event)
 				m_timerText.setCharacterSize(40u);
 				m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 				m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
+
+				m_playerOneScoreText.setPosition(0.0f, 0.0f);
+				m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
 
 				// Set targets
 				m_targetsSpawned = 0;
@@ -247,6 +263,10 @@ void Game::update(double dt)
 			m_timerText.setString("PRESS SPACE TO START");
 			m_playerOneScoreText.setString("Player1:\n" + m_tank.getStatistics());
 			m_playerTwoScoreText.setString("Player2:\n" + m_controllerTank.getStatistics());
+
+			m_playerOneScoreText.setPosition(100.0f, 100.0f);
+			m_playerTwoScoreText.setPosition(ScreenSize::s_width - 500, 100.0f);
+
 			m_timerText.setCharacterSize(40u);
 			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);

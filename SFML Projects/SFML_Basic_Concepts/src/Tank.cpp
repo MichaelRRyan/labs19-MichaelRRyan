@@ -397,11 +397,21 @@ void Tank::adjustRotation()
 	}
 }
 
+////////////////////////////////////////////////////////////
 std::string Tank::getStatistics()
 {
-	return "Targets hit: " + std::to_string(m_targetsHit)
-		+ "\nAccuracy: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_bulletsFired) * 100.0))
-		+ "%\nOverall Score: " + std::to_string(m_score);
+	if (m_bulletsFired > 0)
+	{
+		return "Targets hit: " + std::to_string(m_targetsHit)
+			+ "\nAccuracy: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_bulletsFired) * 100.0))
+			+ "%\nOverall Score: " + std::to_string(m_score);
+	}
+	else
+	{
+		return "Targets hit: " + std::to_string(m_targetsHit)
+			+ "\nAccuracy: [No bullets fired]"
+			+ "\nOverall Score: " + std::to_string(m_score);
+	}
 }
 
 ////////////////////////////////////////////////////////////
