@@ -32,6 +32,16 @@ void Target::resetTarget(std::vector<sf::Sprite> t_walls)
 	}
 }
 
+float Target::getSecondsToLive()
+{
+	return m_secondsToLive;
+}
+
+void Target::addSecondsToLive(float t_seconds)
+{
+	m_secondsToLive += t_seconds;
+}
+
 void Target::update(sf::Time t_timeSinceLastUpdate)
 {
 	if (m_secondsToLive > 0.0f)

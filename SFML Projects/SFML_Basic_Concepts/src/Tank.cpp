@@ -60,10 +60,7 @@ void Tank::update(double dt)
 	checkBulletWallCollisions();
 
 	// Checks bullet-target collisions and increases score if a target hit
-	if (checkBulletTargetCollisions())
-	{
-		m_score += 10;
-	}
+	checkBulletTargetCollisions();
 
 	if (m_bullet != nullptr)
 	{
@@ -109,6 +106,8 @@ int Tank::getScore()
 void Tank::resetScore()
 {
 	m_score = 0;
+	m_bulletsFired = 0;
+	m_targetsHit = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -235,6 +234,7 @@ void Tank::handleKeyInput()
 	{
 		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
+		m_bulletsFired++;
 	}	
 }
 
@@ -274,6 +274,7 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 	{
 		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
+		m_bulletsFired++;
 	}
 }
 
@@ -309,28 +310,40 @@ void Tank::checkBulletWallCollisions()
 	}
 }
 
-bool Tank::checkBulletTargetCollisions()
+void Tank::checkBulletTargetCollisions()
 {
-	bool collision{ false };
+	int numberOfTargets = m_targets.size();
 
 	if (m_bullet != nullptr)
 	{
-		for (Target & target : m_targets)
+		for (int i = 0; i < numberOfTargets; i++)
 		{
 			// Checks if either the tank base or turret has collided with the current target and the target is alive
-			if (target.active()
-				&& CollisionDetector::collision(m_bullet->getBody(), target.getSprite()))
+			if (m_targets[i].active()
+				&& CollisionDetector::collision(m_bullet->getBody(), m_targets[i].getSprite()))
 			{
 				delete m_bullet;
 				m_bullet = nullptr;
-				target.setActive(false);
-				collision = true;
+
+				m_targets[i].setActive(false);
+
+				m_targetsHit++;
+				m_score += 10;
+
+				// Check if there's a target after the current one
+				if (i + 1 < numberOfTargets)
+				{
+					m_targets[i + 1].addSecondsToLive(m_targets[i].getSecondsToLive());
+				}
+				else
+				{
+					m_score += m_targets[i].getSecondsToLive();
+				}
+
 				break;
 			}
 		}
 	}
-
-	return collision;
 }
 
 ////////////////////////////////////////////////////////////
@@ -382,6 +395,13 @@ void Tank::adjustRotation()
 		// Set the turret rotation back to it's pre-collision value
 		m_turretRotation = m_previousTurretRotation;
 	}
+}
+
+std::string Tank::getStatistics()
+{
+	return "Targets hit: " + std::to_string(m_targetsHit)
+		+ "\nAccuracy: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_bulletsFired) * 100.0))
+		+ "%\nOverall Score: " + std::to_string(m_score);
 }
 
 ////////////////////////////////////////////////////////////

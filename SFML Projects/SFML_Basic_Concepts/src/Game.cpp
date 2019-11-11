@@ -33,8 +33,12 @@ Game::Game() :
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
 
-	m_playerScoreText.setFont(m_font);
-	m_playerScoreText.setCharacterSize(40u);
+	m_playerOneScoreText.setFont(m_font);
+	m_playerOneScoreText.setCharacterSize(40u);
+
+	m_playerTwoScoreText.setFont(m_font);
+	m_playerTwoScoreText.setCharacterSize(40u);
+	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
 	
 	int currentLevel = 1;
 
@@ -234,16 +238,19 @@ void Game::update(double dt)
 			}
 		}
 
+		m_playerOneScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
+		m_playerTwoScoreText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
+
 		if (m_gameTimer < 0.0)
 		{
 			m_gameTimer = 0.0;
 			m_timerText.setString("PRESS SPACE TO START");
+			m_playerOneScoreText.setString("Player1:\n" + m_tank.getStatistics());
+			m_playerTwoScoreText.setString("Player2:\n" + m_controllerTank.getStatistics());
 			m_timerText.setCharacterSize(40u);
 			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
 		}
-
-		m_playerScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()) + "\nPlayer2's Score: " + std::to_string(m_controllerTank.getScore()));
 	}
 }
 
@@ -275,7 +282,8 @@ void Game::render()
 	}
 	
 	m_window.draw(m_timerText);
-	m_window.draw(m_playerScoreText);
+	m_window.draw(m_playerOneScoreText);
+	m_window.draw(m_playerTwoScoreText);
 
 	m_window.display();
 }

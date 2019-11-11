@@ -13,6 +13,9 @@ public:
 
 	void resetTarget(std::vector<sf::Sprite> t_walls);
 
+	float getSecondsToLive();
+	void addSecondsToLive(float t_seconds);
+
 	void update(sf::Time t_timeSinceLastUpdate);
 	void draw(sf::RenderWindow& t_window, sf::CircleShape& t_timerCircle) const;
 

@@ -93,7 +93,8 @@ protected:
 
 	sf::Font m_font;
 	sf::Text m_timerText;
-	sf::Text m_playerScoreText;
+	sf::Text m_playerOneScoreText;
+	sf::Text m_playerTwoScoreText;
 
 	// Sprites
 	sf::Texture m_texture;

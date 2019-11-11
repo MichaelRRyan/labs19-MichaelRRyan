@@ -113,7 +113,7 @@ public:
 	/// @brief Checks for collisions between the bullet and the targets.
 	/// 
 	/// </summary>
-	bool checkBulletTargetCollisions();
+	void checkBulletTargetCollisions();
 
 	/// <summary>
 	/// @brief Stops the tank if moving and applies a small increase in speed in the opposite direction of travel.
@@ -128,6 +128,12 @@ public:
 	void deflect();
 
 	void adjustRotation();
+
+	/// <summary>
+	/// Return a string of the player statistics
+	/// </summary>
+	/// <returns></returns>
+	std::string getStatistics();
 
 private:
 	void initSprites();
@@ -165,6 +171,8 @@ private:
 
 	Bullet* m_bullet;
 
-	// Score
+	// Statistics
+	int m_targetsHit;
 	int m_score;
+	int m_bulletsFired;
 };
