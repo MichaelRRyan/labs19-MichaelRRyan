@@ -1,0 +1,7 @@
+stats:
+   - score: 86
+     percTargetsHit: 50
+     accuracy: 50
+   - score: 45
+     percTargetsHit: 20
+     accuracy: 80

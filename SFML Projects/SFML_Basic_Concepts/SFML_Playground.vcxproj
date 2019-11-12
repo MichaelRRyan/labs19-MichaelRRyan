@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\data\gameData.yaml" />
     <None Include="resources\levels\level1.yaml" />
   </ItemGroup>
   <ItemGroup>
@@ -28,6 +29,7 @@
     <ClInclude Include="include\LevelLoader.h" />
     <ClInclude Include="include\MathUtility.h" />
     <ClInclude Include="include\OrientedBoundingBox.h" />
+    <ClInclude Include="include\RoundStatsSaver.h" />
     <ClInclude Include="include\ScreenSize.h" />
     <ClInclude Include="include\Tank.h" />
     <ClInclude Include="include\Target.h" />
@@ -41,6 +43,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MathUtility.cpp" />
     <ClCompile Include="src\OrientedBoundingBox.cpp" />
+    <ClCompile Include="src\RoundStatsSaver.cpp" />
     <ClCompile Include="src\Tank.cpp" />
     <ClCompile Include="src\Target.cpp" />
     <ClCompile Include="src\XBox360Controller.cpp" />
