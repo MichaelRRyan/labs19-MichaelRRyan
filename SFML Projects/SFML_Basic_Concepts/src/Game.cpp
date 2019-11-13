@@ -52,7 +52,17 @@ Game::Game() :
 	{
 		std::cout << "Level load failed." << std::endl;
 		std::cout << e.what() << std::endl;
-		throw(e);
+		//throw(e);
+	}
+
+	try
+	{
+		RoundStatsSaver::saveRoundStats(Stats{});
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Stat saver failed." << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 
 	// Load tank sprite
