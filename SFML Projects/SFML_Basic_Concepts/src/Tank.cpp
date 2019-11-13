@@ -103,6 +103,16 @@ int Tank::getScore()
 	return m_score;
 }
 
+int Tank::getTargetsHit()
+{
+	return m_targetsHit;
+}
+
+int Tank::getBulletsFired()
+{
+	return m_bulletsFired;
+}
+
 void Tank::resetScore()
 {
 	m_score = 0;

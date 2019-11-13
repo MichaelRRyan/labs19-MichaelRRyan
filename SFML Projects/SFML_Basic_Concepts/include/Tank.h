@@ -134,6 +134,9 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	std::string getStatistics();
+	int getScore();
+	int getTargetsHit();
+	int getBulletsFired();
 
 private:
 	void initSprites();

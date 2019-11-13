@@ -55,16 +55,6 @@ Game::Game() :
 		//throw(e);
 	}
 
-	try
-	{
-		RoundStatsSaver::saveRoundStats(Stats{});
-	}
-	catch (std::exception& e)
-	{
-		std::cout << "Stat saver failed." << std::endl;
-		std::cout << e.what() << std::endl;
-	}
-
 	// Load tank sprite
 	if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
 	{
@@ -280,6 +270,21 @@ void Game::update(double dt)
 			m_timerText.setCharacterSize(40u);
 			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
+
+			// Not fully implemented yet WIP
+			try
+			{
+				Stats stats;
+				stats.m_score = 6;
+				stats.m_accuracy = 8;
+				stats.m_PercentTargetsHit = 8;
+				RoundStatsSaver::saveRoundStats(stats);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << "Stat saver failed." << std::endl;
+				std::cout << e.what() << std::endl;
+			}
 		}
 	}
 }
