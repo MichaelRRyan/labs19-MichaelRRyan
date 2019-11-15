@@ -33,9 +33,9 @@ public:
 	/// <returns>Tank's score</returns>
 	int getScore();
 
-	int getTargetsHit();
+	int getPercentTargetsHit();
 
-	int getBulletsFired();
+	int getAccuracy();
 
 	/// <summary>
 	/// @brief Sets the tank's score value

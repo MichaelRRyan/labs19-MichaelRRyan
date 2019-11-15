@@ -272,13 +272,17 @@ void Game::update(double dt)
 			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
 
-			// Not fully implemented yet WIP
 			try
 			{
 				Stats stats;
-				stats.m_score = 6;
-				stats.m_accuracy = 8;
-				stats.m_PercentTargetsHit = 8;
+				stats.m_score = m_tank.getScore();
+				stats.m_accuracy = m_tank.getAccuracy();
+				stats.m_PercentTargetsHit = m_tank.getPercentTargetsHit();
+				RoundStatsSaver::saveRoundStats(stats);
+
+				stats.m_score = m_controllerTank.getScore();
+				stats.m_accuracy = m_controllerTank.getAccuracy();
+				stats.m_PercentTargetsHit = m_controllerTank.getPercentTargetsHit();
 				RoundStatsSaver::saveRoundStats(stats);
 			}
 			catch (std::exception& e)

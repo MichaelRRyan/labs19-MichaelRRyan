@@ -1,16 +1,16 @@
 stats:
-  - accuracy: 1
+  - accuracy: 0
+    percTargetsHit: 100
+    score: 97
+  - score: 95
+    accuracy: 0
+    percTargetsHit: 100
+  - percTargetsHit: 1
     score: 86
-    percTargetsHit: 1
-  - score: 50
+    accuracy: 1
+  - accuracy: 666
+    score: 50
     percTargetsHit: 777
-    accuracy: 666
-  - score: 45
+  - percTargetsHit: 2
+    score: 45
     accuracy: 2
-    percTargetsHit: 2
-  - score: 26
-    accuracy: 3
-    percTargetsHit: 53
-  - score: 6
-    percTargetsHit: 8
-    accuracy: 8

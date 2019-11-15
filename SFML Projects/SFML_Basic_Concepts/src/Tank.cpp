@@ -107,15 +107,22 @@ int Tank::getScore()
 }
 
 ////////////////////////////////////////////////////////////
-int Tank::getTargetsHit()
+int Tank::getPercentTargetsHit()
 {
-	return m_targetsHit;
+	return static_cast<int>((1.0 * m_targetsHit / m_targets.size()) * 100.0);
 }
 
 ////////////////////////////////////////////////////////////
-int Tank::getBulletsFired()
+int Tank::getAccuracy()
 {
-	return m_bulletsFired;
+	if (m_bulletsFired > 0)
+	{
+		return static_cast<int>(1.0 * m_targetsHit / m_bulletsFired);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -514,14 +521,14 @@ std::string Tank::getStatistics()
 {
 	if (m_bulletsFired > 0)
 	{
-		return "Targets hit: " + std::to_string(m_targetsHit)
-			+ "\nAccuracy: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_bulletsFired) * 100.0))
+		return "Targets hit: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_targets.size()) * 100.0))
+			+ "%\nAccuracy: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_bulletsFired) * 100.0))
 			+ "%\nOverall Score: " + std::to_string(m_score);
 	}
 	else
 	{
-		return "Targets hit: " + std::to_string(m_targetsHit)
-			+ "\nAccuracy: [No bullets fired]"
+		return "Targets hit: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_targets.size()) * 100.0))
+			+ "%\nAccuracy: [No bullets fired]"
 			+ "\nOverall Score: " + std::to_string(m_score);
 	}
 }
