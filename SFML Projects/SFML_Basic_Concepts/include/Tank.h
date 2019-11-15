@@ -5,6 +5,7 @@
 #include "XBox360Controller.h"
 #include "Bullet.h"
 #include "Target.h"
+#include "Thor/Math.hpp"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -32,6 +33,10 @@ public:
 	/// <returns>Tank's score</returns>
 	int getScore();
 
+	int getTargetsHit();
+
+	int getBulletsFired();
+
 	/// <summary>
 	/// @brief Sets the tank's score value
 	/// </summary>
@@ -48,6 +53,20 @@ public:
 	/// 
 	/// </summary>
 	void decreaseSpeed();
+
+
+	/// <summary>
+	/// @brief Increases the speed  the inputted percent of the acceleration value, max speed is capped at 100.
+	/// 
+	/// </summary>
+	void increaseSpeed(float t_percent);
+
+	/// <summary>
+	/// @brief Decreases the speed by the inputted percent of the acceleration value, min speed is capped at -100.
+	/// 
+	/// </summary>
+	void decreaseSpeed(float t_percent);
+
 
 	/// <summary>
 	/// @brief Increases the rotation by 1 degree, wraps to 0 degrees after 359.
@@ -134,9 +153,6 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	std::string getStatistics();
-	int getScore();
-	int getTargetsHit();
-	int getBulletsFired();
 
 private:
 	void initSprites();
@@ -178,4 +194,7 @@ private:
 	int m_targetsHit;
 	int m_score;
 	int m_bulletsFired;
+
+	// Controller Support
+	const float CONTROLLER_ANALOG_DEADZONE{ 25.0f };
 };

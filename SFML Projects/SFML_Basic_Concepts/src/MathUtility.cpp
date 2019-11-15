@@ -26,5 +26,4 @@ namespace MathUtility
 
 		return v;
 	}
-
 }

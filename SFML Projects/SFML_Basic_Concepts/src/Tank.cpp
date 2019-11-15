@@ -14,6 +14,7 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	initSprites();
 }
 
+////////////////////////////////////////////////////////////
 void Tank::update(double dt)
 {	
 	// Clamp the speed to a minimum and maximum speed
@@ -81,6 +82,7 @@ void Tank::update(double dt)
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Tank::render(sf::RenderWindow & window) 
 {
 	window.draw(m_tankBase);
@@ -91,28 +93,32 @@ void Tank::render(sf::RenderWindow & window)
 	}
 }
 
-
+////////////////////////////////////////////////////////////
 void Tank::setPosition(sf::Vector2f t_position)
 {
 	m_tankBase.setPosition(t_position);
 	m_turret.setPosition(t_position);
 }
 
+////////////////////////////////////////////////////////////
 int Tank::getScore()
 {
 	return m_score;
 }
 
+////////////////////////////////////////////////////////////
 int Tank::getTargetsHit()
 {
 	return m_targetsHit;
 }
 
+////////////////////////////////////////////////////////////
 int Tank::getBulletsFired()
 {
 	return m_bulletsFired;
 }
 
+////////////////////////////////////////////////////////////
 void Tank::resetScore()
 {
 	m_score = 0;
@@ -130,6 +136,16 @@ void Tank::increaseSpeed()
 void Tank::decreaseSpeed()
 {
 	m_speed -= ACCELERATION;
+}
+
+void Tank::increaseSpeed(float t_percent)
+{
+	m_speed += ACCELERATION * t_percent;
+}
+
+void Tank::decreaseSpeed(float t_percent)
+{
+	m_speed -= ACCELERATION * t_percent;
 }
 
 ////////////////////////////////////////////////////////////
@@ -191,13 +207,13 @@ void Tank::centreTurret()
 		}
 		else
 		{
-			decreaseTurretRotation();
+		decreaseTurretRotation();
 		}
 	}
 	else // Snap the turret if close enough to 0
 	{
-		m_turretRotation = 0;
-		m_centringTurret = false;
+	m_turretRotation = 0;
+	m_centringTurret = false;
 	}
 }
 
@@ -245,30 +261,110 @@ void Tank::handleKeyInput()
 		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
 		m_bulletsFired++;
-	}	
+	}
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::handleControllerInput(XBox360Controller t_controller)
 {
-	if (t_controller.currentState.LeftThumbStick.y < -25.0f)
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// INPUT
+	//////////////////////////////////////////////////////////////////////////////////////
+	sf::Vector2f movementInputVector;
+
+	// Vertical
+	if (t_controller.currentState.LeftThumbStick.y > CONTROLLER_ANALOG_DEADZONE
+		|| t_controller.currentState.LeftThumbStick.y < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		increaseSpeed();
-	}
-	else if (t_controller.currentState.LeftThumbStick.y > 25.0f)
-	{
-		decreaseSpeed();
+		movementInputVector.y = t_controller.currentState.LeftThumbStick.y;
 	}
 
-	if (t_controller.currentState.LeftThumbStick.x > 25.0f)
+	// Horizontal
+	if (t_controller.currentState.LeftThumbStick.x > CONTROLLER_ANALOG_DEADZONE
+		|| t_controller.currentState.LeftThumbStick.x < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		increaseRotation();
-	}
-	else if (t_controller.currentState.LeftThumbStick.x < -25.0f)
-	{
-		decreaseRotation();
+		movementInputVector.x = t_controller.currentState.LeftThumbStick.x;
 	}
 
+	float inputSpeed = thor::length(movementInputVector);
+
+	// Get the angle in degrees from the movement vector
+	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * MathUtility::RAD_TO_DEG;
+
+	// Deal with negative rotations
+	if (inputDirection < 0.0f)
+	{
+		inputDirection = 360 + inputDirection;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// MOVEMENT
+	//////////////////////////////////////////////////////////////////////////////////////
+	if (inputSpeed > 100)
+	{
+		inputSpeed = 100;
+	}
+
+	if (fabsf(inputDirection - m_rotation) < 90.0f)
+	{
+		increaseSpeed(inputSpeed / 100.0f);
+	}
+	else
+	{
+		decreaseSpeed(inputSpeed / 100.0f);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// ROTATION
+	//////////////////////////////////////////////////////////////////////////////////////
+	if (inputSpeed > 0.0f)
+	{
+		float targetRotation = m_rotation;
+
+		/*if (fabsf(inputDirection - m_rotation) < 90.0f)
+		{
+			targetRotation = m_rotation - 180;
+
+			if (targetRotation < 0.0f)
+			{
+				
+				targetRotation + 360;
+			}
+		}
+		*/
+
+		// Check if the absolute value of the distance between the values
+		if (fabsf(inputDirection - targetRotation) > TURN_SPEED)
+		{
+
+			if (inputDirection > targetRotation)
+			{
+				if (fabsf(inputDirection - targetRotation) < 180)
+				{
+					increaseRotation();
+				}
+				else
+				{
+					decreaseRotation();
+				}
+			}
+			else
+			{
+				if (fabsf(inputDirection - targetRotation) < 180)
+				{
+					decreaseRotation();
+				}
+				else
+				{
+					increaseRotation();
+				}
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// TURRET ROTATION
+	//////////////////////////////////////////////////////////////////////////////////////
 	if (t_controller.currentState.RightThumbStick.x > 25.0f)
 	{
 		increaseTurretRotation();
@@ -280,11 +376,17 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 		m_centringTurret = false;
 	}
 
-	if (t_controller.currentState.A && m_bullet == nullptr && m_fireTimer == 0)
+	if (t_controller.currentState.RTrigger > 50.0f
+		&& m_bullet == nullptr && m_fireTimer == 0)
 	{
 		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
 		m_bulletsFired++;
+	}
+
+	if (t_controller.currentState.RightThumbStickClick)
+	{
+		toggleCentring();
 	}
 }
 

@@ -9,6 +9,9 @@ namespace MathUtility
 	// A constant to convert from Degrees to Radians.
 	double const DEG_TO_RAD = thor::Pi / 180.0f;
 
+	// A constant to convert from radians to degrees
+	double const RAD_TO_DEG = 180.0f / thor::Pi;
+
 	/// <summary>
 	/// @brief Returns the Euclidean distance between two points.
 	/// </summary>
@@ -33,5 +36,4 @@ namespace MathUtility
 	/// <param name="max">The maximum length of the vector</param>
 	/// <returns>A vector whose length is not longer than the specified maximum.</returns>
 	sf::Vector2f truncate(sf::Vector2f v, float const max);
-
 }

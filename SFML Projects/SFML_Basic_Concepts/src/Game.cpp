@@ -147,7 +147,8 @@ void Game::processGameEvents(sf::Event& event)
 					tankTwoPosition = rand() % 4;
 				}
 
-				m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
+				//m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
+				m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
 				m_controllerTank.resetScore();
 
 				// Set the timers
