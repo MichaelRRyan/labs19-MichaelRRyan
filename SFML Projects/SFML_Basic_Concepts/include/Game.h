@@ -96,6 +96,7 @@ protected:
 	sf::Text m_timerText;
 	sf::Text m_playerOneScoreText;
 	sf::Text m_playerTwoScoreText;
+	sf::Text m_bestScoreText;
 
 	// Sprites
 	sf::Texture m_texture;

@@ -41,6 +41,12 @@ Game::Game() :
 	m_playerTwoScoreText.setCharacterSize(35u);
 	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
 	m_playerTwoScoreText.setFillColor(sf::Color::Black);
+
+	m_bestScoreText.setFont(m_font);
+	m_bestScoreText.setCharacterSize(35u);
+	m_bestScoreText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2 + 100);
+	m_bestScoreText.setFillColor(sf::Color::Black);
+	
 	
 	int currentLevel = 1;
 
@@ -260,29 +266,44 @@ void Game::update(double dt)
 
 		if (m_gameTimer < 0.0)
 		{
+			// Display previous best score
+			Stats newStats = RoundStatsSaver::returnNthBestScore(0);
+			m_bestScoreText.setString("Previous Best:\nScore: " + std::to_string(newStats.m_score)
+				+ "\nPercent of Targets Hit: " + std::to_string(newStats.m_percentTargetsHit)
+				+ "\nAccuracy: " + std::to_string(newStats.m_accuracy));
+			m_bestScoreText.setOrigin(m_bestScoreText.getGlobalBounds().width / 2.0f, 0.0f);
+
+			// Reset the timer
 			m_gameTimer = 0.0;
+
+			// Set the text object strings
 			m_timerText.setString("PRESS SPACE TO START");
 			m_playerOneScoreText.setString("Player1:\n" + m_tank.getStatistics());
 			m_playerTwoScoreText.setString("Player2:\n" + m_controllerTank.getStatistics());
 
+			// Set the text positions
 			m_playerOneScoreText.setPosition(100.0f, 100.0f);
 			m_playerTwoScoreText.setPosition(ScreenSize::s_width - 500, 100.0f);
 
+			// Move the timer text and rescale it
 			m_timerText.setCharacterSize(40u);
 			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
 
+			// Save the new stats
 			try
 			{
+				// Player 1
 				Stats stats;
 				stats.m_score = m_tank.getScore();
 				stats.m_accuracy = m_tank.getAccuracy();
-				stats.m_PercentTargetsHit = m_tank.getPercentTargetsHit();
+				stats.m_percentTargetsHit = m_tank.getPercentTargetsHit();
 				RoundStatsSaver::saveRoundStats(stats);
 
+				// Player 2
 				stats.m_score = m_controllerTank.getScore();
 				stats.m_accuracy = m_controllerTank.getAccuracy();
-				stats.m_PercentTargetsHit = m_controllerTank.getPercentTargetsHit();
+				stats.m_percentTargetsHit = m_controllerTank.getPercentTargetsHit();
 				RoundStatsSaver::saveRoundStats(stats);
 			}
 			catch (std::exception& e)
@@ -324,6 +345,11 @@ void Game::render()
 	m_window.draw(m_timerText);
 	m_window.draw(m_playerOneScoreText);
 	m_window.draw(m_playerTwoScoreText);
+
+	if (m_gameTimer <= 0.0)
+	{
+		m_window.draw(m_bestScoreText);
+	}
 
 	m_window.display();
 }

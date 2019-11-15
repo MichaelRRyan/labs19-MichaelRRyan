@@ -117,7 +117,7 @@ int Tank::getAccuracy()
 {
 	if (m_bulletsFired > 0)
 	{
-		return static_cast<int>(1.0 * m_targetsHit / m_bulletsFired);
+		return static_cast<int>(1.0 * m_targetsHit / m_bulletsFired * 100.0);
 	}
 	else
 	{

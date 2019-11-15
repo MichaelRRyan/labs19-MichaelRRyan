@@ -13,7 +13,7 @@
 struct Stats
 {
 	int m_score;
-	int m_PercentTargetsHit;
+	int m_percentTargetsHit;
 	int m_accuracy;
 };
 
@@ -22,6 +22,14 @@ class RoundStatsSaver
 public:
 
 	static void saveRoundStats(Stats t_stats);
+
+	/// <summary>
+	/// Returns the nth best score, where n is a value passed in, between 0
+	/// and 4 where 0 is the best and 4 is the worst
+	/// </summary>
+	/// <param name="t_n">number between 0 and 4</param>
+	/// <returns>nth best score</returns>
+	static Stats returnNthBestScore(int t_n);
 };
 
 #endif // !ROUND_STATS_SAVER_H
