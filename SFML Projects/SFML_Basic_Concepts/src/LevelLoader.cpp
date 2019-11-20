@@ -15,7 +15,7 @@ void operator >> (const YAML::Node& obstacleNode, ObstacleData& obstacle)
 	obstacle.m_type = obstacleNode["type"].as<std::string>();
 	obstacle.m_position.x = obstacleNode["position"]["x"].as<float>();
 	obstacle.m_position.y = obstacleNode["position"]["y"].as<float>();
-	obstacle.m_rotation = obstacleNode["rotation"].as<double>();
+	obstacle.m_rotation = obstacleNode["rotation"].as<float>();
 }
 
 /// <summary>
@@ -32,7 +32,7 @@ void operator >> (const YAML::Node& t_targetNode, TargetData& t_target)
 	t_target.m_position.y = t_targetNode["position"]["y"].as<float>();
 	t_target.m_randomOffset = t_targetNode["position"]["randomOffset"].as<int>();
 	t_target.m_durationSeconds = t_targetNode["duration"].as<float>();
-	t_target.m_rotation = t_targetNode["rotation"].as<double>();
+	t_target.m_rotation = t_targetNode["rotation"].as<float>();
 }
 
 /// <summary>

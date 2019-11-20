@@ -103,7 +103,7 @@ void Game::run()
 		while (lag > MS_PER_UPDATE)
 		{
 			update(MS_PER_UPDATE);
-			lag -= MS_PER_UPDATE;
+			lag -= static_cast<sf::Int32>(MS_PER_UPDATE);
 		}
 		update(MS_PER_UPDATE);
 
@@ -241,6 +241,7 @@ void Game::update(double dt)
 		if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
 		{
 			spawnTarget();
+			m_spawnTimer.restart();
 		}
 
 		updateTargets(timeSinceLastUpdate);
@@ -287,7 +288,6 @@ void Game::spawnTarget()
 	{
 		m_targets[m_targetsSpawned].setActive(true);
 		m_targetsSpawned++;
-		m_spawnTimer.restart();
 	}
 	else
 	{
@@ -300,9 +300,9 @@ void Game::endRound()
 {
 	// Display previous best score
 	Stats newStats = RoundStatsSaver::returnNthBestScore(0);
-	m_bestScoreText.setString("Previous Best:\nScore: " + std::to_string(newStats.m_score)
-		+ "\nPercent of Targets Hit: " + std::to_string(newStats.m_percentTargetsHit)
-		+ "\nAccuracy: " + std::to_string(newStats.m_accuracy));
+	m_bestScoreText.setString("Previous Best :\nTargets hit: " + std::to_string(newStats.m_percentTargetsHit)
+		+ "%\nAccuracy: " + std::to_string(newStats.m_accuracy)
+		+ "%\nOverall Score: " + std::to_string(newStats.m_score));
 	m_bestScoreText.setOrigin(m_bestScoreText.getGlobalBounds().width / 2.0f, 0.0f);
 
 	// Reset the timer

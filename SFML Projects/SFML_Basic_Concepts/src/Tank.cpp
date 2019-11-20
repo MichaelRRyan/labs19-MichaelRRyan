@@ -547,5 +547,4 @@ void Tank::initSprites()
 	sf::IntRect turretRect(19, 1, 83, 31);
 	m_turret.setTextureRect(turretRect);
 	m_turret.setOrigin(turretRect.width / 3.0, turretRect.height / 2.0);
-
 }
