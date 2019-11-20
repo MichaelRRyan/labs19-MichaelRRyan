@@ -59,6 +59,33 @@ protected:
 	void update(double dt);
 
 	/// <summary>
+	/// @brief Updates all the player objects
+	/// </summary>
+	/// <param name="dt">update delta time</param>
+	void updatePlayers(double dt);
+
+	/// <summary>
+	/// @brief Updates all the targets
+	/// </summary>
+	/// <param name="t_timeSinceLastUpdate">time since the last update</param>
+	void updateTargets(sf::Time t_timeSinceLastUpdate);
+
+	/// <summary>
+	/// @brief Attempts to spawn the next target on screen
+	/// </summary>
+	void spawnTarget();
+
+	/// <summary>
+	/// @brief Handles all end of round functionality
+	/// </summary>
+	void endRound();
+
+	/// <summary>
+	/// @brief Sets up everything for a new round
+	/// </summary>
+	void startRound();
+
+	/// <summary>
 	/// @brief Draws the background and foreground game objects in the SFML window.
 	/// The render window is always cleared to black before anything is drawn.
 	/// </summary>

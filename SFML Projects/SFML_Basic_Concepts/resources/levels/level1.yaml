@@ -96,16 +96,36 @@ targets:
    - type: popup
      position: {x: 1200, y: 300, randomOffset: 100}
      rotation: 20
-     duration: 8
+     duration: 6
    - type: popup
      position: {x: 200, y: 200, randomOffset: 100}
      rotation: 50
-     duration: 8
+     duration: 6
    - type: popup
      position: {x: 1000, y: 800, randomOffset: 100}
      rotation: -10
-     duration: 8
+     duration: 6
    - type: popup
      position: {x: 700, y: 200, randomOffset: 100}
      rotation: 180
-     duration: 8
+     duration: 4
+   - type: popup
+     position: {x: 300, y: 400, randomOffset: 100}
+     rotation: -50
+     duration: 4
+   - type: popup
+     position: {x: 500, y: 800, randomOffset: 100}
+     rotation: 10
+     duration: 4
+   - type: popup
+     position: {x: 900, y: 800, randomOffset: 100}
+     rotation: 85
+     duration: 4
+   - type: popup
+     position: {x: 1200, y: 700, randomOffset: 100}
+     rotation: 0
+     duration: 2
+   - type: popup
+     position: {x: 300, y: 700, randomOffset: 100}
+     rotation: 160
+     duration: 2

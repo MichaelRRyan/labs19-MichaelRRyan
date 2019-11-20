@@ -142,44 +142,50 @@ void Game::processGameEvents(sf::Event& event)
 		case sf::Keyboard::Space:
 			if (m_gameTimer == 0.0)
 			{
-				int tankOnePosition = rand() % 4;
-				m_tank.setPosition(m_TANK_POSITIONS[tankOnePosition]);
-				m_tank.resetScore();
-
-				int tankTwoPosition = rand() % 4;
-
-				while (tankTwoPosition == tankOnePosition)
-				{
-					tankTwoPosition = rand() % 4;
-				}
-
-				//m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
-				m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
-				m_controllerTank.resetScore();
-
-				// Set the timers
-				m_gameTimer = m_ROUND_TIME;
-				m_spawnTimer.restart();
-				m_clockTimer.restart();
-				
-				// Set text
-				m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
-				m_timerText.setCharacterSize(40u);
-				m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
-				m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
-
-				m_playerOneScoreText.setPosition(0.0f, 0.0f);
-				m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
-
-				// Set targets
-				m_targetsSpawned = 0;
-				for (Target& target : m_targets)
-				{
-					target.resetTarget(m_wallSprites);
-				}
+				startRound();
 			}
 			break;
 		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::startRound()
+{
+	int tankOnePosition = rand() % 4;
+	m_tank.setPosition(m_TANK_POSITIONS[tankOnePosition]);
+	m_tank.resetScore();
+
+	int tankTwoPosition = rand() % 4;
+
+	while (tankTwoPosition == tankOnePosition)
+	{
+		tankTwoPosition = rand() % 4;
+	}
+
+	//m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
+	m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
+	m_controllerTank.resetScore();
+
+	// Set the timers
+	m_gameTimer = m_ROUND_TIME;
+	m_spawnTimer.restart();
+	m_clockTimer.restart();
+
+	// Set text
+	m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
+	m_timerText.setCharacterSize(40u);
+	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
+	m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
+
+	m_playerOneScoreText.setPosition(0.0f, 0.0f);
+	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
+
+	// Set targets
+	m_targetsSpawned = 0;
+	for (Target& target : m_targets)
+	{
+		target.resetTarget(m_wallSprites);
 	}
 }
 
@@ -225,13 +231,7 @@ void Game::update(double dt)
 	{
 		m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
 
-		m_tank.setPrevious();
-		m_tank.handleKeyInput();
-		m_tank.update(dt);
-
-		m_controllerTank.setPrevious();
-		m_controllerTank.handleControllerInput(m_controller);
-		m_controllerTank.update(dt);
+		updatePlayers(dt);
 
 		// Timer
 		sf::Time timeSinceLastUpdate = m_clockTimer.restart();
@@ -240,78 +240,108 @@ void Game::update(double dt)
 		// Spawn new target
 		if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
 		{
-			if (m_targetsSpawned < m_numberOfTargets)
-			{
-				m_targets[m_targetsSpawned].setActive(true);
-				m_targetsSpawned++;
-				m_spawnTimer.restart();
-			}
-			else
-			{
-				std::cout << "Attempting to spawn a target out of range" << std::endl;
-			}
+			spawnTarget();
 		}
 
-		// Decrease the target's time to live
-		for (Target& target : m_targets)
-		{
-			if (target.active())
-			{
-				target.update(timeSinceLastUpdate);
-			}
-		}
+		updateTargets(timeSinceLastUpdate);
 
 		m_playerOneScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
 		m_playerTwoScoreText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
 
 		if (m_gameTimer < 0.0)
 		{
-			// Display previous best score
-			Stats newStats = RoundStatsSaver::returnNthBestScore(0);
-			m_bestScoreText.setString("Previous Best:\nScore: " + std::to_string(newStats.m_score)
-				+ "\nPercent of Targets Hit: " + std::to_string(newStats.m_percentTargetsHit)
-				+ "\nAccuracy: " + std::to_string(newStats.m_accuracy));
-			m_bestScoreText.setOrigin(m_bestScoreText.getGlobalBounds().width / 2.0f, 0.0f);
-
-			// Reset the timer
-			m_gameTimer = 0.0;
-
-			// Set the text object strings
-			m_timerText.setString("PRESS SPACE TO START");
-			m_playerOneScoreText.setString("Player1:\n" + m_tank.getStatistics());
-			m_playerTwoScoreText.setString("Player2:\n" + m_controllerTank.getStatistics());
-
-			// Set the text positions
-			m_playerOneScoreText.setPosition(100.0f, 100.0f);
-			m_playerTwoScoreText.setPosition(ScreenSize::s_width - 500, 100.0f);
-
-			// Move the timer text and rescale it
-			m_timerText.setCharacterSize(40u);
-			m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
-			m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
-
-			// Save the new stats
-			try
-			{
-				// Player 1
-				Stats stats;
-				stats.m_score = m_tank.getScore();
-				stats.m_accuracy = m_tank.getAccuracy();
-				stats.m_percentTargetsHit = m_tank.getPercentTargetsHit();
-				RoundStatsSaver::saveRoundStats(stats);
-
-				// Player 2
-				stats.m_score = m_controllerTank.getScore();
-				stats.m_accuracy = m_controllerTank.getAccuracy();
-				stats.m_percentTargetsHit = m_controllerTank.getPercentTargetsHit();
-				RoundStatsSaver::saveRoundStats(stats);
-			}
-			catch (std::exception& e)
-			{
-				std::cout << "Stat saver failed." << std::endl;
-				std::cout << e.what() << std::endl;
-			}
+			endRound();
 		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::updatePlayers(double dt)
+{
+	m_tank.setPrevious();
+	m_tank.handleKeyInput();
+	m_tank.update(dt);
+
+	m_controllerTank.setPrevious();
+	m_controllerTank.handleControllerInput(m_controller);
+	m_controllerTank.update(dt);
+}
+
+////////////////////////////////////////////////////////////
+void Game::updateTargets(sf::Time t_timeSinceLastUpdate)
+{
+	// Update all the targets
+	for (Target& target : m_targets)
+	{
+		if (target.active())
+		{
+			target.update(t_timeSinceLastUpdate);
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::spawnTarget()
+{
+	if (m_targetsSpawned < m_numberOfTargets)
+	{
+		m_targets[m_targetsSpawned].setActive(true);
+		m_targetsSpawned++;
+		m_spawnTimer.restart();
+	}
+	else
+	{
+		std::cout << "Attempting to spawn a target out of range" << std::endl;
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::endRound()
+{
+	// Display previous best score
+	Stats newStats = RoundStatsSaver::returnNthBestScore(0);
+	m_bestScoreText.setString("Previous Best:\nScore: " + std::to_string(newStats.m_score)
+		+ "\nPercent of Targets Hit: " + std::to_string(newStats.m_percentTargetsHit)
+		+ "\nAccuracy: " + std::to_string(newStats.m_accuracy));
+	m_bestScoreText.setOrigin(m_bestScoreText.getGlobalBounds().width / 2.0f, 0.0f);
+
+	// Reset the timer
+	m_gameTimer = 0.0;
+
+	// Set the text object strings
+	m_timerText.setString("PRESS SPACE TO START");
+	m_playerOneScoreText.setString("Player1:\n" + m_tank.getStatistics());
+	m_playerTwoScoreText.setString("Player2:\n" + m_controllerTank.getStatistics());
+
+	// Set the text positions
+	m_playerOneScoreText.setPosition(100.0f, 100.0f);
+	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 500, 100.0f);
+
+	// Move the timer text and rescale it
+	m_timerText.setCharacterSize(40u);
+	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
+	m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
+
+	// Save the new stats
+	try
+	{
+		// Player 1
+		Stats stats;
+		stats.m_score = m_tank.getScore();
+		stats.m_accuracy = m_tank.getAccuracy();
+		stats.m_percentTargetsHit = m_tank.getPercentTargetsHit();
+		RoundStatsSaver::saveRoundStats(stats);
+
+		// Player 2
+		stats.m_score = m_controllerTank.getScore();
+		stats.m_accuracy = m_controllerTank.getAccuracy();
+		stats.m_percentTargetsHit = m_controllerTank.getPercentTargetsHit();
+		RoundStatsSaver::saveRoundStats(stats);
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Stat saver failed." << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
