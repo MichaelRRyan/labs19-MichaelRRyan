@@ -295,6 +295,13 @@ void Game::updateTargets(sf::Time t_timeSinceLastUpdate)
 	// If all targets were hit, end the round
 	if (m_targetsSpawned == m_numberOfTargets)
 	{
+		for (Target const & target : m_targets)
+		{
+			if (target.active())
+			{
+				return;
+			}
+		}
 		m_gameTimer = -1.0;
 	}
 }
