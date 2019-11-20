@@ -4,10 +4,10 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	m_texture{ t_texture },
 	m_wallSprites{ t_wallSprites },
 	m_targets{ t_targets },
-	FRICTION{ 0.99 },
-	SPEED_LIMIT{ 100.0 },
-	ACCELERATION{ 2.0 },
-	TURN_SPEED{ 0.8 },
+	FRICTION{ 0.99f },
+	SPEED_LIMIT{ 100.0f },
+	ACCELERATION{ 2.0f },
+	TURN_SPEED{ 0.8f },
 	m_bullet{ nullptr },
 	m_score{ 0 }
 {
@@ -24,8 +24,8 @@ void Tank::update(double dt)
 	sf::Vector2f m_newPosition; // Create a variable for new position calculations
 	
 	// Calculate the new position
-	m_newPosition.x = m_tankBase.getPosition().x + cos(m_rotation * MathUtility::DEG_TO_RAD) * m_speed * (dt / 1000);
-	m_newPosition.y = m_tankBase.getPosition().y + sin(m_rotation * MathUtility::DEG_TO_RAD) * m_speed * (dt / 1000);
+	m_newPosition.x = m_tankBase.getPosition().x + cosf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
+	m_newPosition.y = m_tankBase.getPosition().y + sinf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
 
 	// Check if the turret is centring
 	if (m_centringTurret)
@@ -60,9 +60,6 @@ void Tank::update(double dt)
 
 	checkBulletWallCollisions();
 
-	// Checks bullet-target collisions and increases score if a target hit
-	checkBulletTargetCollisions();
-
 	if (m_bullet != nullptr)
 	{
 		bool stillAlive = m_bullet->update(dt);
@@ -74,7 +71,7 @@ void Tank::update(double dt)
 
 	if (m_fireTimer > 0.0f)
 	{
-		m_fireTimer -= dt / 1000.0f;
+		m_fireTimer -= static_cast<float>(dt) / 1000.0f;
 	}
 	else if (m_fireTimer != 0.0f)
 	{
@@ -131,6 +128,13 @@ void Tank::resetScore()
 	m_score = 0;
 	m_bulletsFired = 0;
 	m_targetsHit = 0;
+}
+
+////////////////////////////////////////////////////////////
+void Tank::resetRotation()
+{
+	m_rotation = 0.0f;
+	m_turretRotation = 0.0f;
 }
 
 ////////////////////////////////////////////////////////////
@@ -296,7 +300,7 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 	float inputSpeed = thor::length(movementInputVector);
 
 	// Get the angle in degrees from the movement vector
-	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * MathUtility::RAD_TO_DEG;
+	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * static_cast<float>(MathUtility::RAD_TO_DEG);
 
 	// Deal with negative rotations
 	if (inputDirection < 0.0f)
@@ -429,9 +433,10 @@ void Tank::checkBulletWallCollisions()
 	}
 }
 
-void Tank::checkBulletTargetCollisions()
+bool Tank::checkBulletTargetCollisions()
 {
 	int numberOfTargets = m_targets.size();
+	bool collision{ false };
 
 	if (m_bullet != nullptr)
 	{
@@ -456,13 +461,16 @@ void Tank::checkBulletTargetCollisions()
 				}
 				else
 				{
-					m_score += m_targets[i].getSecondsToLive();
+					m_score += static_cast<int>(m_targets[i].getSecondsToLive());
 				}
 
+				collision = true;
 				break;
 			}
 		}
 	}
+
+	return collision;
 }
 
 ////////////////////////////////////////////////////////////
@@ -540,11 +548,11 @@ void Tank::initSprites()
 	m_tankBase.setTexture(m_texture);
 	sf::IntRect baseRect(2, 43, 79, 43);
 	m_tankBase.setTextureRect(baseRect);
-	m_tankBase.setOrigin(baseRect.width / 2.0, baseRect.height / 2.0);
+	m_tankBase.setOrigin(static_cast<float>(baseRect.width) / 2.0f, static_cast<float>(baseRect.height) / 2.0f);
 
 	// Initialise the turret
 	m_turret.setTexture(m_texture);
 	sf::IntRect turretRect(19, 1, 83, 31);
 	m_turret.setTextureRect(turretRect);
-	m_turret.setOrigin(turretRect.width / 3.0, turretRect.height / 2.0);
+	m_turret.setOrigin(static_cast<float>(turretRect.width) / 3.0f, static_cast<float>(turretRect.height) / 2.0f);
 }

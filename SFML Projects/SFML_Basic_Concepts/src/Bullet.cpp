@@ -11,7 +11,7 @@ Bullet::Bullet(sf::Texture const& t_texture, sf::Vector2f t_position, float t_an
 
 	m_sprite.setTexture(t_texture);
 	m_sprite.setTextureRect({ 7, 176, 8, 12 });
-	m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, m_sprite.getGlobalBounds().width / 2.0f);
+	m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, m_sprite.getGlobalBounds().height / 2.0f);
 
 	m_sprite.setPosition(t_position + (directionVector * t_barrelOffset));
 	m_sprite.setRotation(t_angleDeg - 90.0f);

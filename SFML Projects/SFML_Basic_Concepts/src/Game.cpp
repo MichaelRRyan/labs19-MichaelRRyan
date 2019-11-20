@@ -17,7 +17,8 @@ Game::Game() :
 	m_controllerTank{ m_texture, m_wallSprites, m_targets },
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
-	m_ROUND_TIME{ 60.0 }
+	m_ROUND_TIME{ 60.0 },
+	m_tempShape{ 50.0f }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -155,6 +156,7 @@ void Game::startRound()
 	int tankOnePosition = rand() % 4;
 	m_tank.setPosition(m_TANK_POSITIONS[tankOnePosition]);
 	m_tank.resetScore();
+	m_tank.resetRotation();
 
 	int tankTwoPosition = rand() % 4;
 
@@ -166,6 +168,7 @@ void Game::startRound()
 	//m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
 	m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
 	m_controllerTank.resetScore();
+	m_controllerTank.resetRotation();
 
 	// Set the timers
 	m_gameTimer = m_ROUND_TIME;
@@ -241,7 +244,6 @@ void Game::update(double dt)
 		if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
 		{
 			spawnTarget();
-			m_spawnTimer.restart();
 		}
 
 		updateTargets(timeSinceLastUpdate);
@@ -263,9 +265,19 @@ void Game::updatePlayers(double dt)
 	m_tank.handleKeyInput();
 	m_tank.update(dt);
 
+	if (m_tank.checkBulletTargetCollisions())
+	{
+		spawnTarget();
+	}
+
 	m_controllerTank.setPrevious();
 	m_controllerTank.handleControllerInput(m_controller);
 	m_controllerTank.update(dt);
+
+	if (m_controllerTank.checkBulletTargetCollisions())
+	{
+		spawnTarget();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -278,6 +290,12 @@ void Game::updateTargets(sf::Time t_timeSinceLastUpdate)
 		{
 			target.update(t_timeSinceLastUpdate);
 		}
+	}
+
+	// If all targets were hit, end the round
+	if (m_targetsSpawned == m_numberOfTargets)
+	{
+		m_gameTimer = 0.0;
 	}
 }
 
@@ -293,6 +311,8 @@ void Game::spawnTarget()
 	{
 		std::cout << "Attempting to spawn a target out of range" << std::endl;
 	}
+
+	m_spawnTimer.restart();
 }
 
 ////////////////////////////////////////////////////////////
@@ -380,6 +400,8 @@ void Game::render()
 	{
 		m_window.draw(m_bestScoreText);
 	}
+
+	m_window.draw(m_tempShape);
 
 	m_window.display();
 }

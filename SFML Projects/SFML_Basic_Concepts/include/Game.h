@@ -13,6 +13,7 @@
 #include "Tank.h"
 #include "XBox360Controller.h"
 #include "Target.h"
+#include "CircularSectorShape.h"
 
 /// <summary>
 /// @author RP
@@ -165,4 +166,6 @@ protected:
 	sf::CircleShape m_timerCircle;
 	int m_targetsSpawned;
 	int m_numberOfTargets;
+
+	CircularSectorShape m_tempShape;
 };

@@ -43,6 +43,11 @@ public:
 	void resetScore();
 
 	/// <summary>
+	/// @brief Reset the rotation on the tank base and turret
+	/// </summary>
+	void resetRotation();
+
+	/// <summary>
 	/// @brief Increases the speed by 1, max speed is capped at 100.
 	/// 
 	/// </summary>
@@ -132,7 +137,7 @@ public:
 	/// @brief Checks for collisions between the bullet and the targets.
 	/// 
 	/// </summary>
-	void checkBulletTargetCollisions();
+	bool checkBulletTargetCollisions();
 
 	/// <summary>
 	/// @brief Stops the tank if moving and applies a small increase in speed in the opposite direction of travel.
@@ -167,20 +172,20 @@ private:
 	std::vector<Target>& m_targets;
 
 	// The tank speed.
-	const double FRICTION;
-	const double SPEED_LIMIT;
-	const double ACCELERATION;
-	const double TURN_SPEED;
+	const float FRICTION;
+	const float SPEED_LIMIT;
+	const float ACCELERATION;
+	const float TURN_SPEED;
 	const float FIRE_DELAY{ 1.0f };
 
-	double m_previousSpeed{ 0.0 };
-	double m_speed{ 0.0 };
+	float m_previousSpeed{ 0.0 };
+	float m_speed{ 0.0 };
 
 	// The current rotation as applied to tank base.
-	double m_previousRotation;
-	double m_rotation{ 0.0 };
-	double m_previousTurretRotation{ 0.0 };
-	double m_turretRotation{ 0.0 };
+	float m_previousRotation;
+	float m_rotation{ 0.0 };
+	float m_previousTurretRotation{ 0.0 };
+	float m_turretRotation{ 0.0 };
 
 	float m_fireTimer{ 0 };
 

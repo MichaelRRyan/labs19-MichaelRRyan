@@ -1,5 +1,7 @@
 #include "Target.h"
 
+static int s_targetsSpawned = 0;
+
 Target::Target(sf::Texture& t_texture, sf::IntRect t_textureRect, sf::Vector2f t_basePosition,
 			   int t_randomOffset, float t_rotation, float t_durationSeconds) :
 	m_BASE_POSITION{ t_basePosition },

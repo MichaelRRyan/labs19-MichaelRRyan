@@ -23,6 +23,7 @@
     <None Include="resources\levels\level1.yaml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CircularSectorShape.h" />
     <ClInclude Include="include\Bullet.h" />
     <ClInclude Include="include\CollisionDetector.h" />
     <ClInclude Include="include\Game.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="include\XBox360Controller.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CircularSectorShape.cpp" />
     <ClCompile Include="src\Bullet.cpp" />
     <ClCompile Include="src\CollisionDetector.cpp" />
     <ClCompile Include="src\Game.cpp" />
