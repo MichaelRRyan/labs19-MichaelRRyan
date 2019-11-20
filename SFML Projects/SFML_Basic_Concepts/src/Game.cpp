@@ -295,7 +295,7 @@ void Game::updateTargets(sf::Time t_timeSinceLastUpdate)
 	// If all targets were hit, end the round
 	if (m_targetsSpawned == m_numberOfTargets)
 	{
-		m_gameTimer = 0.0;
+		m_gameTimer = -1.0;
 	}
 }
 
@@ -401,7 +401,7 @@ void Game::render()
 		m_window.draw(m_bestScoreText);
 	}
 
-	m_window.draw(m_tempShape);
+	//m_window.draw(m_tempShape);
 
 	m_window.display();
 }
