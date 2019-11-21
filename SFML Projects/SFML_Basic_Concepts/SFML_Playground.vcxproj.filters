@@ -56,7 +56,16 @@
     <ClInclude Include="include\RoundStatsSaver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CircularSectorShape.h">
+    <ClInclude Include="include\CircularSectorShape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GUIButton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MenuScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -94,7 +103,13 @@
     <ClCompile Include="src\RoundStatsSaver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CircularSectorShape.cpp">
+    <ClCompile Include="src\CircularSectorShape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUIButton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MenuScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

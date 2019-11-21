@@ -14,22 +14,8 @@
 #include "XBox360Controller.h"
 #include "Target.h"
 #include "CircularSectorShape.h"
-
-/// <summary>
-/// @author RP
-/// @date June 2017
-/// @version 1.0
-/// 
-/// </summary>
-
-/// <summary>
-/// @brief Main class for the SFML Playground project.
-/// 
-/// This will be a single class framework for learning about SFML. 
-/// Example usage:
-///		Game game;
-///		game.run();
-/// </summary>
+#include "MenuScreen.h"
+#include "GameState.h"
 
 class Game
 {
@@ -168,4 +154,9 @@ protected:
 	int m_numberOfTargets;
 
 	CircularSectorShape m_tempShape;
+
+	sf::Texture m_guiTextures;
+	MenuScreen m_menuScreen;
+
+	GameState m_gameState;
 };

@@ -18,7 +18,9 @@ Game::Game() :
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
 	m_ROUND_TIME{ 60.0 },
-	m_tempShape{ 50.0f }
+	m_tempShape{ 50.0f },
+	m_menuScreen(m_guiTextures, m_font),
+	m_gameState{ GameState::MenuScreen }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -75,6 +77,12 @@ Game::Game() :
 		throw std::exception(s.c_str());
 	}
 
+	if (!m_guiTextures.loadFromFile("./resources/images/GUI.png"))
+	{
+		std::string s("Error loading GUI textures");
+		throw std::exception(s.c_str());
+	}
+
 	m_bgSprite.setTexture(m_bgTexture);
 	m_tank.setPosition(m_level.m_tank.m_position);
 	m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
@@ -85,6 +93,8 @@ Game::Game() :
 	m_timerCircle.setFillColor(sf::Color{ 255, 0, 0, 150 });
 
 	m_controller.connect();
+
+	m_menuScreen.setup();
 }
 
 ////////////////////////////////////////////////////////////
@@ -148,6 +158,8 @@ void Game::processGameEvents(sf::Event& event)
 			break;
 		}
 	}
+
+	m_menuScreen.processEvents(event, m_gameState);
 }
 
 ////////////////////////////////////////////////////////////
@@ -230,30 +242,33 @@ void Game::update(double dt)
 {
 	m_controller.update();
 
-	if (m_gameTimer > 0.0)
+	if (GameState::Gameplay == m_gameState)
 	{
-		m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
-
-		updatePlayers(dt);
-
-		// Timer
-		sf::Time timeSinceLastUpdate = m_clockTimer.restart();
-		m_gameTimer -= timeSinceLastUpdate.asSeconds();
-
-		// Spawn new target
-		if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
+		if (m_gameTimer > 0.0)
 		{
-			spawnTarget();
-		}
+			m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
 
-		updateTargets(timeSinceLastUpdate);
+			updatePlayers(dt);
 
-		m_playerOneScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
-		m_playerTwoScoreText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
+			// Timer
+			sf::Time timeSinceLastUpdate = m_clockTimer.restart();
+			m_gameTimer -= timeSinceLastUpdate.asSeconds();
 
-		if (m_gameTimer < 0.0)
-		{
-			endRound();
+			// Spawn new target
+			if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
+			{
+				spawnTarget();
+			}
+
+			updateTargets(timeSinceLastUpdate);
+
+			m_playerOneScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
+			m_playerTwoScoreText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
+
+			if (m_gameTimer < 0.0)
+			{
+				endRound();
+			}
 		}
 	}
 }
@@ -377,38 +392,47 @@ void Game::render()
 {
 	m_window.clear(sf::Color(0, 0, 0, 0));
 
-	m_window.draw(m_bgSprite);
-
-	if (m_gameTimer > 0.0)
+	if (GameState::MenuScreen == m_gameState) // Draw menu
 	{
-		m_tank.render(m_window);
-		m_controllerTank.render(m_window);
+		m_menuScreen.draw(m_window);
+	}
+	if (GameState::Gameplay == m_gameState) // Draw gameplay
+	{
+		m_window.draw(m_bgSprite);
 
-		// Draw the targets
-		for (Target const& target : m_targets)
+		// If the game round is still going, draw the tanks, and targets
+		if (m_gameTimer > 0.0)
 		{
-			if (target.active())
+			m_tank.render(m_window);
+			m_controllerTank.render(m_window);
+
+			// Draw the targets
+			for (Target const& target : m_targets)
 			{
-				target.draw(m_window, m_timerCircle);
+				if (target.active())
+				{
+					target.draw(m_window, m_timerCircle);
+				}
 			}
 		}
-	}
 
-	for (sf::Sprite const & obstacle : m_wallSprites)
-	{
-		m_window.draw(obstacle);
-	}
-	
-	m_window.draw(m_timerText);
-	m_window.draw(m_playerOneScoreText);
-	m_window.draw(m_playerTwoScoreText);
+		// Draw all the obstacles
+		for (sf::Sprite const& obstacle : m_wallSprites)
+		{
+			m_window.draw(obstacle);
+		}
 
-	if (m_gameTimer <= 0.0)
-	{
-		m_window.draw(m_bestScoreText);
-	}
+		m_window.draw(m_timerText);
+		m_window.draw(m_playerOneScoreText);
+		m_window.draw(m_playerTwoScoreText);
 
-	//m_window.draw(m_tempShape);
+		if (m_gameTimer <= 0.0)
+		{
+			m_window.draw(m_bestScoreText);
+		}
+
+		//m_window.draw(m_tempShape);
+	}
 
 	m_window.display();
 }
