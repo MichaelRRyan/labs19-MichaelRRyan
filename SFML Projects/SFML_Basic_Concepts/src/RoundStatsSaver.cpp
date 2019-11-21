@@ -1,5 +1,6 @@
 #include "..\include\RoundStatsSaver.h"
 
+////////////////////////////////////////////////////////////
 void RoundStatsSaver::saveRoundStats(Stats t_stats)
 {
 	YAML::Node fileNode = YAML::LoadFile(".//resources//data//gameData.yaml");
@@ -53,6 +54,7 @@ void RoundStatsSaver::saveRoundStats(Stats t_stats)
 	}
 }
 
+////////////////////////////////////////////////////////////
 Stats RoundStatsSaver::returnNthBestScore(int t_n)
 {
 	YAML::Node fileNode = YAML::LoadFile(".//resources//data//gameData.yaml");
@@ -91,35 +93,3 @@ Stats RoundStatsSaver::returnNthBestScore(int t_n)
 	
 	return Stats{0};
 }
-
-
-
-
-
-
-/*std::cout << "Set: " << i + 1 << std::endl;
-			std::cout << "Previous score: " << stats[i]["score"].as<int>() << std::endl;
-			std::cout << "Previous percentage of targets hit: " << stats[i]["percTargetsHit"].as<int>() << std::endl;
-			std::cout << "Previous accuracy: " << stats[i]["accuracy"].as<int>() << std::endl;*/
-
-
-//// Iterate through all the statistics data
-//std::vector<Stats>::iterator end = statsData.end();
-//for (std::vector<Stats>::iterator it = statsData.begin(); it < end; it++)
-//{
-//	if (t_stats.m_score > it->m_score)
-//	{
-//		statsData.insert(it, t_stats);
-//		break;
-//	}
-//}
-//
-//// Iterate through all of the statistics data from the file
-//for (std::vector<Stats>::iterator it = statsData.begin(); it < statsData.end(); it++)
-//{
-//	if (t_stats.m_score > it->m_score)
-//	{
-//		statsData.insert(it, t_stats);
-//		break;
-//	}
-//}

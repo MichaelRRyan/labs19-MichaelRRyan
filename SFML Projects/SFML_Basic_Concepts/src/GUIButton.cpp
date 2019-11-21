@@ -26,6 +26,23 @@ void GUIButton::setup()
 
 bool GUIButton::processMouseEvents(sf::Event t_event)
 {
+	if (sf::Event::MouseMoved)
+	{
+		m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
+
+		// Check the mouse pointer against the button x bounds
+		if (t_event.mouseMove.x > m_sprite.getPosition().x
+			&& t_event.mouseMove.x < m_sprite.getPosition().x + m_sprite.getGlobalBounds().width)
+		{
+			// Check the mouse pointer against the button y bounds
+			if (t_event.mouseMove.y > m_sprite.getPosition().y
+				&& t_event.mouseMove.y < m_sprite.getPosition().y + m_sprite.getGlobalBounds().height)
+			{
+				m_sprite.setTextureRect({ 0, static_cast<int>(s_HEIGHT) + 1, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
+			}
+		}
+	}
+
 	if (sf::Event::MouseButtonPressed == t_event.type)
 	{
 		// Check if the button was pressed

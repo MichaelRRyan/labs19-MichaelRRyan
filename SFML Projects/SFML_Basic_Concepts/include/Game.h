@@ -103,6 +103,16 @@ protected:
 	/// </summary>
 	void generateTargets();
 
+	/// <summary>
+	/// @brief setup and load font and text
+	/// </summary>
+	void setupText();
+
+	/// <summary>
+	/// @brief Load all the textures
+	/// </summary>
+	void loadTextures();
+
 	// main window
 	sf::RenderWindow m_window;
 

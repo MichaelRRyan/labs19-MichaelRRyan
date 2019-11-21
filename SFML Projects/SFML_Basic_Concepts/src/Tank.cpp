@@ -267,7 +267,9 @@ void Tank::handleKeyInput()
 		m_centringTurret = false;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X) && m_bullet == nullptr && m_fireTimer == 0)
+	// If the fire button is pressed and the bullet is null and the fire timer is zero
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)
+		&& m_bullet == nullptr && m_fireTimer == 0)
 	{
 		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
@@ -527,13 +529,13 @@ void Tank::adjustRotation()
 ////////////////////////////////////////////////////////////
 std::string Tank::getStatistics()
 {
-	if (m_bulletsFired > 0)
+	if (m_bulletsFired > 0) // Return the tank statistics
 	{
 		return "Targets hit: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_targets.size()) * 100.0))
 			+ "%\nAccuracy: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_bulletsFired) * 100.0))
 			+ "%\nOverall Score: " + std::to_string(m_score);
 	}
-	else
+	else // Avoid a divide by zero
 	{
 		return "Targets hit: " + std::to_string(static_cast<int>((1.0 * m_targetsHit / m_targets.size()) * 100.0))
 			+ "%\nAccuracy: [No bullets fired]"

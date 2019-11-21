@@ -2,6 +2,7 @@
 
 static int s_targetsSpawned = 0;
 
+////////////////////////////////////////////////////////////
 Target::Target(sf::Texture& t_texture, sf::IntRect t_textureRect, sf::Vector2f t_basePosition,
 			   int t_randomOffset, float t_rotation, float t_durationSeconds) :
 	m_BASE_POSITION{ t_basePosition },
@@ -15,6 +16,7 @@ Target::Target(sf::Texture& t_texture, sf::IntRect t_textureRect, sf::Vector2f t
 	m_sprite.setRotation(t_rotation);
 }
 
+////////////////////////////////////////////////////////////
 void Target::resetTarget(std::vector<sf::Sprite> t_walls)
 {
 	// Decides the random offset and sets the position
@@ -34,16 +36,19 @@ void Target::resetTarget(std::vector<sf::Sprite> t_walls)
 	}
 }
 
+////////////////////////////////////////////////////////////
 float Target::getSecondsToLive()
 {
 	return m_secondsToLive;
 }
 
+////////////////////////////////////////////////////////////
 void Target::addSecondsToLive(float t_seconds)
 {
 	m_secondsToLive += t_seconds;
 }
 
+////////////////////////////////////////////////////////////
 void Target::update(sf::Time t_timeSinceLastUpdate)
 {
 	if (m_secondsToLive > 0.0f)
@@ -58,6 +63,7 @@ void Target::update(sf::Time t_timeSinceLastUpdate)
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Target::draw(sf::RenderWindow& t_window, sf::CircleShape& t_timerCircle) const
 {
 	t_timerCircle.setRadius(m_secondsToLive * 10);
@@ -68,16 +74,19 @@ void Target::draw(sf::RenderWindow& t_window, sf::CircleShape& t_timerCircle) co
 	t_window.draw(m_sprite);
 }
 
+////////////////////////////////////////////////////////////
 void Target::setActive(bool t_activeState)
 {
 	m_active = t_activeState;
 }
 
+////////////////////////////////////////////////////////////
 bool Target::active() const
 {
 	return m_active;
 }
 
+////////////////////////////////////////////////////////////
 sf::Sprite Target::getSprite() const
 {
 	return m_sprite;

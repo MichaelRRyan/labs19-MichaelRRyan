@@ -24,35 +24,10 @@ Game::Game() :
 {
 	m_window.setVerticalSyncEnabled(true);
 
-	if (!m_font.loadFromFile("./resources/fonts/arial.ttf"))
-	{
-		std::string s("Error loading font file");
-		throw std::exception(s.c_str());
-	}
-
-	m_timerText.setFont(m_font);
-	m_timerText.setString("PRESS SPACE TO START");
-	m_timerText.setCharacterSize(40u);
-	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
-	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
-
-	m_playerOneScoreText.setFont(m_font);
-	m_playerOneScoreText.setCharacterSize(35u);
-	m_playerOneScoreText.setFillColor(sf::Color::Black);
-
-	m_playerTwoScoreText.setFont(m_font);
-	m_playerTwoScoreText.setCharacterSize(35u);
-	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
-	m_playerTwoScoreText.setFillColor(sf::Color::Black);
-
-	m_bestScoreText.setFont(m_font);
-	m_bestScoreText.setCharacterSize(35u);
-	m_bestScoreText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2 + 100);
-	m_bestScoreText.setFillColor(sf::Color::Black);
-	
-	
+	// Set the level number
 	int currentLevel = 1;
 
+	// Load the level data
 	try
 	{
 		LevelLoader::load(currentLevel, m_level);
@@ -64,36 +39,27 @@ Game::Game() :
 		//throw(e);
 	}
 
-	// Load tank sprite
-	if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
-	{
-		std::string s("Error loading spritesheet texture");
-		throw std::exception(s.c_str());
-	}
+	loadTextures(); // Load the textures
+	setupText(); // Load font and setup text
 
-	if (!m_bgTexture.loadFromFile(m_level.m_background.m_fileName))
-	{
-		std::string s("Error loading background texture");
-		throw std::exception(s.c_str());
-	}
-
-	if (!m_guiTextures.loadFromFile("./resources/images/GUI.png"))
-	{
-		std::string s("Error loading GUI textures");
-		throw std::exception(s.c_str());
-	}
-
+	// Setup the background
 	m_bgSprite.setTexture(m_bgTexture);
+
+	// Set the position for the tanks
 	m_tank.setPosition(m_level.m_tank.m_position);
 	m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
 
+	// Generate the walls and targets
 	generateWalls();
 	generateTargets();
 
+	// Setup the timer circle
 	m_timerCircle.setFillColor(sf::Color{ 255, 0, 0, 150 });
 
+	// Connect the controller
 	m_controller.connect();
 
+	// Setup the menu
 	m_menuScreen.setup();
 }
 
@@ -159,17 +125,20 @@ void Game::processGameEvents(sf::Event& event)
 		}
 	}
 
-	m_menuScreen.processEvents(event, m_gameState);
+	// Process menu screen events
+	m_menuScreen.processEvents(event, m_gameState, m_window);
 }
 
 ////////////////////////////////////////////////////////////
 void Game::startRound()
 {
+	// Setup the first tank
 	int tankOnePosition = rand() % 4;
 	m_tank.setPosition(m_TANK_POSITIONS[tankOnePosition]);
 	m_tank.resetScore();
 	m_tank.resetRotation();
 
+	// Setup the second tank
 	int tankTwoPosition = rand() % 4;
 
 	while (tankTwoPosition == tankOnePosition)
@@ -177,8 +146,8 @@ void Game::startRound()
 		tankTwoPosition = rand() % 4;
 	}
 
-	//m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
-	m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
+	m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
+	//m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
 	m_controllerTank.resetScore();
 	m_controllerTank.resetRotation();
 
@@ -222,11 +191,12 @@ void Game::generateWalls()
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Game::generateTargets()
 {
 	sf::IntRect targetRect{ 64, 107, 105, 47 };
 
-	// Create the walls
+	// Create the targets
 	for (TargetData const& target : m_level.m_targets)
 	{
 		Target targetObject(m_texture, targetRect, target.m_position, target.m_randomOffset, target.m_rotation, target.m_durationSeconds);
@@ -234,23 +204,82 @@ void Game::generateTargets()
 		m_targets.push_back(targetObject);
 	}
 
-	m_numberOfTargets = m_targets.size();
+	m_numberOfTargets = m_targets.size(); // Get the number of targets
+}
+
+////////////////////////////////////////////////////////////
+void Game::setupText()
+{
+	// Load the font
+	if (!m_font.loadFromFile("./resources/fonts/arial.ttf"))
+	{
+		std::string s("Error loading font file");
+		throw std::exception(s.c_str());
+	}
+
+	// Setup the text objects
+	m_timerText.setFont(m_font);
+	m_timerText.setString("PRESS SPACE TO START");
+	m_timerText.setCharacterSize(40u);
+	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
+	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
+
+	m_playerOneScoreText.setFont(m_font);
+	m_playerOneScoreText.setCharacterSize(35u);
+	m_playerOneScoreText.setFillColor(sf::Color::Black);
+
+	m_playerTwoScoreText.setFont(m_font);
+	m_playerTwoScoreText.setCharacterSize(35u);
+	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
+	m_playerTwoScoreText.setFillColor(sf::Color::Black);
+
+	m_bestScoreText.setFont(m_font);
+	m_bestScoreText.setCharacterSize(35u);
+	m_bestScoreText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2 + 100);
+	m_bestScoreText.setFillColor(sf::Color::Black);
+}
+
+////////////////////////////////////////////////////////////
+void Game::loadTextures()
+{
+	// Load tank sprite
+	if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
+	{
+		std::string s("Error loading spritesheet texture");
+		throw std::exception(s.c_str());
+	}
+
+	// Load the background texture
+	if (!m_bgTexture.loadFromFile(m_level.m_background.m_fileName))
+	{
+		std::string s("Error loading background texture");
+		throw std::exception(s.c_str());
+	}
+
+	// Load the gui texture
+	if (!m_guiTextures.loadFromFile("./resources/images/GUI.png"))
+	{
+		std::string s("Error loading GUI textures");
+		throw std::exception(s.c_str());
+	}
 }
 
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
-	m_controller.update();
+	m_controller.update(); // Update the controller
 
+	// If the game is in the gameplay state
 	if (GameState::Gameplay == m_gameState)
 	{
+		// If the round is still on
 		if (m_gameTimer > 0.0)
 		{
-			m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer))));
+			m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer)))); // Set the timer text string
 
-			updatePlayers(dt);
+			updatePlayers(dt); // update the players (tanks)
 
-			// Timer
+			// Update timer
 			sf::Time timeSinceLastUpdate = m_clockTimer.restart();
 			m_gameTimer -= timeSinceLastUpdate.asSeconds();
 
@@ -260,11 +289,14 @@ void Game::update(double dt)
 				spawnTarget();
 			}
 
+			// Update the targets
 			updateTargets(timeSinceLastUpdate);
 
+			// Update the player score text
 			m_playerOneScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
 			m_playerTwoScoreText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
 
+			// If the round ends
 			if (m_gameTimer < 0.0)
 			{
 				endRound();
@@ -276,20 +308,22 @@ void Game::update(double dt)
 ////////////////////////////////////////////////////////////
 void Game::updatePlayers(double dt)
 {
-	m_tank.setPrevious();
+	// update the first player
+	m_tank.setPrevious(); // Set the previous variables (E.g. previousRotation)
 	m_tank.handleKeyInput();
 	m_tank.update(dt);
 
-	if (m_tank.checkBulletTargetCollisions())
+	if (m_tank.checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
 	{
 		spawnTarget();
 	}
 
-	m_controllerTank.setPrevious();
+	// Update the second player
+	m_controllerTank.setPrevious(); // Set the previous variables (E.g. previousRotation)
 	m_controllerTank.handleControllerInput(m_controller);
 	m_controllerTank.update(dt);
 
-	if (m_controllerTank.checkBulletTargetCollisions())
+	if (m_controllerTank.checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
 	{
 		spawnTarget();
 	}
@@ -324,16 +358,17 @@ void Game::updateTargets(sf::Time t_timeSinceLastUpdate)
 ////////////////////////////////////////////////////////////
 void Game::spawnTarget()
 {
-	if (m_targetsSpawned < m_numberOfTargets)
+	if (m_targetsSpawned < m_numberOfTargets) // If not all targets have been spawned yet
 	{
 		m_targets[m_targetsSpawned].setActive(true);
 		m_targetsSpawned++;
 	}
-	else
+	else // Display that no targets are left to spawn
 	{
 		std::cout << "Attempting to spawn a target out of range" << std::endl;
 	}
 
+	// Reset the spawn timer
 	m_spawnTimer.restart();
 }
 
