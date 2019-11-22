@@ -360,7 +360,7 @@ void Game::spawnTarget()
 {
 	if (m_targetsSpawned < m_numberOfTargets) // If not all targets have been spawned yet
 	{
-		m_targets[m_targetsSpawned].setActive(true);
+		m_targets.at(m_targetsSpawned).setActive(true);
 		m_targetsSpawned++;
 	}
 	else // Display that no targets are left to spawn

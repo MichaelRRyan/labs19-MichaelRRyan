@@ -280,9 +280,193 @@ void Tank::handleKeyInput()
 ////////////////////////////////////////////////////////////
 void Tank::handleControllerInput(XBox360Controller t_controller)
 {
-	//////////////////////////////////////////////////////////////////////////////////////
-	/// INPUT
-	//////////////////////////////////////////////////////////////////////////////////////
+	// Input
+	sf::Vector2f movementInputVector;
+	sf::Vector2f rightStickInputVector;
+
+	movementInputVector = getControllerLSInput(t_controller);
+	rightStickInputVector = getControllerRSInput(t_controller);
+
+	// Calculate
+	float inputSpeed = thor::length(movementInputVector);
+
+	// Get the angle in degrees from the movement vector
+	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * static_cast<float>(MathUtility::RAD_TO_DEG);
+
+	// Deal with negative rotations
+	if (inputDirection < 0.0f)
+	{
+		inputDirection = 360 + inputDirection;
+	}
+
+	// Get the angle in degrees from the movement vector
+	float rightStickInputDir = thor::toDegree(atan2f(rightStickInputVector.y, rightStickInputVector.x));
+
+	// Deal with negative rotations
+	if (rightStickInputDir < 0.0f)
+	{
+		rightStickInputDir = 360 + rightStickInputDir;
+	}
+
+	// Movement
+	if (inputSpeed > 100)
+	{
+		inputSpeed = 100;
+	}
+
+	if (fabsf(inputDirection - m_rotation) < 90.0f) // If analog direction is on the front half of the tank
+	{
+		increaseSpeed(inputSpeed / 100.0f); // move forward
+	}
+	else
+	{
+		decreaseSpeed(inputSpeed / 100.0f); // Move backwards
+	}
+
+	// Tank Body Rotation
+	if (inputSpeed > 0.0f) // If there is some analog input
+	{
+		handleControllerRotation(t_controller, inputDirection);
+	}
+
+	// Turret Rotation
+	if (thor::length(rightStickInputVector) > 0.0f) // If there is some analog input
+	{
+		handleControllerTurretRotation(t_controller, rightStickInputDir);
+	}
+	
+
+	// Manage firing
+	if (t_controller.currentState.RTrigger > 50.0f
+		&& m_bullet == nullptr && m_fireTimer == 0)
+	{
+		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
+		m_fireTimer = FIRE_DELAY;
+		m_bulletsFired++;
+	}
+
+	if (t_controller.currentState.RightThumbStickClick)
+	{
+		toggleCentring();
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Tank::handleControllerRotation(XBox360Controller t_controller, float t_inputDirection)
+{
+	if (fabsf(t_inputDirection - m_rotation) < 90.0f) // Rotating while going forward
+	{
+		// Check if the absolute value of the distance between the values is greater than  the turn speed to avoid jitter
+		if (fabsf(t_inputDirection - m_rotation) > TURN_SPEED)
+		{
+
+			if (t_inputDirection > m_rotation)
+			{
+				if (fabsf(t_inputDirection - m_rotation) < 180)
+				{
+					increaseRotation();
+				}
+				else
+				{
+					decreaseRotation();
+				}
+			}
+			else
+			{
+				if (fabsf(t_inputDirection - m_rotation) < 180)
+				{
+					decreaseRotation();
+				}
+				else
+				{
+					increaseRotation();
+				}
+			}
+		}
+	}
+	else // Rotate while going backwards
+	{
+		// Check if the absolute value of the distance between the values is greater than  the turn speed to avoid jitter
+		if (fabsf(t_inputDirection - m_rotation) > TURN_SPEED)
+		{
+			if (t_inputDirection < m_rotation)
+			{
+				if (fabsf(t_inputDirection - m_rotation) < 180)
+				{
+					increaseRotation();
+				}
+				else
+				{
+					decreaseRotation();
+				}
+			}
+			else
+			{
+				if (fabsf(t_inputDirection - m_rotation) < 180)
+				{
+					decreaseRotation();
+				}
+				else
+				{
+					increaseRotation();
+				}
+			}
+		}
+	}
+
+}
+
+////////////////////////////////////////////////////////////
+void Tank::handleControllerTurretRotation(XBox360Controller t_controller, float t_inputDirection)
+{
+	float trueTurretRotation = m_turretRotation + m_rotation;
+
+	if (trueTurretRotation > 360.0f)
+	{
+		trueTurretRotation = trueTurretRotation - 360.0f;
+	}
+
+	// Deal with negative rotations
+	if (trueTurretRotation < 0.0f)
+	{
+		trueTurretRotation = 360 + trueTurretRotation;
+	}
+
+
+
+	// Check if the absolute value of the distance between the values is greater than  the turn speed to avoid jitter
+	if (fabsf(t_inputDirection - trueTurretRotation) > TURN_SPEED)
+	{
+
+		if (t_inputDirection > trueTurretRotation)
+		{
+			if (fabsf(t_inputDirection - trueTurretRotation) < 180)
+			{
+				increaseTurretRotation();
+			}
+			else
+			{
+				decreaseTurretRotation();
+			}
+		}
+		else
+		{
+			if (fabsf(t_inputDirection - trueTurretRotation) < 180)
+			{
+				decreaseTurretRotation();
+			}
+			else
+			{
+				increaseTurretRotation();
+			}
+		}
+	}
+
+}
+
+////////////////////////////////////////////////////////////
+sf::Vector2f Tank::getControllerLSInput(XBox360Controller t_controller)
+{
 	sf::Vector2f movementInputVector;
 
 	// Vertical
@@ -299,108 +483,31 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 		movementInputVector.x = t_controller.currentState.LeftThumbStick.x;
 	}
 
-	float inputSpeed = thor::length(movementInputVector);
+	return movementInputVector;
+}
 
-	// Get the angle in degrees from the movement vector
-	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * static_cast<float>(MathUtility::RAD_TO_DEG);
+////////////////////////////////////////////////////////////
+sf::Vector2f Tank::getControllerRSInput(XBox360Controller t_controller)
+{
+	sf::Vector2f rightStickInputVector;
 
-	// Deal with negative rotations
-	if (inputDirection < 0.0f)
+	// Vertical
+	if (t_controller.currentState.RightThumbStick.y > CONTROLLER_ANALOG_DEADZONE
+		|| t_controller.currentState.RightThumbStick.y < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		inputDirection = 360 + inputDirection;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	/// MOVEMENT
-	//////////////////////////////////////////////////////////////////////////////////////
-	if (inputSpeed > 100)
-	{
-		inputSpeed = 100;
-	}
-
-	if (fabsf(inputDirection - m_rotation) < 90.0f)
-	{
-		increaseSpeed(inputSpeed / 100.0f);
-	}
-	else
-	{
-		decreaseSpeed(inputSpeed / 100.0f);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	/// ROTATION
-	//////////////////////////////////////////////////////////////////////////////////////
-	if (inputSpeed > 0.0f)
-	{
-		float targetRotation = m_rotation;
-
-		/*if (fabsf(inputDirection - m_rotation) < 90.0f)
-		{
-			targetRotation = m_rotation - 180;
-
-			if (targetRotation < 0.0f)
-			{
-				
-				targetRotation + 360;
-			}
-		}
-		*/
-
-		// Check if the absolute value of the distance between the values
-		if (fabsf(inputDirection - targetRotation) > TURN_SPEED)
-		{
-
-			if (inputDirection > targetRotation)
-			{
-				if (fabsf(inputDirection - targetRotation) < 180)
-				{
-					increaseRotation();
-				}
-				else
-				{
-					decreaseRotation();
-				}
-			}
-			else
-			{
-				if (fabsf(inputDirection - targetRotation) < 180)
-				{
-					decreaseRotation();
-				}
-				else
-				{
-					increaseRotation();
-				}
-			}
-		}
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	/// TURRET ROTATION
-	//////////////////////////////////////////////////////////////////////////////////////
-	if (t_controller.currentState.RightThumbStick.x > 25.0f)
-	{
-		increaseTurretRotation();
-		m_centringTurret = false;
-	}
-	else if (t_controller.currentState.RightThumbStick.x < -25.0f)
-	{
-		decreaseTurretRotation();
+		rightStickInputVector.y = t_controller.currentState.RightThumbStick.y;
 		m_centringTurret = false;
 	}
 
-	if (t_controller.currentState.RTrigger > 50.0f
-		&& m_bullet == nullptr && m_fireTimer == 0)
+	// Horizontal
+	if (t_controller.currentState.RightThumbStick.x > CONTROLLER_ANALOG_DEADZONE
+		|| t_controller.currentState.RightThumbStick.x < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
-		m_fireTimer = FIRE_DELAY;
-		m_bulletsFired++;
+		rightStickInputVector.x = t_controller.currentState.RightThumbStick.x;
+		m_centringTurret = false;
 	}
 
-	if (t_controller.currentState.RightThumbStickClick)
-	{
-		toggleCentring();
-	}
+	return rightStickInputVector;
 }
 
 ////////////////////////////////////////////////////////////

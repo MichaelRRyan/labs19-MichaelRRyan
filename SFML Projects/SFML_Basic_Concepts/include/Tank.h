@@ -120,6 +120,14 @@ public:
 	/// </summary>
 	void handleControllerInput(XBox360Controller t_controller);
 
+	void handleControllerRotation(XBox360Controller t_controller, float t_inputDirection);
+
+	void handleControllerTurretRotation(XBox360Controller t_controller, float t_inputDirection);
+
+	sf::Vector2f getControllerLSInput(XBox360Controller t_controller);
+
+	sf::Vector2f getControllerRSInput(XBox360Controller t_controller);
+
 	/// <summary>
 	/// @brief Checks for collisions between the tank and the walls.
 	/// 
