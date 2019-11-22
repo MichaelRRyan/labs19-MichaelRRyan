@@ -11,11 +11,10 @@ public:
 	void setup();
 	bool processMouseEvents(sf::Event t_event);
 
-	static constexpr float s_WIDTH{ 300.0f };
+	static constexpr float s_WIDTH{ 400.0f };
 	static constexpr float s_HEIGHT{ 100.0f };
 
 private:
-	sf::Texture const& m_texture;
 	sf::Sprite m_sprite;
 	sf::Text m_text;
 };

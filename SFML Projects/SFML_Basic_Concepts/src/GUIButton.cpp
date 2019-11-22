@@ -1,9 +1,8 @@
 #include "GUIButton.h"
 
-GUIButton::GUIButton(sf::Texture const& t_texture, sf::Font const & t_font, std::string t_textString, sf::Vector2f t_position) :
-	m_texture{ t_texture }
+GUIButton::GUIButton(sf::Texture const& t_texture, sf::Font const & t_font, std::string t_textString, sf::Vector2f t_position)
 {
-	m_sprite.setTexture(m_texture);
+	m_sprite.setTexture(t_texture);
 	m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
 	m_sprite.setPosition(t_position);
 
@@ -29,6 +28,8 @@ bool GUIButton::processMouseEvents(sf::Event t_event)
 	if (sf::Event::MouseMoved)
 	{
 		m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
+		m_text.setCharacterSize(30u);
+		m_text.setOrigin(m_text.getGlobalBounds().width / 2.0f, m_text.getGlobalBounds().height / 2.0f);
 
 		// Check the mouse pointer against the button x bounds
 		if (t_event.mouseMove.x > m_sprite.getPosition().x
@@ -39,11 +40,13 @@ bool GUIButton::processMouseEvents(sf::Event t_event)
 				&& t_event.mouseMove.y < m_sprite.getPosition().y + m_sprite.getGlobalBounds().height)
 			{
 				m_sprite.setTextureRect({ 0, static_cast<int>(s_HEIGHT) + 1, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
+				m_text.setCharacterSize(35u);
+				m_text.setOrigin(m_text.getGlobalBounds().width / 2.0f, m_text.getGlobalBounds().height / 2.0f);
 			}
 		}
 	}
 
-	if (sf::Event::MouseButtonPressed == t_event.type)
+	if (sf::Event::MouseButtonReleased == t_event.type)
 	{
 		// Check if the button was pressed
 		if (sf::Mouse::Left == t_event.mouseButton.button)

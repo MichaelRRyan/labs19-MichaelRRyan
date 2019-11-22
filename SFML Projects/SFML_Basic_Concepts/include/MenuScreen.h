@@ -18,13 +18,14 @@ public:
 
 private:
 	const sf::Vector2f m_PLAY_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height / 2.0f) - (GUIButton::s_HEIGHT / 2.0f) };
-	const sf::Vector2f m_OPTIONS_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height / 2.0f) + (GUIButton::s_HEIGHT) };
-	const sf::Vector2f m_EXIT_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height / 2.0f) + (GUIButton::s_HEIGHT * 2.5f) };
+	const sf::Vector2f m_OPTIONS_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height / 2.0f) + (GUIButton::s_HEIGHT / 2.0f) };
+	const sf::Vector2f m_EXIT_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height / 2.0f) + (GUIButton::s_HEIGHT * 1.5f) };
 
-	sf::Texture const& m_texture;
 	GUIButton m_playButton;
 	GUIButton m_optionsButton;
 	GUIButton m_exitButton;
+
+	sf::Text m_titleText;
 };
 
 #endif // !MENU_SCREEN_H

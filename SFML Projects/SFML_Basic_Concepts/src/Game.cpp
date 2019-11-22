@@ -425,14 +425,16 @@ void Game::endRound()
 ////////////////////////////////////////////////////////////
 void Game::render()
 {
-	m_window.clear(sf::Color(0, 0, 0, 0));
-
 	if (GameState::MenuScreen == m_gameState) // Draw menu
 	{
+		m_window.clear(sf::Color(40, 60, 30));
+
 		m_menuScreen.draw(m_window);
 	}
 	if (GameState::Gameplay == m_gameState) // Draw gameplay
 	{
+		m_window.clear(sf::Color(0, 0, 0, 0));
+
 		m_window.draw(m_bgSprite);
 
 		// If the game round is still going, draw the tanks, and targets
