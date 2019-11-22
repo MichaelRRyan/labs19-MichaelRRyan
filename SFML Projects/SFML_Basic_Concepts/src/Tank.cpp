@@ -655,13 +655,13 @@ void Tank::initSprites()
 {
 	// Initialise the tank base
 	m_tankBase.setTexture(m_texture);
-	sf::IntRect baseRect(2, 43, 79, 43);
+	sf::IntRect baseRect(95, 42, 100, 51);
 	m_tankBase.setTextureRect(baseRect);
 	m_tankBase.setOrigin(static_cast<float>(baseRect.width) / 2.0f, static_cast<float>(baseRect.height) / 2.0f);
 
 	// Initialise the turret
 	m_turret.setTexture(m_texture);
-	sf::IntRect turretRect(19, 1, 83, 31);
+	sf::IntRect turretRect(120, 3, 87, 37);
 	m_turret.setTextureRect(turretRect);
 	m_turret.setOrigin(static_cast<float>(turretRect.width) / 3.0f, static_cast<float>(turretRect.height) / 2.0f);
 }

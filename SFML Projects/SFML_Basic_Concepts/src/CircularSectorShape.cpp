@@ -1,10 +1,18 @@
 #include "CircularSectorShape.h"
 
-CircularSectorShape::CircularSectorShape(float t_radius, std::size_t t_pointCount) :
+/// <summary>
+/// @Author Michael Rainsford Ryan
+/// @Date 22/11/19
+/// </summary>
+
+CircularSectorShape::CircularSectorShape(float t_radius, float t_completeness, std::size_t t_pointCount) :
 	m_radius{ t_radius },
-	m_pointCount{ t_pointCount }
+	m_pointCount{ t_pointCount },
+	m_completeness{ 0.0f },
+	m_pointsCut{ 0 }
 {
-	update();
+	setCompleteness(t_completeness);
+	// We don't need to call update as it was done in the function above
 }
 
 void CircularSectorShape::setRadius(float t_radius)
@@ -19,6 +27,35 @@ float CircularSectorShape::getRadius() const
 	return m_radius;
 }
 
+void CircularSectorShape::setCompleteness(float t_completeness)
+{
+	if (t_completeness > 1.0f)
+	{
+		m_completeness = 1.0f;
+		std::cout << "WARNING: " << t_completeness << " is an invalid input." << std::endl
+			<< "A CircularSectorShape only takes values for completeness between 0.0f and 1.0f. Value set to 1.0f" << std::endl;
+	}
+	else if (t_completeness < 0.0f)
+	{
+		m_completeness = 0.0f;
+		std::cout << "WARNING: " << t_completeness << " is an invalid input." << std::endl
+			<< "A CircularSectorShape only takes values for completeness between 0.0f and 1.0f. Value set to 0.0f" << std::endl;
+	}
+	else
+	{
+		m_completeness = t_completeness;
+	}
+
+	m_pointsCut = static_cast<unsigned>(m_pointCount - (m_pointCount * m_completeness));
+
+	update();
+}
+
+float CircularSectorShape::getCompleteness() const
+{
+	return m_completeness;
+}
+
 std::size_t CircularSectorShape::getPointCount() const
 {
 	return m_pointCount;
@@ -26,11 +63,18 @@ std::size_t CircularSectorShape::getPointCount() const
 
 sf::Vector2f CircularSectorShape::getPoint(unsigned int t_index) const
 {
-	static const float pi = 3.141592654f;
+	if (t_index < m_pointsCut)
+	{
+		return sf::Vector2f(m_radius, m_radius);
+	}
+	else
+	{
+		static const float pi = 3.141592654f;
 
-	float angle = t_index * 2 * pi / getPointCount() - pi / 2;
-	float x = std::cos(angle) * m_radius;
-	float y = std::sin(angle) * m_radius;
+		float angle = t_index * 2 * pi / getPointCount() - pi / 2;
+		float x = std::cos(angle) * m_radius;
+		float y = std::sin(angle) * m_radius;
 
-	return sf::Vector2f(m_radius + x, m_radius + y);
+		return sf::Vector2f(m_radius + x, m_radius + y);
+	}
 }

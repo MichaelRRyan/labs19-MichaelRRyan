@@ -159,7 +159,7 @@ protected:
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} };
 
-	sf::CircleShape m_timerCircle;
+	//sf::CircleShape m_timerCircle;
 	int m_targetsSpawned;
 	int m_numberOfTargets;
 

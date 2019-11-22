@@ -18,7 +18,7 @@ Game::Game() :
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
 	m_ROUND_TIME{ 60.0 },
-	m_tempShape{ 50.0f },
+	m_tempShape{ 80.0f, 0.0f, 120u },
 	m_menuScreen(m_guiTextures, m_font),
 	m_gameState{ GameState::MenuScreen }
 {
@@ -54,7 +54,8 @@ Game::Game() :
 	generateTargets();
 
 	// Setup the timer circle
-	m_timerCircle.setFillColor(sf::Color{ 255, 0, 0, 150 });
+	m_tempShape.setFillColor(sf::Color{ 255, 0, 0, 150 });
+	m_tempShape.setOrigin(m_tempShape.getRadius(), m_tempShape.getRadius());
 
 	// Connect the controller
 	m_controller.connect();
@@ -176,7 +177,7 @@ void Game::startRound()
 ////////////////////////////////////////////////////////////
 void Game::generateWalls()
 {
-	sf::IntRect wallRect{ 2, 129, 33, 23 };
+	sf::IntRect wallRect{ 5, 55, 34, 20 };
 
 	// Create the walls
 	for (ObstacleData const& obstacle : m_level.m_obstacles)
@@ -194,7 +195,7 @@ void Game::generateWalls()
 ////////////////////////////////////////////////////////////
 void Game::generateTargets()
 {
-	sf::IntRect targetRect{ 64, 107, 105, 47 };
+	sf::IntRect targetRect{ 0, 0, 52, 52 };
 
 	// Create the targets
 	for (TargetData const& target : m_level.m_targets)
@@ -223,20 +224,28 @@ void Game::setupText()
 	m_timerText.setCharacterSize(40u);
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 	m_timerText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
+	m_timerText.setOutlineThickness(2.0f);
+	m_timerText.setOutlineColor(sf::Color::Black);
 
 	m_playerOneScoreText.setFont(m_font);
 	m_playerOneScoreText.setCharacterSize(35u);
-	m_playerOneScoreText.setFillColor(sf::Color::Black);
+	m_playerOneScoreText.setFillColor(sf::Color::White);
+	m_playerOneScoreText.setOutlineThickness(2.0f);
+	m_playerOneScoreText.setOutlineColor(sf::Color::Black);
 
 	m_playerTwoScoreText.setFont(m_font);
 	m_playerTwoScoreText.setCharacterSize(35u);
 	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
-	m_playerTwoScoreText.setFillColor(sf::Color::Black);
+	m_playerTwoScoreText.setFillColor(sf::Color::White);
+	m_playerTwoScoreText.setOutlineThickness(2.0f);
+	m_playerTwoScoreText.setOutlineColor(sf::Color::Black);
 
 	m_bestScoreText.setFont(m_font);
 	m_bestScoreText.setCharacterSize(35u);
 	m_bestScoreText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2 + 100);
-	m_bestScoreText.setFillColor(sf::Color::Black);
+	m_bestScoreText.setFillColor(sf::Color::White);
+	m_bestScoreText.setOutlineThickness(2.0f);
+	m_bestScoreText.setOutlineColor(sf::Color::Black);
 }
 
 ////////////////////////////////////////////////////////////
@@ -440,17 +449,18 @@ void Game::render()
 		// If the game round is still going, draw the tanks, and targets
 		if (m_gameTimer > 0.0)
 		{
-			m_tank.render(m_window);
-			m_controllerTank.render(m_window);
-
 			// Draw the targets
 			for (Target const& target : m_targets)
 			{
 				if (target.active())
 				{
-					target.draw(m_window, m_timerCircle);
+					target.draw(m_window, m_tempShape);
 				}
 			}
+
+			// Draw the tanks
+			m_tank.render(m_window);
+			m_controllerTank.render(m_window);
 		}
 
 		// Draw all the obstacles
@@ -467,8 +477,6 @@ void Game::render()
 		{
 			m_window.draw(m_bestScoreText);
 		}
-
-		//m_window.draw(m_tempShape);
 	}
 
 	m_window.display();

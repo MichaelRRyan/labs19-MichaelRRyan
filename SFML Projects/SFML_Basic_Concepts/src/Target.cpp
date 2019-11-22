@@ -24,6 +24,7 @@ void Target::resetTarget(std::vector<sf::Sprite> t_walls)
 	m_sprite.setPosition(xPosition, m_BASE_POSITION.y);
 
 	m_secondsToLive = m_BASE_SECONDS_TO_LIVE;
+	m_maxTimeToLive = m_BASE_SECONDS_TO_LIVE;
 	m_active = false;
 
 	// Check the target is not colliding with a wall in the current position
@@ -45,6 +46,7 @@ float Target::getSecondsToLive()
 ////////////////////////////////////////////////////////////
 void Target::addSecondsToLive(float t_seconds)
 {
+	m_maxTimeToLive += t_seconds;
 	m_secondsToLive += t_seconds;
 }
 
@@ -64,13 +66,12 @@ void Target::update(sf::Time t_timeSinceLastUpdate)
 }
 
 ////////////////////////////////////////////////////////////
-void Target::draw(sf::RenderWindow& t_window, sf::CircleShape& t_timerCircle) const
+void Target::draw(sf::RenderWindow& t_window, CircularSectorShape& t_timerShape) const
 {
-	t_timerCircle.setRadius(m_secondsToLive * 10);
-	t_timerCircle.setOrigin(t_timerCircle.getRadius(), t_timerCircle.getRadius());
-	t_timerCircle.setPosition(m_sprite.getPosition());
+	t_timerShape.setCompleteness(m_secondsToLive / m_maxTimeToLive);
+	t_timerShape.setPosition(m_sprite.getPosition());
 	
-	t_window.draw(t_timerCircle);
+	t_window.draw(t_timerShape);
 	t_window.draw(m_sprite);
 }
 

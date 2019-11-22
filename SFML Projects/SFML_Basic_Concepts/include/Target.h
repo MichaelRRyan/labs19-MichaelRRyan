@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <CollisionDetector.h>
+#include "CircularSectorShape.h"
 
 class Target
 {
@@ -17,7 +18,7 @@ public:
 	void addSecondsToLive(float t_seconds);
 
 	void update(sf::Time t_timeSinceLastUpdate);
-	void draw(sf::RenderWindow& t_window, sf::CircleShape& t_timerCircle) const;
+	void draw(sf::RenderWindow& t_window, CircularSectorShape& t_timerShape) const;
 
 	void setActive(bool t_activeState);
 
@@ -30,6 +31,7 @@ protected:
 	const int m_RANDOM_OFFSET;
 
 	sf::Sprite m_sprite;
+	float m_maxTimeToLive;
 	float m_secondsToLive;
 	bool m_active;
 };
