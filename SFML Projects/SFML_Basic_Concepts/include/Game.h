@@ -16,6 +16,7 @@
 #include "CircularSectorShape.h"
 #include "MenuScreen.h"
 #include "GameState.h"
+#include "ModeSelectScreen.h"
 
 class Game
 {
@@ -118,8 +119,8 @@ protected:
 
 	sf::Font m_font;
 	sf::Text m_timerText;
-	sf::Text m_playerOneScoreText;
-	sf::Text m_playerTwoScoreText;
+	sf::Text m_playerOneText;
+	sf::Text m_playerTwoText;
 	sf::Text m_bestScoreText;
 
 	// Sprites
@@ -167,6 +168,7 @@ protected:
 
 	sf::Texture m_guiTextures;
 	MenuScreen m_menuScreen;
+	ModeSelectScreen m_modeSelectScreen;
 
 	GameState m_gameState;
 };

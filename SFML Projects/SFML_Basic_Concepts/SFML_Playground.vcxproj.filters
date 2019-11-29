@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Screens">
+      <UniqueIdentifier>{7472b54f-e403-4847-be09-b668929f47f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Screens">
+      <UniqueIdentifier>{d4bab571-7446-4b88-ad06-eb094ea4dfeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\levels\level1.yaml">
@@ -59,13 +65,16 @@
     <ClInclude Include="include\CircularSectorShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\GUIButton.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\ModeSelectScreen.h">
+      <Filter>Header Files\Screens</Filter>
     </ClInclude>
     <ClInclude Include="include\MenuScreen.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Screens</Filter>
     </ClInclude>
-    <ClInclude Include="GameState.h">
+    <ClInclude Include="include\GUIButton.h">
+      <Filter>Header Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -106,11 +115,14 @@
     <ClCompile Include="src\CircularSectorShape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GUIButton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\MenuScreen.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModeSelectScreen.cpp">
+      <Filter>Source Files\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUIButton.cpp">
+      <Filter>Source Files\Screens</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -23,15 +23,16 @@
     <None Include="resources\levels\level1.yaml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameState.h" />
     <ClInclude Include="include\Bullet.h" />
     <ClInclude Include="include\CircularSectorShape.h" />
     <ClInclude Include="include\CollisionDetector.h" />
     <ClInclude Include="include\Game.h" />
+    <ClInclude Include="include\GameState.h" />
     <ClInclude Include="include\GUIButton.h" />
     <ClInclude Include="include\LevelLoader.h" />
     <ClInclude Include="include\MathUtility.h" />
     <ClInclude Include="include\MenuScreen.h" />
+    <ClInclude Include="include\ModeSelectScreen.h" />
     <ClInclude Include="include\OrientedBoundingBox.h" />
     <ClInclude Include="include\RoundStatsSaver.h" />
     <ClInclude Include="include\ScreenSize.h" />
@@ -49,6 +50,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MathUtility.cpp" />
     <ClCompile Include="src\MenuScreen.cpp" />
+    <ClCompile Include="src\ModeSelectScreen.cpp" />
     <ClCompile Include="src\OrientedBoundingBox.cpp" />
     <ClCompile Include="src\RoundStatsSaver.cpp" />
     <ClCompile Include="src\Tank.cpp" />

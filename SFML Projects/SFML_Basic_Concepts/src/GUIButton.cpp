@@ -6,7 +6,7 @@ GUIButton::GUIButton(sf::Texture const& t_texture, sf::Font const & t_font, std:
 	m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
 	m_sprite.setPosition(t_position);
 
-	m_text.setPosition(t_position.x + s_WIDTH / 2.0f, t_position.y + s_HEIGHT / 2.0f);
+	m_text.setPosition(t_position.x + s_WIDTH / 2.0f, t_position.y + s_HEIGHT / 2.2f);
 	m_text.setString(t_textString);
 	m_text.setFont(t_font);
 }

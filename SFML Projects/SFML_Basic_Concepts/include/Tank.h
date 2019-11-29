@@ -161,11 +161,21 @@ public:
 
 	void adjustRotation();
 
+	void checkTanktoTankCollisions(Tank &t_tank);
+
+	void takeDamage(float t_amount);
+
+	float getHealth();
+
+	void checkForDeath();
+
 	/// <summary>
 	/// Return a string of the player statistics
 	/// </summary>
 	/// <returns></returns>
 	std::string getStatistics();
+
+	sf::Sprite getSprite();
 
 private:
 	void initSprites();
@@ -185,6 +195,7 @@ private:
 	const float ACCELERATION;
 	const float TURN_SPEED;
 	const float FIRE_DELAY{ 1.0f };
+	const float m_BULLET_DAMAGE;
 
 	float m_previousSpeed{ 0.0 };
 	float m_speed{ 0.0 };
@@ -207,6 +218,8 @@ private:
 	int m_targetsHit;
 	int m_score;
 	int m_bulletsFired;
+
+	float m_healthPercent;
 
 	// Controller Support
 	const float CONTROLLER_ANALOG_DEADZONE{ 25.0f };

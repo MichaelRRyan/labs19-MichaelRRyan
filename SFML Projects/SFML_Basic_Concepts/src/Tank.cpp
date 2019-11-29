@@ -8,8 +8,10 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	SPEED_LIMIT{ 100.0f },
 	ACCELERATION{ 2.0f },
 	TURN_SPEED{ 0.8f },
+	m_BULLET_DAMAGE{ 10.0f },
 	m_bullet{ nullptr },
-	m_score{ 0 }
+	m_score{ 0 },
+	m_healthPercent{ 100.0f }
 {
 	initSprites();
 }
@@ -128,6 +130,7 @@ void Tank::resetScore()
 	m_score = 0;
 	m_bulletsFired = 0;
 	m_targetsHit = 0;
+	m_healthPercent = 100.0f;
 }
 
 ////////////////////////////////////////////////////////////
@@ -633,6 +636,42 @@ void Tank::adjustRotation()
 	}
 }
 
+void Tank::checkTanktoTankCollisions(Tank& t_tank)
+{
+	if (CollisionDetector::collision(m_tankBase, t_tank.getSprite()))
+	{
+		deflect();
+	}
+
+	if (m_bullet != nullptr)
+	{
+		if (CollisionDetector::collision(m_bullet->getBody(), t_tank.getSprite()))
+		{
+			t_tank.takeDamage(m_BULLET_DAMAGE);
+			delete m_bullet;
+			m_bullet = nullptr;
+		}
+	}
+}
+
+void Tank::takeDamage(float t_amount)
+{
+	m_healthPercent -= t_amount;
+}
+
+float Tank::getHealth()
+{
+	return m_healthPercent;
+}
+
+void Tank::checkForDeath()
+{
+	if (m_healthPercent <= 0.0f)
+	{
+		m_healthPercent = 0;
+	}
+}
+
 ////////////////////////////////////////////////////////////
 std::string Tank::getStatistics()
 {
@@ -648,6 +687,11 @@ std::string Tank::getStatistics()
 			+ "%\nAccuracy: [No bullets fired]"
 			+ "\nOverall Score: " + std::to_string(m_score);
 	}
+}
+
+sf::Sprite Tank::getSprite()
+{
+	return m_tankBase;
 }
 
 ////////////////////////////////////////////////////////////

@@ -4,7 +4,9 @@
 enum class GameState
 {
 	MenuScreen,
-	Gameplay
+	ModeSelect,
+	TargetPractice,
+	Versus
 };
 
 #endif // !GAME_STATE_H

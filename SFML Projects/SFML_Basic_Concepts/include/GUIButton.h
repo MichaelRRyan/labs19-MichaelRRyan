@@ -11,7 +11,7 @@ public:
 	void setup();
 	bool processMouseEvents(sf::Event t_event);
 
-	static constexpr float s_WIDTH{ 400.0f };
+	static constexpr float s_WIDTH{ 500.0f };
 	static constexpr float s_HEIGHT{ 100.0f };
 
 private:

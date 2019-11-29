@@ -5,6 +5,7 @@
 /// </summary>
 
 #include "Game.h"
+#include "ModeSelectScreen.h"
 
 
 // Updates per milliseconds
@@ -20,6 +21,7 @@ Game::Game() :
 	m_ROUND_TIME{ 60.0 },
 	m_tempShape{ 80.0f, 0.0f, 120u },
 	m_menuScreen(m_guiTextures, m_font),
+	m_modeSelectScreen(m_guiTextures, m_font),
 	m_gameState{ GameState::MenuScreen }
 {
 	m_window.setVerticalSyncEnabled(true);
@@ -62,6 +64,7 @@ Game::Game() :
 
 	// Setup the menu
 	m_menuScreen.setup();
+	m_modeSelectScreen.setup();
 }
 
 ////////////////////////////////////////////////////////////
@@ -106,28 +109,51 @@ void Game::processEvents()
 ////////////////////////////////////////////////////////////
 void Game::processGameEvents(sf::Event& event)
 {
-	// check if the event is a a mouse button release
-	if (sf::Event::KeyPressed == event.type)
+	switch (m_gameState)
 	{
-		switch (event.key.code)
+	case GameState::MenuScreen:
+		m_menuScreen.processEvents(event, m_gameState, m_window);
+		break;
+	case GameState::ModeSelect:
+		m_modeSelectScreen.processEvents(event, m_gameState);
+		break;
+	case GameState::TargetPractice:
+		// check if the event is a a key button press
+		if (sf::Event::KeyPressed == event.type)
 		{
-		case sf::Keyboard::Escape:
-			m_window.close();
-			break;
-		case sf::Keyboard::S:
-			m_tank.toggleCentring();
-			break;
-		case sf::Keyboard::Space:
-			if (m_gameTimer == 0.0)
+			switch (event.key.code)
 			{
-				startRound();
+			case sf::Keyboard::Escape:
+				m_window.close();
+				break;
+			case sf::Keyboard::S:
+				m_tank.toggleCentring();
+				break;
+			case sf::Keyboard::Space:
+				if (m_gameTimer == 0.0)
+				{
+					startRound();
+				}
+				break;
 			}
-			break;
 		}
+		break;
+	case GameState::Versus:
+		// check if the event is a a key button press
+		if (sf::Event::KeyPressed == event.type)
+		{
+			switch (event.key.code)
+			{
+			case sf::Keyboard::Escape:
+				m_window.close();
+				break;
+			case sf::Keyboard::S:
+				m_tank.toggleCentring();
+				break;
+			}
+		}
+		break;
 	}
-
-	// Process menu screen events
-	m_menuScreen.processEvents(event, m_gameState, m_window);
 }
 
 ////////////////////////////////////////////////////////////
@@ -163,8 +189,8 @@ void Game::startRound()
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 	m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
 
-	m_playerOneScoreText.setPosition(0.0f, 0.0f);
-	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
+	m_playerOneText.setPosition(20.0f, 0.0f);
+	m_playerTwoText.setPosition(ScreenSize::s_width - 450, 0.0f);
 
 	// Set targets
 	m_targetsSpawned = 0;
@@ -212,7 +238,7 @@ void Game::generateTargets()
 void Game::setupText()
 {
 	// Load the font
-	if (!m_font.loadFromFile("./resources/fonts/arial.ttf"))
+	if (!m_font.loadFromFile("./resources/fonts/Disarmer-pvVD.ttf"))
 	{
 		std::string s("Error loading font file");
 		throw std::exception(s.c_str());
@@ -227,18 +253,18 @@ void Game::setupText()
 	m_timerText.setOutlineThickness(2.0f);
 	m_timerText.setOutlineColor(sf::Color::Black);
 
-	m_playerOneScoreText.setFont(m_font);
-	m_playerOneScoreText.setCharacterSize(35u);
-	m_playerOneScoreText.setFillColor(sf::Color::White);
-	m_playerOneScoreText.setOutlineThickness(2.0f);
-	m_playerOneScoreText.setOutlineColor(sf::Color::Black);
+	m_playerOneText.setFont(m_font);
+	m_playerOneText.setCharacterSize(30u);
+	m_playerOneText.setFillColor(sf::Color::White);
+	m_playerOneText.setOutlineThickness(2.0f);
+	m_playerOneText.setOutlineColor(sf::Color::Black);
 
-	m_playerTwoScoreText.setFont(m_font);
-	m_playerTwoScoreText.setCharacterSize(35u);
-	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 400, 0.0f);
-	m_playerTwoScoreText.setFillColor(sf::Color::White);
-	m_playerTwoScoreText.setOutlineThickness(2.0f);
-	m_playerTwoScoreText.setOutlineColor(sf::Color::Black);
+	m_playerTwoText.setFont(m_font);
+	m_playerTwoText.setCharacterSize(30u);
+	m_playerTwoText.setPosition(ScreenSize::s_width - 400, 0.0f);
+	m_playerTwoText.setFillColor(sf::Color::White);
+	m_playerTwoText.setOutlineThickness(2.0f);
+	m_playerTwoText.setOutlineColor(sf::Color::Black);
 
 	m_bestScoreText.setFont(m_font);
 	m_bestScoreText.setCharacterSize(35u);
@@ -279,7 +305,7 @@ void Game::update(double dt)
 	m_controller.update(); // Update the controller
 
 	// If the game is in the gameplay state
-	if (GameState::Gameplay == m_gameState)
+	if (GameState::TargetPractice == m_gameState)
 	{
 		// If the round is still on
 		if (m_gameTimer > 0.0)
@@ -302,8 +328,8 @@ void Game::update(double dt)
 			updateTargets(timeSinceLastUpdate);
 
 			// Update the player score text
-			m_playerOneScoreText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
-			m_playerTwoScoreText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
+			m_playerOneText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
+			m_playerTwoText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
 
 			// If the round ends
 			if (m_gameTimer < 0.0)
@@ -311,6 +337,25 @@ void Game::update(double dt)
 				endRound();
 			}
 		}
+	}
+	else if (GameState::Versus == m_gameState)
+	{
+		// update the first player
+		m_tank.setPrevious(); // Set the previous variables (E.g. previousRotation)
+		m_tank.handleKeyInput();
+		m_tank.update(dt);
+		m_tank.checkTanktoTankCollisions(m_controllerTank);
+		m_tank.checkForDeath();
+
+		// Update the second player
+		m_controllerTank.setPrevious(); // Set the previous variables (E.g. previousRotation)
+		m_controllerTank.handleControllerInput(m_controller);
+		m_controllerTank.update(dt);
+		m_controllerTank.checkTanktoTankCollisions(m_tank);
+		m_controllerTank.checkForDeath();
+
+		m_playerOneText.setString("player1 HP: " + std::to_string(static_cast<int>(m_tank.getHealth())) + "%");
+		m_playerTwoText.setString("player2 HP: " + std::to_string(static_cast<int>(m_controllerTank.getHealth())) + "%");
 	}
 }
 
@@ -396,12 +441,12 @@ void Game::endRound()
 
 	// Set the text object strings
 	m_timerText.setString("PRESS SPACE TO START");
-	m_playerOneScoreText.setString("Player1:\n" + m_tank.getStatistics());
-	m_playerTwoScoreText.setString("Player2:\n" + m_controllerTank.getStatistics());
+	m_playerOneText.setString("Player1:\n" + m_tank.getStatistics());
+	m_playerTwoText.setString("Player2:\n" + m_controllerTank.getStatistics());
 
 	// Set the text positions
-	m_playerOneScoreText.setPosition(100.0f, 100.0f);
-	m_playerTwoScoreText.setPosition(ScreenSize::s_width - 500, 100.0f);
+	m_playerOneText.setPosition(100.0f, 100.0f);
+	m_playerTwoText.setPosition(ScreenSize::s_width - 500, 100.0f);
 
 	// Move the timer text and rescale it
 	m_timerText.setCharacterSize(40u);
@@ -434,17 +479,28 @@ void Game::endRound()
 ////////////////////////////////////////////////////////////
 void Game::render()
 {
-	if (GameState::MenuScreen == m_gameState) // Draw menu
+	switch (m_gameState)
 	{
+	case GameState::MenuScreen:
 		m_window.clear(sf::Color(40, 60, 30));
 
 		m_menuScreen.draw(m_window);
-	}
-	if (GameState::Gameplay == m_gameState) // Draw gameplay
-	{
+		break;
+	case GameState::ModeSelect:
+		m_window.clear(sf::Color(40, 60, 30));
+
+		m_modeSelectScreen.draw(m_window);
+		break;
+	case GameState::TargetPractice:
 		m_window.clear(sf::Color(0, 0, 0, 0));
 
 		m_window.draw(m_bgSprite);
+
+		// Draw all the obstacles
+		for (sf::Sprite const& obstacle : m_wallSprites)
+		{
+			m_window.draw(obstacle);
+		}
 
 		// If the game round is still going, draw the tanks, and targets
 		if (m_gameTimer > 0.0)
@@ -463,21 +519,35 @@ void Game::render()
 			m_controllerTank.render(m_window);
 		}
 
+		m_window.draw(m_timerText);
+		m_window.draw(m_playerOneText);
+		m_window.draw(m_playerTwoText);
+
+		if (m_gameTimer <= 0.0)
+		{
+			m_window.draw(m_bestScoreText);
+		}
+		break;
+	case GameState::Versus:
+		m_window.clear();
+
+		m_window.draw(m_bgSprite);
+
 		// Draw all the obstacles
 		for (sf::Sprite const& obstacle : m_wallSprites)
 		{
 			m_window.draw(obstacle);
 		}
 
-		m_window.draw(m_timerText);
-		m_window.draw(m_playerOneScoreText);
-		m_window.draw(m_playerTwoScoreText);
+		// Draw the tanks
+		m_tank.render(m_window);
+		m_controllerTank.render(m_window);
 
-		if (m_gameTimer <= 0.0)
-		{
-			m_window.draw(m_bestScoreText);
-		}
+		m_window.draw(m_playerOneText);
+		m_window.draw(m_playerTwoText);
+		break;
 	}
+
 
 	m_window.display();
 }
