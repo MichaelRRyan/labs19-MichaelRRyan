@@ -167,8 +167,6 @@ public:
 
 	float getHealth();
 
-	void checkForDeath();
-
 	/// <summary>
 	/// Return a string of the player statistics
 	/// </summary>

@@ -638,18 +638,21 @@ void Tank::adjustRotation()
 
 void Tank::checkTanktoTankCollisions(Tank& t_tank)
 {
-	if (CollisionDetector::collision(m_tankBase, t_tank.getSprite()))
+	if (t_tank.getHealth() > 0.0f)
 	{
-		deflect();
-	}
-
-	if (m_bullet != nullptr)
-	{
-		if (CollisionDetector::collision(m_bullet->getBody(), t_tank.getSprite()))
+		if (CollisionDetector::collision(m_tankBase, t_tank.getSprite()))
 		{
-			t_tank.takeDamage(m_BULLET_DAMAGE);
-			delete m_bullet;
-			m_bullet = nullptr;
+			deflect();
+		}
+
+		if (m_bullet != nullptr)
+		{
+			if (CollisionDetector::collision(m_bullet->getBody(), t_tank.getSprite()))
+			{
+				t_tank.takeDamage(m_BULLET_DAMAGE);
+				delete m_bullet;
+				m_bullet = nullptr;
+			}
 		}
 	}
 }
@@ -657,19 +660,16 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 void Tank::takeDamage(float t_amount)
 {
 	m_healthPercent -= t_amount;
+
+	if (m_healthPercent <= 0.0f)
+	{
+		m_healthPercent = 0;
+	}
 }
 
 float Tank::getHealth()
 {
 	return m_healthPercent;
-}
-
-void Tank::checkForDeath()
-{
-	if (m_healthPercent <= 0.0f)
-	{
-		m_healthPercent = 0;
-	}
 }
 
 ////////////////////////////////////////////////////////////

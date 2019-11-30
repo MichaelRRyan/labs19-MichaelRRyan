@@ -351,19 +351,23 @@ void Game::update(double dt)
 	}
 	else if (GameState::Versus == m_gameState)
 	{
-		// update the first player
-		m_tank.setPrevious(); // Set the previous variables (E.g. previousRotation)
-		m_tank.handleKeyInput();
-		m_tank.update(dt);
-		m_tank.checkTanktoTankCollisions(m_controllerTank);
-		m_tank.checkForDeath();
+		// update the first player if alive
+		if (m_tank.getHealth() > 0.0f)
+		{
+			m_tank.setPrevious(); // Set the previous variables (E.g. previousRotation)
+			m_tank.handleKeyInput();
+			m_tank.update(dt);
+			m_tank.checkTanktoTankCollisions(m_controllerTank);
+		}
 
-		// Update the second player
-		m_controllerTank.setPrevious(); // Set the previous variables (E.g. previousRotation)
-		m_controllerTank.handleControllerInput(m_controller);
-		m_controllerTank.update(dt);
-		m_controllerTank.checkTanktoTankCollisions(m_tank);
-		m_controllerTank.checkForDeath();
+		// Update the second player if alive
+		if (m_controllerTank.getHealth() > 0.0f)
+		{
+			m_controllerTank.setPrevious(); // Set the previous variables (E.g. previousRotation)
+			m_controllerTank.handleControllerInput(m_controller);
+			m_controllerTank.update(dt);
+			m_controllerTank.checkTanktoTankCollisions(m_tank);
+		}
 
 		m_playerOneText.setString("player1 HP: " + std::to_string(static_cast<int>(m_tank.getHealth())) + "%");
 		m_playerTwoText.setString("player2 HP: " + std::to_string(static_cast<int>(m_controllerTank.getHealth())) + "%");
@@ -548,9 +552,16 @@ void Game::render()
 			m_window.draw(obstacle);
 		}
 
-		// Draw the tanks
-		m_tank.render(m_window);
-		m_controllerTank.render(m_window);
+		// Draw the tanks if they're alive
+		if (m_tank.getHealth() > 0.0f)
+		{
+			m_tank.render(m_window);
+		}
+
+		if (m_controllerTank.getHealth() > 0.0f)
+		{
+			m_controllerTank.render(m_window);
+		}
 
 		m_window.draw(m_playerOneText);
 		m_window.draw(m_playerTwoText);
