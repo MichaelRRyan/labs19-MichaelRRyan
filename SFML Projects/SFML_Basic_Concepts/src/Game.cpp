@@ -19,10 +19,15 @@ Game::Game() :
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
 	m_ROUND_TIME{ 60.0 },
-	m_tempShape{ 80.0f, 0.0f, 120u },
-	m_menuScreen(m_guiTextures, m_font),
-	m_modeSelectScreen(m_guiTextures, m_font),
-	m_gameState{ GameState::MenuScreen }
+	m_targetTimerShape{ 80.0f, 0.0f, 120u },
+	m_menuScreen(m_guiTextures, m_menuBackground, m_font),
+	m_modeSelectScreen(m_guiTextures, m_menuBackground, m_font),
+	m_gameState{ GameState::MenuScreen },
+	m_TANK_POSITIONS{
+		{m_TANK_OFFSET, m_TANK_OFFSET},
+		{m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET},
+		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
+		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -56,8 +61,8 @@ Game::Game() :
 	generateTargets();
 
 	// Setup the timer circle
-	m_tempShape.setFillColor(sf::Color{ 255, 0, 0, 150 });
-	m_tempShape.setOrigin(m_tempShape.getRadius(), m_tempShape.getRadius());
+	m_targetTimerShape.setFillColor(sf::Color{ 255, 0, 0, 150 });
+	m_targetTimerShape.setOrigin(m_targetTimerShape.getRadius(), m_targetTimerShape.getRadius());
 
 	// Connect the controller
 	m_controller.connect();
@@ -297,6 +302,12 @@ void Game::loadTextures()
 		std::string s("Error loading GUI textures");
 		throw std::exception(s.c_str());
 	}
+
+	if (!m_menuBackground.loadFromFile("./resources/images/menuBackground.png"))
+	{
+		std::string s("Error loading menu background texture");
+		throw std::exception(s.c_str());
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -479,20 +490,18 @@ void Game::endRound()
 ////////////////////////////////////////////////////////////
 void Game::render()
 {
+	m_window.clear();
+
 	switch (m_gameState)
 	{
 	case GameState::MenuScreen:
-		m_window.clear(sf::Color(40, 60, 30));
-
 		m_menuScreen.draw(m_window);
 		break;
 	case GameState::ModeSelect:
-		m_window.clear(sf::Color(40, 60, 30));
-
 		m_modeSelectScreen.draw(m_window);
 		break;
 	case GameState::TargetPractice:
-		m_window.clear(sf::Color(0, 0, 0, 0));
+		
 
 		m_window.draw(m_bgSprite);
 
@@ -510,7 +519,7 @@ void Game::render()
 			{
 				if (target.active())
 				{
-					target.draw(m_window, m_tempShape);
+					target.draw(m_window, m_targetTimerShape);
 				}
 			}
 

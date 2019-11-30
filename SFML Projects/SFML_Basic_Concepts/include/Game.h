@@ -114,28 +114,34 @@ protected:
 	/// </summary>
 	void loadTextures();
 
+
+	/////////////////////////////////////////////////////////////////////
+	/// Protected Data Members
+	////////////////////////////////////////////////////////////////////
+
+	/// VISUALS
 	// main window
 	sf::RenderWindow m_window;
 
+	//Font and text
 	sf::Font m_font;
+
 	sf::Text m_timerText;
 	sf::Text m_playerOneText;
 	sf::Text m_playerTwoText;
 	sf::Text m_bestScoreText;
 
-	// Sprites
+	// Texures and sprites
 	sf::Texture m_texture;
 	sf::Texture m_bgTexture;
-	sf::Texture m_spriteSheetTexture;
+	sf::Texture m_guiTextures;
+	sf::Texture m_menuBackground;
 
-	sf::Sprite m_sprite;
-	sf::Sprite m_tankTurret;
 	sf::Sprite m_bgSprite;
-	std::vector<sf::Sprite> m_obstacles;
+	std::vector<sf::Sprite> m_wallSprites; // Wall sprites
 
-	// Wall sprites
-	std::vector<sf::Sprite> m_wallSprites;
 	std::vector<Target> m_targets;
+	CircularSectorShape m_targetTimerShape;
 
 	// Instance of a tank object as a player controlled object
 	Tank m_tank;
@@ -148,27 +154,20 @@ protected:
 
 	// Timers
 	const double m_ROUND_TIME;
+	double m_gameTimer;
 
 	sf::Clock m_clockTimer;
 	sf::Clock m_spawnTimer;
-	double m_gameTimer;
 
-	const float m_TANK_OFFSET{ 100.0f };
-	const sf::Vector2f m_TANK_POSITIONS[4]{
-		{m_TANK_OFFSET, m_TANK_OFFSET},
-		{m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET},
-		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
-		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} };
+	const float m_TANK_OFFSET{ 100.0f }; // Offset in from the screen boundaries that the tank will spawn
+	const sf::Vector2f m_TANK_POSITIONS[4]; // Corner positions the tank spawns in
 
-	//sf::CircleShape m_timerCircle;
-	int m_targetsSpawned;
-	int m_numberOfTargets;
+	int m_targetsSpawned; // Number of targets spawned in a round
+	int m_numberOfTargets; // Number targets loaded from a file
 
-	CircularSectorShape m_tempShape;
-
-	sf::Texture m_guiTextures;
 	MenuScreen m_menuScreen;
 	ModeSelectScreen m_modeSelectScreen;
 
-	GameState m_gameState;
+	GameState m_gameState; // Current state the game is in
+	GameState m_previousGameState;
 };

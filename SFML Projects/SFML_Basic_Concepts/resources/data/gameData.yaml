@@ -2,9 +2,9 @@ stats:
   - score: 179
     percTargetsHit: 100
     accuracy: 84
-  - score: 144
+  - percTargetsHit: 100
+    score: 144
     accuracy: 73
-    percTargetsHit: 100
   - score: 144
     percTargetsHit: 100
     accuracy: 78

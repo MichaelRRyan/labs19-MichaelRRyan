@@ -1,25 +1,28 @@
 #include "MenuScreen.h"
 
-MenuScreen::MenuScreen(sf::Texture const& t_texture, sf::Font const& t_font) :
-	m_playButton{ t_texture, t_font, "PLAY", m_PLAY_BUTTON_POS },
-	m_optionsButton{ t_texture, t_font, "OPTIONS", m_OPTIONS_BUTTON_POS },
-	m_exitButton{ t_texture, t_font, "EXIT", m_EXIT_BUTTON_POS }
+MenuScreen::MenuScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
+	m_playButton{ t_guiSheet, t_font, "PLAY", m_PLAY_BUTTON_POS },
+	m_optionsButton{ t_guiSheet, t_font, "OPTIONS", m_OPTIONS_BUTTON_POS },
+	m_exitButton{ t_guiSheet, t_font, "EXIT", m_EXIT_BUTTON_POS },
+	m_background(t_background, { 0, 0, ScreenSize::s_width, ScreenSize::s_height })
 {
 	m_titleText.setFont(t_font);
 	m_titleText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 4.0f);
-	m_titleText.setString("TOP DOWN TANKS");
-	m_titleText.setCharacterSize(80u);
-	m_titleText.setFillColor(sf::Color{ 114, 183, 84 });
-	m_titleText.setStyle(sf::Text::Bold | sf::Text::Italic);
-	m_titleText.setOutlineColor(sf::Color{ 100, 61, 32});
-	m_titleText.setOutlineThickness(5.0f);
+	m_titleText.setString("BATTLE TANKS");
+	m_titleText.setCharacterSize(100u);
+	m_titleText.setFillColor(sf::Color::Black);
+	m_titleText.setOutlineColor(sf::Color::White);
+	m_titleText.setOutlineThickness(10.0f);
 }
 
 void MenuScreen::draw(sf::RenderWindow& t_window)
 {
+	t_window.draw(m_background);
+
 	m_playButton.draw(t_window);
 	m_optionsButton.draw(t_window);
 	m_exitButton.draw(t_window);
+
 	t_window.draw(m_titleText);
 }
 
