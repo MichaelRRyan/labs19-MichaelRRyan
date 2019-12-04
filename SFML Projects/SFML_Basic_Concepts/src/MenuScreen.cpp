@@ -38,7 +38,7 @@ void MenuScreen::processEvents(sf::Event t_event, GameState& t_gameState, sf::Re
 {
 	if (m_playButton.processMouseEvents(t_event))
 	{
-		t_gameState = GameState::ModeSelect;
+		t_gameState = GameState::PlayerJoinScreen;
 	}
 
 	if (m_optionsButton.processMouseEvents(t_event))

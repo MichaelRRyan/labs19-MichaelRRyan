@@ -18,6 +18,7 @@
 #include "MenuScreen.h"
 #include "GameState.h"
 #include "ModeSelectScreen.h"
+#include "PlayerJoinScreen.h"
 
 class Game
 {
@@ -175,8 +176,11 @@ protected:
 	int m_targetsSpawned; // Number of targets spawned in a round
 	int m_numberOfTargets; // Number targets loaded from a file
 
+	int m_numberOfPlayers;
+
 	MenuScreen m_menuScreen;
 	ModeSelectScreen m_modeSelectScreen;
+	PlayerJoinScreen m_playerJoinScreen;
 
 	GameState m_gameState; // Current state the game is in
 	GameState m_previousGameState;

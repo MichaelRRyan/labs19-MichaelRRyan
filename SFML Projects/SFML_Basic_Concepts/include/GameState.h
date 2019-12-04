@@ -4,6 +4,7 @@
 enum class GameState
 {
 	MenuScreen,
+	PlayerJoinScreen,
 	ModeSelect,
 	TargetPractice,
 	Versus

@@ -27,6 +27,7 @@
     <ClInclude Include="include\CircularSectorShape.h" />
     <ClInclude Include="include\CollisionDetector.h" />
     <ClInclude Include="include\Game.h" />
+    <ClInclude Include="include\GameConfig.h" />
     <ClInclude Include="include\GameState.h" />
     <ClInclude Include="include\GUIButton.h" />
     <ClInclude Include="include\LevelLoader.h" />
@@ -34,6 +35,7 @@
     <ClInclude Include="include\MenuScreen.h" />
     <ClInclude Include="include\ModeSelectScreen.h" />
     <ClInclude Include="include\OrientedBoundingBox.h" />
+    <ClInclude Include="include\PlayerJoinScreen.h" />
     <ClInclude Include="include\RoundStatsSaver.h" />
     <ClInclude Include="include\ScreenSize.h" />
     <ClInclude Include="include\Tank.h" />
@@ -52,6 +54,7 @@
     <ClCompile Include="src\MenuScreen.cpp" />
     <ClCompile Include="src\ModeSelectScreen.cpp" />
     <ClCompile Include="src\OrientedBoundingBox.cpp" />
+    <ClCompile Include="src\PlayerJoinScreen.cpp" />
     <ClCompile Include="src\RoundStatsSaver.cpp" />
     <ClCompile Include="src\Tank.cpp" />
     <ClCompile Include="src\Target.cpp" />

@@ -19,9 +19,11 @@ Game::Game() :
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
 	m_ROUND_TIME{ 60.0 },
+	m_numberOfPlayers{ 0 },
 	m_targetTimerShape{ 80.0f, 0.0f, 120u },
 	m_menuScreen(m_guiTextures, m_menuBackground, m_font),
 	m_modeSelectScreen(m_guiTextures, m_menuBackground, m_font),
+	m_playerJoinScreen(m_guiTextures, m_menuBackground, m_font),
 	m_gameState{ GameState::MenuScreen },
 	m_TANK_POSITIONS{
 		{m_TANK_OFFSET, m_TANK_OFFSET},
@@ -71,6 +73,7 @@ Game::Game() :
 	// Setup the menu
 	m_menuScreen.setup();
 	m_modeSelectScreen.setup();
+	m_playerJoinScreen.setup();
 }
 
 ////////////////////////////////////////////////////////////
@@ -119,6 +122,9 @@ void Game::processGameEvents(sf::Event& event)
 	{
 	case GameState::MenuScreen:
 		m_menuScreen.processEvents(event, m_gameState, m_window);
+		break;
+	case GameState::PlayerJoinScreen:
+		m_playerJoinScreen.processEvents(event, m_gameState);
 		break;
 	case GameState::ModeSelect:
 		m_modeSelectScreen.processEvents(event, m_gameState);
@@ -335,7 +341,11 @@ void Game::update(double dt)
 	m_controller.update(); // Update the controller
 
 	// If the game is in the gameplay state
-	if (GameState::TargetPractice == m_gameState)
+	if (GameState::PlayerJoinScreen == m_gameState)
+	{
+		m_playerJoinScreen.update();
+	}
+	else if (GameState::TargetPractice == m_gameState)
 	{
 		// If the round is still on
 		if (m_gameTimer > 0.0)
@@ -519,6 +529,9 @@ void Game::render()
 	{
 	case GameState::MenuScreen:
 		m_menuScreen.draw(m_window);
+		break;
+	case GameState::PlayerJoinScreen:
+		m_playerJoinScreen.draw(m_window);
 		break;
 	case GameState::ModeSelect:
 		m_modeSelectScreen.draw(m_window);

@@ -48,6 +48,6 @@ void ModeSelectScreen::processEvents(sf::Event t_event, GameState& t_gameState)
 
 	if (m_backButton.processMouseEvents(t_event))
 	{
-		t_gameState = GameState::MenuScreen;
+		t_gameState = GameState::PlayerJoinScreen;
 	}
 }

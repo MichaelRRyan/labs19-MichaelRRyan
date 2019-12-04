@@ -712,6 +712,19 @@ void Tank::fireBullet()
 }
 
 ////////////////////////////////////////////////////////////
+void Tank::setControlType(ControlType t_controlType, ControlScheme t_controlScheme)
+{
+	m_controlType = t_controlType;
+	m_controlScheme = t_controlScheme;
+}
+
+////////////////////////////////////////////////////////////
+ControlType Tank::getControlType()
+{
+	return m_controlType;
+}
+
+////////////////////////////////////////////////////////////
 void Tank::initSprites()
 {
 	// Initialise the tank base

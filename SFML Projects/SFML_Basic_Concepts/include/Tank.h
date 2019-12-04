@@ -7,6 +7,7 @@
 #include "Bullet.h"
 #include "Target.h"
 #include "Thor/Math.hpp"
+#include "GameConfig.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -195,6 +196,15 @@ public:
 	/// </summary>
 	void fireBullet();
 
+	/// <summary>
+	/// @brief sets the type of controls the tank will use
+	/// </summary>
+	/// <param name="t_controlType"></param>
+	/// <param name="t_controlScheme"></param>
+	void setControlType(ControlType t_controlType, ControlScheme t_controlScheme = ControlScheme::None);
+
+	ControlType getControlType();
+
 private:
 	void initSprites();
 	sf::Sprite m_tankBase;
@@ -244,4 +254,7 @@ private:
 
 	// Controller Support
 	const float CONTROLLER_ANALOG_DEADZONE{ 25.0f };
+
+	ControlType m_controlType;
+	ControlScheme m_controlScheme;
 };
