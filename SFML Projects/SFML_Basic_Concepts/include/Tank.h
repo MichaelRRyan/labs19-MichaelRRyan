@@ -120,15 +120,15 @@ public:
 	/// <summary>
 	/// @brief handles controller input from the player to move the tank
 	/// </summary>
-	void handleControllerInput(XBox360Controller t_controller);
+	void handleControllerInput();
 
-	void handleControllerRotation(XBox360Controller t_controller, float t_inputDirection);
+	void handleControllerRotation(float t_inputDirection);
 
-	void handleControllerTurretRotation(XBox360Controller t_controller, float t_inputDirection);
+	void handleControllerTurretRotation(float t_inputDirection);
 
-	sf::Vector2f getControllerLSInput(XBox360Controller t_controller);
+	sf::Vector2f getControllerLSInput();
 
-	sf::Vector2f getControllerRSInput(XBox360Controller t_controller);
+	sf::Vector2f getControllerRSInput();
 
 	/// <summary>
 	/// @brief Checks for collisions between the tank and the walls.
@@ -205,6 +205,8 @@ public:
 
 	ControlType getControlType();
 
+	void processEvents(sf::Event t_event);
+
 private:
 	void initSprites();
 	sf::Sprite m_tankBase;
@@ -254,6 +256,8 @@ private:
 
 	// Controller Support
 	const float CONTROLLER_ANALOG_DEADZONE{ 25.0f };
+
+	XBox360Controller *m_ptrController;
 
 	ControlType m_controlType;
 	ControlScheme m_controlScheme;

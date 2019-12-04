@@ -14,8 +14,8 @@ static double const MS_PER_UPDATE = 10.0;
 ////////////////////////////////////////////////////////////
 Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
-	m_tank{ m_texture, m_wallSprites, m_targets },
-	m_controllerTank{ m_texture, m_wallSprites, m_targets },
+	//m_tank{ m_texture, m_wallSprites, m_targets },
+	//m_controllerTank{ m_texture, m_wallSprites, m_targets },
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
 	m_ROUND_TIME{ 60.0 },
@@ -61,8 +61,8 @@ Game::Game() :
 	m_bgSprite.setTexture(m_bgTexture);
 
 	// Set the position for the tanks
-	m_tank.setPosition(m_level.m_tank.m_position);
-	m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
+	//m_tank.setPosition(m_level.m_tank.m_position);
+	//m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
 
 	// Generate the walls and targets
 	generateWalls();
@@ -72,8 +72,11 @@ Game::Game() :
 	m_targetTimerShape.setFillColor(sf::Color{ 255, 0, 0, 150 });
 	m_targetTimerShape.setOrigin(m_targetTimerShape.getRadius(), m_targetTimerShape.getRadius());
 
-	// Connect the controller
-	m_controller.connect();
+	// Connect the controllers
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_controllers[i].connect();
+	}
 
 	// Setup the menu
 	m_menuScreen.setup();
@@ -135,6 +138,14 @@ void Game::processGameEvents(sf::Event& event)
 		m_modeSelectScreen.processEvents(event, m_gameState);
 		break;
 	case GameState::TargetPractice:
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			if (m_tanks[i].getControlType() == ControlType::Keyboard)
+			{
+				m_tanks[i].processEvents(event);
+			}
+		}
+
 		// check if the event is a a key button press
 		if (sf::Event::KeyPressed == event.type)
 		{
@@ -142,9 +153,6 @@ void Game::processGameEvents(sf::Event& event)
 			{
 			case sf::Keyboard::Escape:
 				m_window.close();
-				break;
-			case sf::Keyboard::S:
-				m_tank.toggleCentring();
 				break;
 			case sf::Keyboard::Space:
 				if (m_gameTimer == 0.0)
@@ -156,6 +164,14 @@ void Game::processGameEvents(sf::Event& event)
 		}
 		break;
 	case GameState::Versus:
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			if (m_tanks[i].getControlType() == ControlType::Keyboard)
+			{
+				m_tanks[i].processEvents(event);
+			}
+		}
+
 		// check if the event is a a key button press
 		if (sf::Event::KeyPressed == event.type)
 		{
@@ -163,9 +179,6 @@ void Game::processGameEvents(sf::Event& event)
 			{
 			case sf::Keyboard::Escape:
 				m_window.close();
-				break;
-			case sf::Keyboard::S:
-				m_tank.toggleCentring();
 				break;
 			}
 		}
@@ -176,24 +189,15 @@ void Game::processGameEvents(sf::Event& event)
 ////////////////////////////////////////////////////////////
 void Game::startRound()
 {
-	// Setup the first tank
-	int tankOnePosition = rand() % 4;
-	m_tank.setPosition(m_TANK_POSITIONS[tankOnePosition]);
-	m_tank.resetScore();
-	m_tank.resetRotation();
-
-	// Setup the second tank
-	int tankTwoPosition = rand() % 4;
-
-	while (tankTwoPosition == tankOnePosition)
+	// Setup the tanks
+	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
-		tankTwoPosition = rand() % 4;
+		int tankOnePosition = rand() % 4;
+		m_tanks[i].setPosition(m_TANK_POSITIONS[tankOnePosition]);
+		m_tanks[i].resetScore();
+		m_tanks[i].resetRotation();
 	}
-
-	m_controllerTank.setPosition(m_TANK_POSITIONS[tankTwoPosition]);
-	//m_controllerTank.setPosition({ ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f });
-	m_controllerTank.resetScore();
-	m_controllerTank.resetRotation();
+	
 
 	// Set the timers
 	m_gameTimer = m_ROUND_TIME;
@@ -206,8 +210,10 @@ void Game::startRound()
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 	m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
 
-	m_playerOneText.setPosition(20.0f, 0.0f);
-	m_playerTwoText.setPosition(ScreenSize::s_width - 450, 0.0f);
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		m_playerTexts[i].setPosition(m_TANK_POSITIONS[i]);
+	}
 
 	// Set targets
 	m_targetsSpawned = 0;
@@ -270,18 +276,14 @@ void Game::setupText()
 	m_timerText.setOutlineThickness(2.0f);
 	m_timerText.setOutlineColor(sf::Color::Black);
 
-	m_playerOneText.setFont(m_font);
-	m_playerOneText.setCharacterSize(30u);
-	m_playerOneText.setFillColor(sf::Color::White);
-	m_playerOneText.setOutlineThickness(2.0f);
-	m_playerOneText.setOutlineColor(sf::Color::Black);
-
-	m_playerTwoText.setFont(m_font);
-	m_playerTwoText.setCharacterSize(30u);
-	m_playerTwoText.setPosition(ScreenSize::s_width - 400, 0.0f);
-	m_playerTwoText.setFillColor(sf::Color::White);
-	m_playerTwoText.setOutlineThickness(2.0f);
-	m_playerTwoText.setOutlineColor(sf::Color::Black);
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		m_playerTexts[i].setFont(m_font);
+		m_playerTexts[i].setCharacterSize(30u);
+		m_playerTexts[i].setFillColor(sf::Color::White);
+		m_playerTexts[i].setOutlineThickness(2.0f);
+		m_playerTexts[i].setOutlineColor(sf::Color::Black);
+	}
 
 	m_bestScoreText.setFont(m_font);
 	m_bestScoreText.setCharacterSize(35u);
@@ -336,14 +338,20 @@ void Game::loadSounds()
 		throw std::exception(s.c_str());
 	}
 
-	m_tank.setSounds(m_shotSoundBuffer, m_explosionSoundBuffer);
-	m_controllerTank.setSounds(m_shotSoundBuffer, m_explosionSoundBuffer);
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		m_tanks[i].setSounds(m_shotSoundBuffer, m_explosionSoundBuffer);
+	}
 }
 
 ////////////////////////////////////////////////////////////
 void Game::update(double dt)
 {
-	m_controller.update(); // Update the controller
+	// Update the controllers
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_controllers[i].update(); 
+	}
 
 	// If the game is in the gameplay state
 	if (GameState::PlayerJoinScreen == m_gameState)
@@ -373,8 +381,11 @@ void Game::update(double dt)
 			updateTargets(timeSinceLastUpdate);
 
 			// Update the player score text
-			m_playerOneText.setString("Player1's Score: " + std::to_string(m_tank.getScore()));
-			m_playerTwoText.setString("Player2's Score: " + std::to_string(m_controllerTank.getScore()));
+
+			for (int i = 0; i < m_numberOfPlayers; i++)
+			{
+				m_playerTexts[i].setString("Player" + std::to_string(i + 1) + "'s Score: " + std::to_string(m_tanks[i].getScore()));
+			}
 
 			// If the round ends
 			if (m_gameTimer < 0.0)
@@ -386,49 +397,41 @@ void Game::update(double dt)
 	else if (GameState::Versus == m_gameState)
 	{
 		// update the first player if alive
-		if (m_tank.getHealth() > 0.0f)
-		{
-			m_tank.setPrevious(); // Set the previous variables (E.g. previousRotation)
-			m_tank.handleKeyInput();
-			m_tank.update(dt);
-			m_tank.checkTanktoTankCollisions(m_controllerTank);
-		}
 
-		// Update the second player if alive
-		if (m_controllerTank.getHealth() > 0.0f)
+		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
-			m_controllerTank.setPrevious(); // Set the previous variables (E.g. previousRotation)
-			m_controllerTank.handleControllerInput(m_controller);
-			m_controllerTank.update(dt);
-			m_controllerTank.checkTanktoTankCollisions(m_tank);
-		}
+			if (m_tanks[i].getHealth() > 0.0f)
+			{
+				m_tanks[i].update(dt);
 
-		m_playerOneText.setString("player1 HP: " + std::to_string(static_cast<int>(m_tank.getHealth())) + "%");
-		m_playerTwoText.setString("player2 HP: " + std::to_string(static_cast<int>(m_controllerTank.getHealth())) + "%");
+				// Check collisions with all other alive tanks
+				for (int j = 0; j < m_numberOfPlayers; j++)
+				{
+					if (m_tanks[j].getHealth() > 0.0f)
+					{
+						m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
+					}
+				}
+			}
+
+			m_playerTexts[i].setString("player" + std::to_string(i + 1) + " HP: " + std::to_string(static_cast<int>(m_tanks[i].getHealth())) + "%");
+		}
 	}
 }
 
 ////////////////////////////////////////////////////////////
 void Game::updatePlayers(double dt)
 {
-	// update the first player
-	m_tank.setPrevious(); // Set the previous variables (E.g. previousRotation)
-	m_tank.handleKeyInput();
-	m_tank.update(dt);
-
-	if (m_tank.checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
+	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
-		spawnTarget();
-	}
 
-	// Update the second player
-	m_controllerTank.setPrevious(); // Set the previous variables (E.g. previousRotation)
-	m_controllerTank.handleControllerInput(m_controller);
-	m_controllerTank.update(dt);
+		// update the first player
+		m_tanks[i].update(dt);
 
-	if (m_controllerTank.checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
-	{
-		spawnTarget();
+		if (m_tanks[i].checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
+		{
+			spawnTarget();
+		}
 	}
 }
 
@@ -490,12 +493,11 @@ void Game::endRound()
 
 	// Set the text object strings
 	m_timerText.setString("PRESS SPACE TO START");
-	m_playerOneText.setString("Player1:\n" + m_tank.getStatistics());
-	m_playerTwoText.setString("Player2:\n" + m_controllerTank.getStatistics());
 
-	// Set the text positions
-	m_playerOneText.setPosition(100.0f, 100.0f);
-	m_playerTwoText.setPosition(ScreenSize::s_width - 500, 100.0f);
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_playerTexts[i].setString("Player" + std::to_string(i + 1) + ":\n" + m_tanks[i].getStatistics());
+	}
 
 	// Move the timer text and rescale it
 	m_timerText.setCharacterSize(40u);
@@ -505,18 +507,15 @@ void Game::endRound()
 	// Save the new stats
 	try
 	{
-		// Player 1
-		Stats stats;
-		stats.m_score = m_tank.getScore();
-		stats.m_accuracy = m_tank.getAccuracy();
-		stats.m_percentTargetsHit = m_tank.getPercentTargetsHit();
-		RoundStatsSaver::saveRoundStats(stats);
-
-		// Player 2
-		stats.m_score = m_controllerTank.getScore();
-		stats.m_accuracy = m_controllerTank.getAccuracy();
-		stats.m_percentTargetsHit = m_controllerTank.getPercentTargetsHit();
-		RoundStatsSaver::saveRoundStats(stats);
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			// Player 1
+			Stats stats;
+			stats.m_score = m_tanks[i].getScore();
+			stats.m_accuracy = m_tanks[i].getAccuracy();
+			stats.m_percentTargetsHit = m_tanks[i].getPercentTargetsHit();
+			RoundStatsSaver::saveRoundStats(stats);
+		}
 	}
 	catch (std::exception& e)
 	{
@@ -565,13 +564,17 @@ void Game::render()
 			}
 
 			// Draw the tanks
-			m_tank.render(m_window);
-			m_controllerTank.render(m_window);
+			for (int i = 0; i < m_numberOfPlayers; i++)
+			{
+				m_tanks[i].render(m_window);
+			}
 		}
 
 		m_window.draw(m_timerText);
-		m_window.draw(m_playerOneText);
-		m_window.draw(m_playerTwoText);
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			m_window.draw(m_playerTexts[i]);
+		}
 
 		if (m_gameTimer <= 0.0)
 		{
@@ -590,18 +593,16 @@ void Game::render()
 		}
 
 		// Draw the tanks if they're alive
-		if (m_tank.getHealth() > 0.0f)
+		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
-			m_tank.render(m_window);
+			if (m_tanks[i].getHealth() > 0.0f)
+			{
+				m_tanks[i].render(m_window);
+			}
+
+			m_window.draw(m_playerTexts[i]);
 		}
 
-		if (m_controllerTank.getHealth() > 0.0f)
-		{
-			m_controllerTank.render(m_window);
-		}
-
-		m_window.draw(m_playerOneText);
-		m_window.draw(m_playerTwoText);
 		break;
 	}
 

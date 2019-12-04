@@ -134,9 +134,8 @@ protected:
 	sf::Font m_font;
 
 	sf::Text m_timerText;
-	sf::Text m_playerOneText;
-	sf::Text m_playerTwoText;
 	sf::Text m_bestScoreText;
+	sf::Text m_playerTexts[MAX_PLAYERS];
 
 	// Texures and sprites
 	sf::Texture m_texture;
@@ -151,10 +150,10 @@ protected:
 	CircularSectorShape m_targetTimerShape;
 
 	// Instance of a tank object as a player controlled object
-	Tank m_tank;
-	Tank m_controllerTank;
+	//Tank m_tank;
+	//Tank m_controllerTank;
 
-	XBox360Controller m_controller;
+	XBox360Controller m_controllers[MAX_PLAYERS];
 
 	Tank m_tanks[MAX_PLAYERS];
 

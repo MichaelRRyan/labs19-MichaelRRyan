@@ -11,7 +11,8 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	m_BULLET_DAMAGE{ 10.0f },
 	m_bullet{ nullptr },
 	m_score{ 0 },
-	m_healthPercent{ 100.0f }
+	m_healthPercent{ 100.0f },
+	m_ptrController{ nullptr }
 {
 	initSprites();
 }
@@ -19,6 +20,11 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 ////////////////////////////////////////////////////////////
 void Tank::update(double dt)
 {	
+	setPrevious(); // Set all "previous" variables
+
+	// Take input based on control type
+	(ControlType::Keyboard == m_controlType) ? handleKeyInput() : handleControllerInput();
+
 	// Clamp the speed to a minimum and maximum speed
 	float clamp = std::clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT); // Clamp variable is simply to remove warnings
 
@@ -71,6 +77,7 @@ void Tank::update(double dt)
 		}
 	}
 
+	// Decrement the fire timer and set it to 0 if it goes below
 	if (m_fireTimer > 0.0f)
 	{
 		m_fireTimer -= static_cast<float>(dt) / 1000.0f;
@@ -278,14 +285,14 @@ void Tank::handleKeyInput()
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::handleControllerInput(XBox360Controller t_controller)
+void Tank::handleControllerInput()
 {
 	// Input
 	sf::Vector2f movementInputVector;
 	sf::Vector2f rightStickInputVector;
 
-	movementInputVector = getControllerLSInput(t_controller);
-	rightStickInputVector = getControllerRSInput(t_controller);
+	movementInputVector = getControllerLSInput();
+	rightStickInputVector = getControllerRSInput();
 
 	// Calculate
 	float inputSpeed = thor::length(movementInputVector);
@@ -326,30 +333,30 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 	// Tank Body Rotation
 	if (inputSpeed > 0.0f) // If there is some analog input
 	{
-		handleControllerRotation(t_controller, inputDirection);
+		handleControllerRotation(inputDirection);
 	}
 
 	// Turret Rotation
 	if (thor::length(rightStickInputVector) > 0.0f) // If there is some analog input
 	{
-		handleControllerTurretRotation(t_controller, rightStickInputDir);
+		handleControllerTurretRotation(rightStickInputDir);
 	}
 	
 
 	// Manage firing
-	if (t_controller.currentState.RTrigger > 50.0f)
+	if (m_ptrController->currentState.RTrigger > 50.0f)
 	{
 		fireBullet();
 	}
 
-	if (t_controller.currentState.RightThumbStickClick)
+	if (m_ptrController->currentState.RightThumbStickClick)
 	{
 		toggleCentring();
 	}
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::handleControllerRotation(XBox360Controller t_controller, float t_inputDirection)
+void Tank::handleControllerRotation(float t_inputDirection)
 {
 	if (fabsf(t_inputDirection - m_rotation) < 90.0f) // Rotating while going forward
 	{
@@ -414,7 +421,7 @@ void Tank::handleControllerRotation(XBox360Controller t_controller, float t_inpu
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::handleControllerTurretRotation(XBox360Controller t_controller, float t_inputDirection)
+void Tank::handleControllerTurretRotation(float t_inputDirection)
 {
 	float trueTurretRotation = m_turretRotation + m_rotation;
 
@@ -462,45 +469,45 @@ void Tank::handleControllerTurretRotation(XBox360Controller t_controller, float 
 }
 
 ////////////////////////////////////////////////////////////
-sf::Vector2f Tank::getControllerLSInput(XBox360Controller t_controller)
+sf::Vector2f Tank::getControllerLSInput()
 {
 	sf::Vector2f movementInputVector;
 
 	// Vertical
-	if (t_controller.currentState.LeftThumbStick.y > CONTROLLER_ANALOG_DEADZONE
-		|| t_controller.currentState.LeftThumbStick.y < -CONTROLLER_ANALOG_DEADZONE)
+	if (m_ptrController->currentState.LeftThumbStick.y > CONTROLLER_ANALOG_DEADZONE
+		|| m_ptrController->currentState.LeftThumbStick.y < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		movementInputVector.y = t_controller.currentState.LeftThumbStick.y;
+		movementInputVector.y = m_ptrController->currentState.LeftThumbStick.y;
 	}
 
 	// Horizontal
-	if (t_controller.currentState.LeftThumbStick.x > CONTROLLER_ANALOG_DEADZONE
-		|| t_controller.currentState.LeftThumbStick.x < -CONTROLLER_ANALOG_DEADZONE)
+	if (m_ptrController->currentState.LeftThumbStick.x > CONTROLLER_ANALOG_DEADZONE
+		|| m_ptrController->currentState.LeftThumbStick.x < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		movementInputVector.x = t_controller.currentState.LeftThumbStick.x;
+		movementInputVector.x = m_ptrController->currentState.LeftThumbStick.x;
 	}
 
 	return movementInputVector;
 }
 
 ////////////////////////////////////////////////////////////
-sf::Vector2f Tank::getControllerRSInput(XBox360Controller t_controller)
+sf::Vector2f Tank::getControllerRSInput()
 {
 	sf::Vector2f rightStickInputVector;
 
 	// Vertical
-	if (t_controller.currentState.RightThumbStick.y > CONTROLLER_ANALOG_DEADZONE
-		|| t_controller.currentState.RightThumbStick.y < -CONTROLLER_ANALOG_DEADZONE)
+	if (m_ptrController->currentState.RightThumbStick.y > CONTROLLER_ANALOG_DEADZONE
+		|| m_ptrController->currentState.RightThumbStick.y < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		rightStickInputVector.y = t_controller.currentState.RightThumbStick.y;
+		rightStickInputVector.y = m_ptrController->currentState.RightThumbStick.y;
 		m_centringTurret = false;
 	}
 
 	// Horizontal
-	if (t_controller.currentState.RightThumbStick.x > CONTROLLER_ANALOG_DEADZONE
-		|| t_controller.currentState.RightThumbStick.x < -CONTROLLER_ANALOG_DEADZONE)
+	if (m_ptrController->currentState.RightThumbStick.x > CONTROLLER_ANALOG_DEADZONE
+		|| m_ptrController->currentState.RightThumbStick.x < -CONTROLLER_ANALOG_DEADZONE)
 	{
-		rightStickInputVector.x = t_controller.currentState.RightThumbStick.x;
+		rightStickInputVector.x = m_ptrController->currentState.RightThumbStick.x;
 		m_centringTurret = false;
 	}
 
@@ -722,6 +729,27 @@ void Tank::setControlType(ControlType t_controlType, ControlScheme t_controlSche
 ControlType Tank::getControlType()
 {
 	return m_controlType;
+}
+
+void Tank::processEvents(sf::Event t_event)
+{
+	if (sf::Event::KeyPressed == t_event.type)
+	{
+		if (ControlScheme::ArrowKeys == m_controlScheme)
+		{
+			if (sf::Keyboard::L == t_event.key.code)
+			{
+				toggleCentring();
+			}
+		}
+		else
+		{
+			if (sf::Keyboard::Num2 == t_event.key.code)
+			{
+				toggleCentring();
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////

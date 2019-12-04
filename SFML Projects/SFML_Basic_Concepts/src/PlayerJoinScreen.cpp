@@ -17,8 +17,9 @@ PlayerJoinScreen::PlayerJoinScreen(sf::Texture const& t_guiSheet, sf::Texture co
 		m_playerSprites[i].setColor(sf::Color{ 180, 180, 180, 180});
 	}
 
-	m_playerSelectBackground.setSize({ ScreenSize::s_width / 1.17f, ScreenSize::s_height / 2.2f });
-	m_playerSelectBackground.setPosition(100.0f, ScreenSize::s_height / 4.0f);
+	m_playerSelectBackground.setPosition(ScreenSize::s_width * 0.1f, ScreenSize::s_height / 4.0f);
+	m_playerSelectBackground.setSize({ ScreenSize::s_width * 0.8f, ScreenSize::s_height / 2.2f });
+	
 }
 
 void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, Tank t_tanks[], int& t_numberOfPlayers)
