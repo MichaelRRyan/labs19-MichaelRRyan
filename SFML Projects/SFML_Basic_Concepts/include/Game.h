@@ -6,6 +6,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include "ScreenSize.h"
 #include "LevelLoader.h"
@@ -114,6 +115,11 @@ protected:
 	/// </summary>
 	void loadTextures();
 
+	/// <summary>
+	/// @brief Load all the sounds
+	/// </summary>
+	void loadSounds();
+
 
 	/////////////////////////////////////////////////////////////////////
 	/// Protected Data Members
@@ -148,6 +154,10 @@ protected:
 	Tank m_controllerTank;
 
 	XBox360Controller m_controller;
+
+	// Audio
+	sf::SoundBuffer m_shotSoundBuffer;
+	sf::SoundBuffer m_explosionSoundBuffer;
 
 	// Load the game level data
 	LevelData m_level;

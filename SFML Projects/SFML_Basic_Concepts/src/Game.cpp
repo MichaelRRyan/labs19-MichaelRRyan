@@ -47,6 +47,7 @@ Game::Game() :
 	}
 
 	loadTextures(); // Load the textures
+	loadSounds();
 	setupText(); // Load font and setup text
 
 	// Setup the background
@@ -308,6 +309,24 @@ void Game::loadTextures()
 		std::string s("Error loading menu background texture");
 		throw std::exception(s.c_str());
 	}
+}
+
+void Game::loadSounds()
+{
+	if (!m_shotSoundBuffer.loadFromFile("./resources/audio/gunshot.wav"))
+	{
+		std::string s("Error loading tank shoot sound effect");
+		throw std::exception(s.c_str());
+	}
+
+	if (!m_explosionSoundBuffer.loadFromFile("./resources/audio/explosion.wav"))
+	{
+		std::string s("Error loading tank shoot sound effect");
+		throw std::exception(s.c_str());
+	}
+
+	m_tank.setSounds(m_shotSoundBuffer, m_explosionSoundBuffer);
+	m_controllerTank.setSounds(m_shotSoundBuffer, m_explosionSoundBuffer);
 }
 
 ////////////////////////////////////////////////////////////

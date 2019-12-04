@@ -17,6 +17,13 @@ Bullet::Bullet(sf::Texture const& t_texture, sf::Vector2f t_position, float t_an
 	m_sprite.setRotation(t_angleDeg - 90.0f);
 }
 
+Bullet::~Bullet()
+{
+#ifdef _DEBUG
+	std::cout << "Bullet Deleted" << std::endl;
+#endif // _DEBUG
+}
+
 bool Bullet::update(double dt)
 {
 	m_sprite.move(m_velocity * static_cast<float>(dt / 1000.0));
@@ -24,7 +31,6 @@ bool Bullet::update(double dt)
 	if (m_sprite.getPosition().x < 0 || m_sprite.getPosition().x > ScreenSize::s_width
 		|| m_sprite.getPosition().y < 0 || m_sprite.getPosition().y > ScreenSize::s_height)
 	{
-		std::cout << "Bullet Deleted" << std::endl;
 		delete this;
 		return false;
 	}

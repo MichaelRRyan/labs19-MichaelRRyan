@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "MathUtility.h"
 #include "CollisionDetector.h"
 #include "XBox360Controller.h"
@@ -165,6 +166,10 @@ public:
 
 	void takeDamage(float t_amount);
 
+	/// <summary>
+	/// Returns the tanks health percentage
+	/// </summary>
+	/// <returns></returns>
 	float getHealth();
 
 	/// <summary>
@@ -173,13 +178,31 @@ public:
 	/// <returns></returns>
 	std::string getStatistics();
 
+	/// <summary>
+	/// Return the tank base sprite
+	/// </summary>
+	/// <returns></returns>
 	sf::Sprite getSprite();
+
+	/// <summary>
+	/// @brief set the sound buffer for the shot sound effect
+	/// </summary>
+	/// <param name="t_shotSoundBuffer">Shot sound buffer</param>
+	void setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer);
+
+	/// <summary>
+	/// @brief Fires a bullet from the tank
+	/// </summary>
+	void fireBullet();
 
 private:
 	void initSprites();
 	sf::Sprite m_tankBase;
 	sf::Sprite m_turret;
 	sf::Texture const& m_texture;
+
+	sf::Sound m_shotSound;
+	sf::Sound m_explosionSound;
 
 	sf::Vector2f m_previousPosition{ 0.0f, 0.0f };
 

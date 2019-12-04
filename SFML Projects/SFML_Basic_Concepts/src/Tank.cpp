@@ -271,12 +271,9 @@ void Tank::handleKeyInput()
 	}
 
 	// If the fire button is pressed and the bullet is null and the fire timer is zero
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)
-		&& m_bullet == nullptr && m_fireTimer == 0)
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
-		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
-		m_fireTimer = FIRE_DELAY;
-		m_bulletsFired++;
+		fireBullet();
 	}
 }
 
@@ -340,12 +337,9 @@ void Tank::handleControllerInput(XBox360Controller t_controller)
 	
 
 	// Manage firing
-	if (t_controller.currentState.RTrigger > 50.0f
-		&& m_bullet == nullptr && m_fireTimer == 0)
+	if (t_controller.currentState.RTrigger > 50.0f)
 	{
-		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
-		m_fireTimer = FIRE_DELAY;
-		m_bulletsFired++;
+		fireBullet();
 	}
 
 	if (t_controller.currentState.RightThumbStickClick)
@@ -636,6 +630,7 @@ void Tank::adjustRotation()
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Tank::checkTanktoTankCollisions(Tank& t_tank)
 {
 	if (t_tank.getHealth() > 0.0f)
@@ -657,6 +652,7 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Tank::takeDamage(float t_amount)
 {
 	m_healthPercent -= t_amount;
@@ -664,9 +660,11 @@ void Tank::takeDamage(float t_amount)
 	if (m_healthPercent <= 0.0f)
 	{
 		m_healthPercent = 0;
+		m_explosionSound.play();
 	}
 }
 
+////////////////////////////////////////////////////////////
 float Tank::getHealth()
 {
 	return m_healthPercent;
@@ -689,9 +687,28 @@ std::string Tank::getStatistics()
 	}
 }
 
+////////////////////////////////////////////////////////////
 sf::Sprite Tank::getSprite()
 {
 	return m_tankBase;
+}
+
+void Tank::setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer)
+{
+	m_shotSound.setBuffer(t_shotSoundBuffer);
+	m_explosionSound.setBuffer(t_explosionSoundBuffer);
+}
+
+////////////////////////////////////////////////////////////
+void Tank::fireBullet()
+{
+	if (m_bullet == nullptr && m_fireTimer == 0)
+	{
+		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
+		m_fireTimer = FIRE_DELAY;
+		m_bulletsFired++;
+		m_shotSound.play();
+	}
 }
 
 ////////////////////////////////////////////////////////////
