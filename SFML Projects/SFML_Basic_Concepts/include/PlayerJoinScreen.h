@@ -24,6 +24,9 @@ private:
 	const sf::Vector2f m_BACK_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height) - (GUIButton::s_HEIGHT * 1.5f) };
 	sf::Sprite m_background;
 
+	sf::RectangleShape m_playerSelectBackground;
+	sf::Sprite m_playerSprites[MAX_PLAYERS];
+
 	GUIButton m_continueButton;
 	GUIButton m_backButton;
 };

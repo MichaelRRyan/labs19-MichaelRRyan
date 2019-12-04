@@ -10,7 +10,7 @@ void RoundStatsSaver::saveRoundStats(Stats t_stats)
 		YAML::Node newStatsData;
 		bool scorePlaced = false;
 
-		for (int i = 0; i < stats.size(); i++)
+		for (int i = 0; i < static_cast<int>(stats.size()); i++)
 		{
 			YAML::Node newNode(YAML::NodeType::Map);
 
@@ -65,7 +65,7 @@ Stats RoundStatsSaver::returnNthBestScore(int t_n)
 		{
 			YAML::Node& statsNode = fileNode["stats"].as<YAML::Node>();
 
-			if (t_n >= statsNode.size())
+			if (t_n >= static_cast<int>(statsNode.size()))
 			{
 				std::cout << "Error while reading game stats: There is no stats stored in position "
 					<< t_n << " in the file. Number of stats stored is " << statsNode.size() << "." << std::endl;

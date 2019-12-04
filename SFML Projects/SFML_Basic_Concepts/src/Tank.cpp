@@ -20,7 +20,7 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 void Tank::update(double dt)
 {	
 	// Clamp the speed to a minimum and maximum speed
-	std::clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT);
+	float clamp = std::clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT); // Clamp variable is simply to remove warnings
 
 	m_previousPosition = m_tankBase.getPosition();
 	sf::Vector2f m_newPosition; // Create a variable for new position calculations

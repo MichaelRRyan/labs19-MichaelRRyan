@@ -29,7 +29,12 @@ Game::Game() :
 		{m_TANK_OFFSET, m_TANK_OFFSET},
 		{m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET},
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
-		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} }
+		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} },
+		m_tanks{
+			{m_texture, m_wallSprites, m_targets},
+			{m_texture, m_wallSprites, m_targets},
+			{m_texture, m_wallSprites, m_targets},
+			{m_texture, m_wallSprites, m_targets} }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -124,7 +129,7 @@ void Game::processGameEvents(sf::Event& event)
 		m_menuScreen.processEvents(event, m_gameState, m_window);
 		break;
 	case GameState::PlayerJoinScreen:
-		m_playerJoinScreen.processEvents(event, m_gameState);
+		m_playerJoinScreen.processEvents(event, m_gameState, m_tanks, m_numberOfPlayers);
 		break;
 	case GameState::ModeSelect:
 		m_modeSelectScreen.processEvents(event, m_gameState);
@@ -343,7 +348,7 @@ void Game::update(double dt)
 	// If the game is in the gameplay state
 	if (GameState::PlayerJoinScreen == m_gameState)
 	{
-		m_playerJoinScreen.update();
+		m_playerJoinScreen.update(m_tanks, m_numberOfPlayers);
 	}
 	else if (GameState::TargetPractice == m_gameState)
 	{

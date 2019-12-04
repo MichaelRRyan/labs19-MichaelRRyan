@@ -156,6 +156,8 @@ protected:
 
 	XBox360Controller m_controller;
 
+	Tank m_tanks[MAX_PLAYERS];
+
 	// Audio
 	sf::SoundBuffer m_shotSoundBuffer;
 	sf::SoundBuffer m_explosionSoundBuffer;
