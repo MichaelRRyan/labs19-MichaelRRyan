@@ -117,6 +117,10 @@ public:
 	/// </summary>
 	void handleKeyInput();
 
+	void arrowKeysInput();
+
+	void YGHJJKeysInput();
+
 	/// <summary>
 	/// @brief handles controller input from the player to move the tank
 	/// </summary>
@@ -204,6 +208,10 @@ public:
 	void setControlType(ControlType t_controlType, ControlScheme t_controlScheme = ControlScheme::None);
 
 	ControlType getControlType();
+
+	void setControllerPtr(XBox360Controller* t_ptrController);
+
+	int getJoystickIndex();
 
 	void processEvents(sf::Event t_event);
 

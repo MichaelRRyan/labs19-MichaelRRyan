@@ -73,7 +73,7 @@ Game::Game() :
 	m_targetTimerShape.setOrigin(m_targetTimerShape.getRadius(), m_targetTimerShape.getRadius());
 
 	// Connect the controllers
-	for (int i = 0; i < m_numberOfPlayers; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		m_controllers[i].connect();
 	}
@@ -348,7 +348,7 @@ void Game::loadSounds()
 void Game::update(double dt)
 {
 	// Update the controllers
-	for (int i = 0; i < m_numberOfPlayers; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		m_controllers[i].update(); 
 	}
@@ -356,7 +356,7 @@ void Game::update(double dt)
 	// If the game is in the gameplay state
 	if (GameState::PlayerJoinScreen == m_gameState)
 	{
-		m_playerJoinScreen.update(m_tanks, m_numberOfPlayers);
+		m_playerJoinScreen.update(m_tanks, m_controllers, m_numberOfPlayers);
 	}
 	else if (GameState::TargetPractice == m_gameState)
 	{
@@ -535,7 +535,7 @@ void Game::render()
 		m_menuScreen.draw(m_window);
 		break;
 	case GameState::PlayerJoinScreen:
-		m_playerJoinScreen.draw(m_window);
+		m_playerJoinScreen.draw(m_window, m_numberOfPlayers);
 		break;
 	case GameState::ModeSelect:
 		m_modeSelectScreen.draw(m_window);

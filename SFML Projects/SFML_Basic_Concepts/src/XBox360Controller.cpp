@@ -11,7 +11,7 @@ int XBox360Controller::s_noOfControllers = 0;
 /// <para>Sets the joystick index to 0 by default</para>
 /// </summary>
 XBox360Controller::XBox360Controller() :
-	joystickIndex{ 0 } // Set the joystick index to a default of 0
+	joystickIndex{ -1 } // Set the joystick index to a default of 0
 {
 }
 

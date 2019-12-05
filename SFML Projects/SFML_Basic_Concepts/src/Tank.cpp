@@ -249,6 +249,18 @@ void Tank::setPrevious()
 ////////////////////////////////////////////////////////////
 void Tank::handleKeyInput()
 {
+	if (ControlScheme::ArrowKeys == m_controlScheme)
+	{
+		arrowKeysInput();
+	}
+	else
+	{
+		YGHJJKeysInput();
+	}
+}
+
+void Tank::arrowKeysInput()
+{
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
 		increaseSpeed();
@@ -266,19 +278,56 @@ void Tank::handleKeyInput()
 		increaseRotation();
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Comma))
 	{
 		decreaseTurretRotation();
 		m_centringTurret = false;
 	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Slash))
 	{
 		increaseTurretRotation();
 		m_centringTurret = false;
 	}
 
 	// If the fire button is pressed and the bullet is null and the fire timer is zero
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Period))
+	{
+		fireBullet();
+	}
+}
+
+void Tank::YGHJJKeysInput()
+{
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
+	{
+		increaseSpeed();
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::H))
+	{
+		decreaseSpeed();
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+	{
+		decreaseRotation();
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
+	{
+		increaseRotation();
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+	{
+		decreaseTurretRotation();
+		m_centringTurret = false;
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+	{
+		increaseTurretRotation();
+		m_centringTurret = false;
+	}
+
+	// If the fire button is pressed and the bullet is null and the fire timer is zero
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
 		fireBullet();
 	}
@@ -731,6 +780,24 @@ ControlType Tank::getControlType()
 	return m_controlType;
 }
 
+////////////////////////////////////////////////////////////
+void Tank::setControllerPtr(XBox360Controller *t_ptrController)
+{
+	m_ptrController = t_ptrController;
+}
+
+////////////////////////////////////////////////////////////
+int Tank::getJoystickIndex()
+{
+	if (m_ptrController != nullptr)
+	{
+		return m_ptrController->joystickIndex;
+	}
+
+	return -1;
+}
+
+////////////////////////////////////////////////////////////
 void Tank::processEvents(sf::Event t_event)
 {
 	if (sf::Event::KeyPressed == t_event.type)
