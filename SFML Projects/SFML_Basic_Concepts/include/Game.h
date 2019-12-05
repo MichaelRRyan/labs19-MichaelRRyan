@@ -71,9 +71,19 @@ protected:
 	void endRound();
 
 	/// <summary>
-	/// @brief Sets up everything for a new round
+	/// @brief Sets up everything for a new round in target practice mode
 	/// </summary>
-	void startRound();
+	void startTargetPractice();
+
+	/// <summary>
+	/// @brief Sets up everything for a new game in versus mode
+	/// </summary>
+	void startVersusGame();
+
+	/// <summary>
+	/// @brief set the position of the tanks
+	/// </summary>
+	void resetTanks();
 
 	/// <summary>
 	/// @brief Draws the background and foreground game objects in the SFML window.

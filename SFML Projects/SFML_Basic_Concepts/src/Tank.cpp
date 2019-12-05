@@ -132,7 +132,7 @@ int Tank::getAccuracy()
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::resetScore()
+void Tank::resetStats()
 {
 	m_score = 0;
 	m_bulletsFired = 0;
@@ -817,6 +817,11 @@ void Tank::processEvents(sf::Event t_event)
 			}
 		}
 	}
+}
+
+sf::Vector2f Tank::getPosition()
+{
+	return m_tankBase.getPosition();
 }
 
 ////////////////////////////////////////////////////////////

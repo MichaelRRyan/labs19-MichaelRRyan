@@ -136,6 +136,18 @@ void Game::processGameEvents(sf::Event& event)
 		break;
 	case GameState::ModeSelect:
 		m_modeSelectScreen.processEvents(event, m_gameState);
+
+		// If the gamestate is now target practice
+		if (GameState::TargetPractice == m_gameState)
+		{
+			startTargetPractice();
+		}
+		// If the gamestate is now target practice
+		else if (GameState::Versus == m_gameState)
+		{
+			startVersusGame();
+		}
+
 		break;
 	case GameState::TargetPractice:
 		for (int i = 0; i < m_numberOfPlayers; i++)
@@ -152,12 +164,12 @@ void Game::processGameEvents(sf::Event& event)
 			switch (event.key.code)
 			{
 			case sf::Keyboard::Escape:
-				m_window.close();
+				m_gameState = GameState::MenuScreen;
 				break;
 			case sf::Keyboard::Space:
 				if (m_gameTimer == 0.0)
 				{
-					startRound();
+					startTargetPractice();
 				}
 				break;
 			}
@@ -178,7 +190,7 @@ void Game::processGameEvents(sf::Event& event)
 			switch (event.key.code)
 			{
 			case sf::Keyboard::Escape:
-				m_window.close();
+				m_gameState = GameState::MenuScreen;
 				break;
 			}
 		}
@@ -187,18 +199,11 @@ void Game::processGameEvents(sf::Event& event)
 }
 
 ////////////////////////////////////////////////////////////
-void Game::startRound()
+void Game::startTargetPractice()
 {
 	// Setup the tanks
-	for (int i = 0; i < m_numberOfPlayers; i++)
-	{
-		int tankOnePosition = rand() % 4;
-		m_tanks[i].setPosition(m_TANK_POSITIONS[tankOnePosition]);
-		m_tanks[i].resetScore();
-		m_tanks[i].resetRotation();
-	}
+	resetTanks();
 	
-
 	// Set the timers
 	m_gameTimer = m_ROUND_TIME;
 	m_spawnTimer.restart();
@@ -220,6 +225,52 @@ void Game::startRound()
 	for (Target& target : m_targets)
 	{
 		target.resetTarget(m_wallSprites);
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::startVersusGame()
+{
+	resetTanks();
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		m_playerTexts[i].setPosition(m_TANK_POSITIONS[i]);
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::resetTanks()
+{
+	// Setup the tanks
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		int positionIndex = rand() % 4;
+		bool positionTaken;
+
+		while (true)
+		{
+			positionTaken = false;
+
+			for (int j = 0; j < i; j++)
+			{
+				if (m_tanks[j].getPosition() == m_TANK_POSITIONS[positionIndex])
+				{
+					positionTaken = true;
+					positionIndex = rand() % 4;
+					break;
+				}
+			}
+
+			if (!positionTaken)
+			{
+				break;
+			}
+		}
+
+		m_tanks[i].setPosition(m_TANK_POSITIONS[positionIndex]);
+		m_tanks[i].resetStats();
+		m_tanks[i].resetRotation();
 	}
 }
 
@@ -424,7 +475,6 @@ void Game::updatePlayers(double dt)
 {
 	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
-
 		// update the first player
 		m_tanks[i].update(dt);
 

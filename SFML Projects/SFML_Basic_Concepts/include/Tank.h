@@ -42,7 +42,7 @@ public:
 	/// <summary>
 	/// @brief Sets the tank's score value
 	/// </summary>
-	void resetScore();
+	void resetStats();
 
 	/// <summary>
 	/// @brief Reset the rotation on the tank base and turret
@@ -214,6 +214,12 @@ public:
 	int getJoystickIndex();
 
 	void processEvents(sf::Event t_event);
+
+	/// <summary>
+	/// @brief returns the position of the tank body
+	/// </summary>
+	/// <returns>tank position</returns>
+	sf::Vector2f getPosition();
 
 private:
 	void initSprites();
