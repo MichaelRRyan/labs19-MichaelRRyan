@@ -819,9 +819,18 @@ void Tank::processEvents(sf::Event t_event)
 	}
 }
 
+////////////////////////////////////////////////////////////
 sf::Vector2f Tank::getPosition()
 {
 	return m_tankBase.getPosition();
+}
+
+////////////////////////////////////////////////////////////
+void Tank::drawHealthIndicator(sf::RenderWindow& t_window)
+{
+	m_healthIndicator.setPosition(m_tankBase.getPosition());
+	m_healthIndicator.setCompleteness(m_healthPercent / 100.0f);
+	t_window.draw(m_healthIndicator);
 }
 
 ////////////////////////////////////////////////////////////
@@ -838,4 +847,8 @@ void Tank::initSprites()
 	sf::IntRect turretRect(120, 3, 87, 37);
 	m_turret.setTextureRect(turretRect);
 	m_turret.setOrigin(static_cast<float>(turretRect.width) / 3.0f, static_cast<float>(turretRect.height) / 2.0f);
+
+	m_healthIndicator.setRadius(65.0f);
+	m_healthIndicator.setFillColor(sf::Color{ 0, 255, 0, 100 });
+	m_healthIndicator.setOrigin(65.0f, 65.0f);
 }

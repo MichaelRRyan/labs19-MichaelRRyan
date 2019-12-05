@@ -458,9 +458,12 @@ void Game::update(double dt)
 				// Check collisions with all other alive tanks
 				for (int j = 0; j < m_numberOfPlayers; j++)
 				{
-					if (m_tanks[j].getHealth() > 0.0f)
+					if (i != j) // Don't check collisions with ourselves
 					{
-						m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
+						if (m_tanks[j].getHealth() > 0.0f)
+						{
+							m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
+						}
 					}
 				}
 			}
@@ -647,10 +650,17 @@ void Game::render()
 		{
 			if (m_tanks[i].getHealth() > 0.0f)
 			{
+				m_tanks[i].drawHealthIndicator(m_window);
+			}
+		}
+
+		// Draw the tanks if they're alive
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			if (m_tanks[i].getHealth() > 0.0f)
+			{
 				m_tanks[i].render(m_window);
 			}
-
-			m_window.draw(m_playerTexts[i]);
 		}
 
 		break;

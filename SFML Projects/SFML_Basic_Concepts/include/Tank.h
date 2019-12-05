@@ -8,6 +8,7 @@
 #include "Target.h"
 #include "Thor/Math.hpp"
 #include "GameConfig.h"
+#include "CircularSectorShape.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -221,6 +222,12 @@ public:
 	/// <returns>tank position</returns>
 	sf::Vector2f getPosition();
 
+	/// <summary>
+	/// @brief Draws the health indicator
+	/// </summary>
+	/// <param name="t_window"></param>
+	void drawHealthIndicator(sf::RenderWindow &t_window);
+
 private:
 	void initSprites();
 	sf::Sprite m_tankBase;
@@ -275,4 +282,6 @@ private:
 
 	ControlType m_controlType;
 	ControlScheme m_controlScheme;
+
+	CircularSectorShape m_healthIndicator;
 };
