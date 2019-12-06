@@ -1,5 +1,6 @@
 #include "ModeSelectScreen.h"
 
+////////////////////////////////////////////////////////////
 ModeSelectScreen::ModeSelectScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
 	m_gameMode1Button(t_guiSheet, t_font, "Target Practice", m_TARGET_PRACTICE_BUTTON_POS),
 	m_gameMode2Button(t_guiSheet, t_font, "Versus", m_VERSUS_BUTTON_POS),
@@ -13,8 +14,17 @@ ModeSelectScreen::ModeSelectScreen(sf::Texture const& t_guiSheet, sf::Texture co
 	m_modeText.setFillColor(sf::Color::White);
 	m_modeText.setOutlineColor(sf::Color{ 50, 50, 50 });
 	m_modeText.setOutlineThickness(5.0f);
+
+	m_versusLockedText.setFont(t_font);
+	m_versusLockedText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 1.4f);
+	m_versusLockedText.setString("You must have at least 2 players for versus mode");
+	m_versusLockedText.setCharacterSize(20u);
+	m_versusLockedText.setFillColor(sf::Color{ 200, 200, 200 });
+	m_versusLockedText.setOutlineColor(sf::Color{ 50, 50, 50 });
+	m_versusLockedText.setOutlineThickness(5.0f);
 }
 
+////////////////////////////////////////////////////////////
 void ModeSelectScreen::draw(sf::RenderWindow& t_window)
 {
 	t_window.draw(m_background);
@@ -23,18 +33,26 @@ void ModeSelectScreen::draw(sf::RenderWindow& t_window)
 	m_gameMode2Button.draw(t_window);
 	m_backButton.draw(t_window);
 
+	if (m_gameMode2Button.getLocked())
+	{
+		t_window.draw(m_versusLockedText);
+	}
+
 	t_window.draw(m_modeText);
 }
 
+////////////////////////////////////////////////////////////
 void ModeSelectScreen::setup()
 {
 	m_gameMode1Button.setup();
 	m_gameMode2Button.setup();
 	m_backButton.setup();
 	m_modeText.setOrigin(m_modeText.getGlobalBounds().width / 2.0f, m_modeText.getGlobalBounds().height / 2.0f);
+	m_versusLockedText.setOrigin(m_versusLockedText.getGlobalBounds().width / 2.0f, m_versusLockedText.getGlobalBounds().height / 2.0f);
 }
 
-void ModeSelectScreen::processEvents(sf::Event t_event, GameState& t_gameState)
+////////////////////////////////////////////////////////////
+void ModeSelectScreen::processEvents(sf::Event t_event, GameState& t_gameState, int t_numberOfPlayers)
 {
 	if (m_gameMode1Button.processMouseEvents(t_event))
 	{
@@ -49,5 +67,18 @@ void ModeSelectScreen::processEvents(sf::Event t_event, GameState& t_gameState)
 	if (m_backButton.processMouseEvents(t_event))
 	{
 		t_gameState = GameState::PlayerJoinScreen;
+	}
+}
+
+////////////////////////////////////////////////////////////
+void ModeSelectScreen::updateLocked(int t_numberOfPlayers)
+{
+	if (t_numberOfPlayers > 1)
+	{
+		m_gameMode2Button.setLocked(false);
+	}
+	else
+	{
+		m_gameMode2Button.setLocked(true);
 	}
 }

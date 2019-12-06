@@ -90,3 +90,8 @@ void GUIButton::setLocked(bool t_state)
 		m_sprite.setColor(sf::Color::White);
 	}
 }
+
+bool GUIButton::getLocked() const
+{
+	return m_locked;
+}

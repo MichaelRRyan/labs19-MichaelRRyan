@@ -133,9 +133,15 @@ void Game::processGameEvents(sf::Event& event)
 		break;
 	case GameState::PlayerJoinScreen:
 		m_playerJoinScreen.processEvents(event, m_gameState, m_tanks, m_numberOfPlayers);
+
+		// If the gamestate is now mode select
+		if (GameState::ModeSelect == m_gameState)
+		{
+			m_modeSelectScreen.updateLocked(m_numberOfPlayers);
+		}
 		break;
 	case GameState::ModeSelect:
-		m_modeSelectScreen.processEvents(event, m_gameState);
+		m_modeSelectScreen.processEvents(event, m_gameState, m_numberOfPlayers);
 
 		// If the gamestate is now target practice
 		if (GameState::TargetPractice == m_gameState)
@@ -403,6 +409,12 @@ void Game::update(double dt)
 	{
 		m_controllers[i].update(); 
 	}
+
+	if (GameState::MenuScreen == m_gameState)
+	{
+		m_menuScreen.update(dt);
+	}
+
 
 	// If the game is in the gameplay state
 	if (GameState::PlayerJoinScreen == m_gameState)

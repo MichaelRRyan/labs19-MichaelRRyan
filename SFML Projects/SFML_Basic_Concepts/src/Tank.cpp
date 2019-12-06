@@ -12,7 +12,8 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	m_bullet{ nullptr },
 	m_score{ 0 },
 	m_healthPercent{ 100.0f },
-	m_ptrController{ nullptr }
+	m_ptrController{ nullptr },
+	m_healthIndicator{ 65.0f, 0.0f, 60u }
 {
 	initSprites();
 }
@@ -336,24 +337,78 @@ void Tank::YGHJJKeysInput()
 ////////////////////////////////////////////////////////////
 void Tank::handleControllerInput()
 {
-	// Input
-	sf::Vector2f movementInputVector;
-	sf::Vector2f rightStickInputVector;
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// INPUT
+	//////////////////////////////////////////////////////////////////////////////////////
+	sf::Vector2f movementInputVector = getControllerLSInput();
 
-	movementInputVector = getControllerLSInput();
-	rightStickInputVector = getControllerRSInput();
-
-	// Calculate
 	float inputSpeed = thor::length(movementInputVector);
 
 	// Get the angle in degrees from the movement vector
-	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * static_cast<float>(MathUtility::RAD_TO_DEG);
+	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * MathUtility::RAD_TO_DEG;
 
 	// Deal with negative rotations
 	if (inputDirection < 0.0f)
 	{
 		inputDirection = 360 + inputDirection;
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// MOVEMENT
+	//////////////////////////////////////////////////////////////////////////////////////
+	if (inputSpeed > 100)
+	{
+		inputSpeed = 100;
+	}
+
+	if (fabsf(inputDirection - m_rotation) < 90.0f)
+	{
+		increaseSpeed(inputSpeed / 100.0f);
+	}
+	else
+	{
+		decreaseSpeed(inputSpeed / 100.0f);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// ROTATION
+	//////////////////////////////////////////////////////////////////////////////////////
+	if (inputSpeed > 0.0f)
+	{
+		// Check if the absolute value of the distance between the values
+		if (fabsf(inputDirection - m_rotation) > TURN_SPEED)
+		{
+
+			if (inputDirection > m_rotation)
+			{
+				if (fabsf(inputDirection - m_rotation) < 180)
+				{
+					increaseRotation();
+				}
+				else
+				{
+					decreaseRotation();
+				}
+			}
+			else
+			{
+				if (fabsf(inputDirection - m_rotation) < 180)
+				{
+					decreaseRotation();
+				}
+				else
+				{
+					increaseRotation();
+				}
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// TURRET ROTATION
+	//////////////////////////////////////////////////////////////////////////////////////
+	// Turret Rotation
+	sf::Vector2f rightStickInputVector = rightStickInputVector = getControllerRSInput();
 
 	// Get the angle in degrees from the movement vector
 	float rightStickInputDir = thor::toDegree(atan2f(rightStickInputVector.y, rightStickInputVector.x));
@@ -364,35 +419,15 @@ void Tank::handleControllerInput()
 		rightStickInputDir = 360 + rightStickInputDir;
 	}
 
-	// Movement
-	if (inputSpeed > 100)
-	{
-		inputSpeed = 100;
-	}
-
-	if (fabsf(inputDirection - m_rotation) < 90.0f) // If analog direction is on the front half of the tank
-	{
-		increaseSpeed(inputSpeed / 100.0f); // move forward
-	}
-	else
-	{
-		decreaseSpeed(inputSpeed / 100.0f); // Move backwards
-	}
-
-	// Tank Body Rotation
-	if (inputSpeed > 0.0f) // If there is some analog input
-	{
-		handleControllerRotation(inputDirection);
-	}
-
 	// Turret Rotation
 	if (thor::length(rightStickInputVector) > 0.0f) // If there is some analog input
 	{
 		handleControllerTurretRotation(rightStickInputDir);
 	}
-	
 
-	// Manage firing
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// TURRET FIRING AND CENTERING
+	//////////////////////////////////////////////////////////////////////////////////////
 	if (m_ptrController->currentState.RTrigger > 50.0f)
 	{
 		fireBullet();
@@ -402,71 +437,6 @@ void Tank::handleControllerInput()
 	{
 		toggleCentring();
 	}
-}
-
-////////////////////////////////////////////////////////////
-void Tank::handleControllerRotation(float t_inputDirection)
-{
-	if (fabsf(t_inputDirection - m_rotation) < 90.0f) // Rotating while going forward
-	{
-		// Check if the absolute value of the distance between the values is greater than  the turn speed to avoid jitter
-		if (fabsf(t_inputDirection - m_rotation) > TURN_SPEED)
-		{
-
-			if (t_inputDirection > m_rotation)
-			{
-				if (fabsf(t_inputDirection - m_rotation) < 180)
-				{
-					increaseRotation();
-				}
-				else
-				{
-					decreaseRotation();
-				}
-			}
-			else
-			{
-				if (fabsf(t_inputDirection - m_rotation) < 180)
-				{
-					decreaseRotation();
-				}
-				else
-				{
-					increaseRotation();
-				}
-			}
-		}
-	}
-	else // Rotate while going backwards
-	{
-		// Check if the absolute value of the distance between the values is greater than  the turn speed to avoid jitter
-		if (fabsf(t_inputDirection - m_rotation) > TURN_SPEED)
-		{
-			if (t_inputDirection < m_rotation)
-			{
-				if (fabsf(t_inputDirection - m_rotation) < 180)
-				{
-					increaseRotation();
-				}
-				else
-				{
-					decreaseRotation();
-				}
-			}
-			else
-			{
-				if (fabsf(t_inputDirection - m_rotation) < 180)
-				{
-					decreaseRotation();
-				}
-				else
-				{
-					increaseRotation();
-				}
-			}
-		}
-	}
-
 }
 
 ////////////////////////////////////////////////////////////
@@ -848,7 +818,6 @@ void Tank::initSprites()
 	m_turret.setTextureRect(turretRect);
 	m_turret.setOrigin(static_cast<float>(turretRect.width) / 3.0f, static_cast<float>(turretRect.height) / 2.0f);
 
-	m_healthIndicator.setRadius(65.0f);
 	m_healthIndicator.setFillColor(sf::Color{ 0, 255, 0, 100 });
 	m_healthIndicator.setOrigin(65.0f, 65.0f);
 }

@@ -12,6 +12,7 @@ public:
 	bool processMouseEvents(sf::Event t_event);
 
 	void setLocked(bool t_state);
+	bool getLocked() const;
 
 	static constexpr float s_WIDTH{ 500.0f };
 	static constexpr float s_HEIGHT{ 100.0f };

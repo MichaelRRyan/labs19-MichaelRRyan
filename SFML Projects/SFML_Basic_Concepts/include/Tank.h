@@ -127,12 +127,19 @@ public:
 	/// </summary>
 	void handleControllerInput();
 
-	void handleControllerRotation(float t_inputDirection);
-
+	/// <summary>
+	/// @brief handles controller turret rotation
+	/// </summary>
 	void handleControllerTurretRotation(float t_inputDirection);
 
+	/// <summary>
+	/// @brief handles left stick input
+	/// </summary>
 	sf::Vector2f getControllerLSInput();
 
+	/// <summary>
+	/// @brief handles right stick input
+	/// </summary>
 	sf::Vector2f getControllerRSInput();
 
 	/// <summary>

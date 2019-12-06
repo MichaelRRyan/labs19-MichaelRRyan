@@ -52,7 +52,6 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 				{
 					t_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
 					t_numberOfPlayers++;
-					std::cout << t_numberOfPlayers;
 					m_playerSprites[0].setColor(sf::Color::Green);
 					m_continueButton.setLocked(false);
 					m_playerControlSprites[0].setTextureRect({ 132, 303, 202, 83 });
@@ -62,7 +61,6 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 						&& ControlType::Controller == t_tanks[0].getControlType())
 				{
 					t_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
-					std::cout << t_numberOfPlayers;
 					m_playerControlSprites[0].setTextureRect({ 132, 303, 202, 83 });
 				}
 				// Else if there is only one player and they're in keyboard config, remove them from the game
@@ -70,7 +68,6 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 						&& ControlType::Keyboard == t_tanks[0].getControlType())
 				{
 					t_numberOfPlayers--;
-					std::cout << t_numberOfPlayers;
 					m_playerSprites[0].setColor(sf::Color{ 180, 180, 180, 180 });
 					m_continueButton.setLocked(true);
 				}
@@ -83,7 +80,6 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 				{
 					t_tanks[1].setControlType(ControlType::Keyboard, ControlScheme::YGHJKeys);
 					t_numberOfPlayers++;
-					std::cout << t_numberOfPlayers;
 					m_playerSprites[1].setColor(sf::Color::Red);
 					m_playerControlSprites[1].setTextureRect({ 132, 386, 202, 83 });
 				}
@@ -92,7 +88,6 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 						 && ControlType::Controller == t_tanks[1].getControlType())
 				{
 					t_tanks[1].setControlType(ControlType::Keyboard, ControlScheme::YGHJKeys);
-					std::cout << t_numberOfPlayers;
 					m_playerControlSprites[1].setTextureRect({ 132, 386, 202, 83 });
 				}
 				// Else if there is only two players and they the last is in keyboard config, remove them from the game
@@ -100,7 +95,6 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 					&& ControlType::Keyboard == t_tanks[1].getControlType())
 				{
 					t_numberOfPlayers--;
-					std::cout << t_numberOfPlayers;
 					m_playerSprites[1].setColor(sf::Color{ 180, 180, 180, 180 });
 				}
 			}
@@ -149,6 +143,7 @@ void PlayerJoinScreen::update(Tank t_tanks[], XBox360Controller t_controllers[],
 					m_playerSprites[t_numberOfPlayers].setColor(m_PLAYER_COLOURS[t_numberOfPlayers]);
 					m_playerControlSprites[t_numberOfPlayers].setTextureRect({ 132, 220, 202, 83 });
 					t_numberOfPlayers++;
+					m_continueButton.setLocked(false);
 					break;
 				}
 			}

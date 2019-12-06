@@ -13,6 +13,9 @@ MenuScreen::MenuScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_backg
 	m_titleText.setFillColor(sf::Color::Black);
 	m_titleText.setOutlineColor(sf::Color::White);
 	m_titleText.setOutlineThickness(10.0f);
+
+	m_partSys.setTexture(t_guiSheet);
+	m_partSys.addTextureRect({ 0,0,100,100 });
 }
 
 void MenuScreen::draw(sf::RenderWindow& t_window)
@@ -24,6 +27,8 @@ void MenuScreen::draw(sf::RenderWindow& t_window)
 	m_exitButton.draw(t_window);
 
 	t_window.draw(m_titleText);
+
+	t_window.draw(m_partSys);
 }
 
 void MenuScreen::setup()
@@ -50,4 +55,9 @@ void MenuScreen::processEvents(sf::Event t_event, GameState& t_gameState, sf::Re
 	{
 		t_window.close();
 	}
+}
+
+void MenuScreen::update(double t_dt)
+{
+	m_partSys.update(m_partSysClock.restart());
 }
