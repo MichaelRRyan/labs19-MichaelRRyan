@@ -7,6 +7,8 @@
 #include "ScreenSize.h"
 #include "GameState.h"
 #include "Thor/Particles.hpp"
+#include "Thor/Math.hpp"
+#include "Thor/Animations.hpp"
 
 
 class MenuScreen
@@ -33,7 +35,6 @@ private:
 	sf::Text m_titleText;
 
 	sf::Clock m_partSysClock;
-	thor::UniversalEmitter m_emitter;
 	thor::ParticleSystem m_partSys;
 };
 

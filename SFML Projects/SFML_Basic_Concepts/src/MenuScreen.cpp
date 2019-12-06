@@ -15,7 +15,32 @@ MenuScreen::MenuScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_backg
 	m_titleText.setOutlineThickness(10.0f);
 
 	m_partSys.setTexture(t_guiSheet);
-	m_partSys.addTextureRect({ 0,0,100,100 });
+	m_partSys.addTextureRect({ 0, 470, 15, 15 });
+	m_partSys.addTextureRect({ 15, 470, 9, 9 });
+	m_partSys.addTextureRect({ 30, 470, 11, 11 });
+	m_partSys.addTextureRect({ 45, 470, 5, 5 });
+
+	thor::UniversalEmitter m_emitter;
+	m_emitter.setEmissionRate(120);
+	m_emitter.setParticleLifetime(sf::seconds(0.30f));
+	m_emitter.setParticlePosition(sf::Vector2f{ 100.0f, 300.0f });   // Emit particles in given circle
+	m_emitter.setParticleVelocity(thor::Distributions::deflect({500.0f, 0.0f}, 45.f)); // Emit towards direction with deviation of 15°
+	m_emitter.setParticleTextureIndex(thor::Distributions::uniform(0, 3));
+
+	thor::ColorGradient colourGradient;
+	colourGradient[0.0f] = sf::Color::Red;
+	colourGradient[0.8f] = sf::Color::Blue;
+	colourGradient[1.0f] = sf::Color::Cyan;
+
+	thor::ColorAnimation colourAnimation(colourGradient);
+
+	thor::FadeAnimation fader(0.0f, 0.8f);
+	m_partSys.addAffector(thor::AnimationAffector(fader));
+	m_partSys.addAffector(thor::AnimationAffector(colourAnimation));
+	
+	float emmitTime = 1.5f;
+	m_partSys.addEmitter(m_emitter, sf::seconds(emmitTime));
+	
 }
 
 void MenuScreen::draw(sf::RenderWindow& t_window)
