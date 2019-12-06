@@ -6,10 +6,6 @@
 #include "GUIButton.h"
 #include "ScreenSize.h"
 #include "GameState.h"
-#include "Thor/Particles.hpp"
-#include "Thor/Math.hpp"
-#include "Thor/Animations.hpp"
-
 
 class MenuScreen
 {
@@ -18,8 +14,6 @@ public:
 	void draw(sf::RenderWindow& t_window);
 	void setup();
 	void processEvents(sf::Event t_event, GameState & t_gameState, sf::RenderWindow &t_window);
-
-	void update(double t_dt);
 
 private:
 	const sf::Vector2f m_PLAY_BUTTON_POS{ (ScreenSize::s_width / 2.0f) - (GUIButton::s_WIDTH / 2.0f), (ScreenSize::s_height / 2.0f) - (GUIButton::s_HEIGHT / 2.0f) };
@@ -33,9 +27,6 @@ private:
 	GUIButton m_exitButton;
 
 	sf::Text m_titleText;
-
-	sf::Clock m_partSysClock;
-	thor::ParticleSystem m_partSys;
 };
 
 #endif // !MENU_SCREEN_H

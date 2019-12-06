@@ -9,6 +9,9 @@
 #include "Thor/Math.hpp"
 #include "GameConfig.h"
 #include "CircularSectorShape.h"
+#include "Thor/Particles.hpp"
+#include "Thor/Math.hpp"
+#include "Thor/Animations.hpp"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -25,7 +28,7 @@ public:
 	/// </summary>
 	/// <param name="texture">A reference to the sprite sheet texture</param>
 	///< param name="texture">A reference to the container of wall sprites</param>  
-	Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
+	Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
 	void update(double dt);
 	void render(sf::RenderWindow& window);
 	void setPosition(sf::Vector2f t_position);
@@ -291,4 +294,8 @@ private:
 	ControlScheme m_controlScheme;
 
 	CircularSectorShape m_healthIndicator;
+
+	sf::Clock m_particleClock;
+	thor::UniversalEmitter m_emitter;
+	thor::ParticleSystem m_partSys;
 };

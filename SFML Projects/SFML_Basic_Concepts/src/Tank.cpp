@@ -1,6 +1,6 @@
 #include "Tank.h"
 
-Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
+Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
 	m_texture{ t_texture },
 	m_wallSprites{ t_wallSprites },
 	m_targets{ t_targets },
@@ -16,6 +16,24 @@ Tank::Tank(sf::Texture const& t_texture, std::vector<sf::Sprite>& t_wallSprites,
 	m_healthIndicator{ 65.0f, 0.0f, 60u }
 {
 	initSprites();
+
+	m_partSys.setTexture(t_guiTexture);
+	/*m_partSys.addTextureRect({ 0, 470, 15, 17 });
+	m_partSys.addTextureRect({ 16, 470, 11, 11 });
+	m_partSys.addTextureRect({ 29, 470, 13, 13 });
+	m_partSys.addTextureRect({ 44, 470, 7, 7 });*/
+
+	m_partSys.addTextureRect({ 0, 487, 15, 17 });
+	m_partSys.addTextureRect({ 16, 487, 11, 11 });
+	m_partSys.addTextureRect({ 29, 487, 13, 13 });
+	m_partSys.addTextureRect({ 44, 487, 7, 7 });
+
+	m_emitter.setEmissionRate(120);
+	m_emitter.setParticleLifetime(sf::seconds(0.30f));
+	m_emitter.setParticleTextureIndex(thor::Distributions::uniform(0, 3));
+
+	thor::FadeAnimation fader(0.0f, 0.8f);
+	m_partSys.addAffector(thor::AnimationAffector(fader));
 }
 
 ////////////////////////////////////////////////////////////
@@ -87,6 +105,8 @@ void Tank::update(double dt)
 	{
 		m_fireTimer = 0.0f;
 	}
+
+	m_partSys.update(m_particleClock.restart());
 }
 
 ////////////////////////////////////////////////////////////
@@ -98,6 +118,7 @@ void Tank::render(sf::RenderWindow & window)
 	{
 		window.draw(m_bullet->getBody());
 	}
+	window.draw(m_partSys);
 }
 
 ////////////////////////////////////////////////////////////
@@ -734,6 +755,13 @@ void Tank::fireBullet()
 		m_fireTimer = FIRE_DELAY;
 		m_bulletsFired++;
 		m_shotSound.play();
+
+		sf::Vector2f directionVector = { cos(thor::toRadian(m_turret.getRotation())), sin(thor::toRadian(m_turret.getRotation())) };
+		sf::Vector2f tankBarrelPosition = m_turret.getPosition() + directionVector * 60.0f;
+
+		m_emitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
+		m_emitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.f)); // Emit towards direction with deviation of 45°
+		m_partSys.addEmitter(m_emitter, sf::seconds(0.1f));
 	}
 }
 

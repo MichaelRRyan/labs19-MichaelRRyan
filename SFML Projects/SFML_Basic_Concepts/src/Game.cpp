@@ -31,10 +31,10 @@ Game::Game() :
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} },
 		m_tanks{
-			{m_texture, m_wallSprites, m_targets},
-			{m_texture, m_wallSprites, m_targets},
-			{m_texture, m_wallSprites, m_targets},
-			{m_texture, m_wallSprites, m_targets} }
+			{m_texture, m_guiTextures, m_wallSprites, m_targets},
+			{m_texture, m_guiTextures, m_wallSprites, m_targets},
+			{m_texture, m_guiTextures, m_wallSprites, m_targets},
+			{m_texture, m_guiTextures, m_wallSprites, m_targets} }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -82,6 +82,12 @@ Game::Game() :
 	m_menuScreen.setup();
 	m_modeSelectScreen.setup();
 	m_playerJoinScreen.setup();
+
+
+	// PARTICLE TESTING TEMP
+	m_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
+	m_gameState = GameState::TargetPractice;
+	m_numberOfPlayers++;
 }
 
 ////////////////////////////////////////////////////////////
@@ -409,12 +415,6 @@ void Game::update(double dt)
 	{
 		m_controllers[i].update(); 
 	}
-
-	if (GameState::MenuScreen == m_gameState)
-	{
-		m_menuScreen.update(dt);
-	}
-
 
 	// If the game is in the gameplay state
 	if (GameState::PlayerJoinScreen == m_gameState)
