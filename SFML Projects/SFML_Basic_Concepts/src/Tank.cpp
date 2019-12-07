@@ -4,9 +4,9 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 	m_texture{ t_texture },
 	m_wallSprites{ t_wallSprites },
 	m_targets{ t_targets },
-	FRICTION{ 0.99f },
-	SPEED_LIMIT{ 100.0f },
-	ACCELERATION{ 2.0f },
+	FRICTION{ 0.98f },
+	SPEED_LIMIT{ 200.0f },
+	ACCELERATION{ 1.0f },
 	TURN_SPEED{ 0.8f },
 	m_BULLET_DAMAGE{ 10.0f },
 	m_bullet{ nullptr },
@@ -16,109 +16,142 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 	m_healthIndicator{ 65.0f, 0.0f, 60u }
 {
 	initSprites();
-
-	m_partSys.setTexture(t_guiTexture);
-	/*m_partSys.addTextureRect({ 0, 470, 15, 17 });
-	m_partSys.addTextureRect({ 16, 470, 11, 11 });
-	m_partSys.addTextureRect({ 29, 470, 13, 13 });
-	m_partSys.addTextureRect({ 44, 470, 7, 7 });*/
-
-	m_partSys.addTextureRect({ 0, 487, 15, 17 });
-	m_partSys.addTextureRect({ 16, 487, 11, 11 });
-	m_partSys.addTextureRect({ 29, 487, 13, 13 });
-	m_partSys.addTextureRect({ 44, 487, 7, 7 });
-
-	m_emitter.setEmissionRate(120);
-	m_emitter.setParticleLifetime(sf::seconds(0.30f));
-	m_emitter.setParticleTextureIndex(thor::Distributions::uniform(0, 3));
-
-	thor::FadeAnimation fader(0.0f, 0.8f);
-	m_partSys.addAffector(thor::AnimationAffector(fader));
+	setupParticleSystems(t_guiTexture);
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::update(double dt)
 {	
-	setPrevious(); // Set all "previous" variables
-
-	// Take input based on control type
-	(ControlType::Keyboard == m_controlType) ? handleKeyInput() : handleControllerInput();
-
-	// Clamp the speed to a minimum and maximum speed
-	float clamp = std::clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT); // Clamp variable is simply to remove warnings
-
-	m_previousPosition = m_tankBase.getPosition();
-	sf::Vector2f m_newPosition; // Create a variable for new position calculations
-	
-	// Calculate the new position
-	m_newPosition.x = m_tankBase.getPosition().x + cosf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
-	m_newPosition.y = m_tankBase.getPosition().y + sinf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
-
-	// Check if the turret is centring
-	if (m_centringTurret)
+	if (m_healthPercent > 0.0f)
 	{
-		centreTurret();
-	}
+		setPrevious(); // Set all "previous" variables
 
-	// Set the position of the tank base and turret
-	m_tankBase.setPosition(m_newPosition);
-	m_turret.setPosition(m_newPosition);
+		m_moving = false;
 
-	// Set the rotation of the tank base and turret
-	m_tankBase.setRotation(m_rotation);
-	m_turret.setRotation(m_rotation + m_turretRotation);
+		// Take input based on control type
+		(ControlType::Keyboard == m_controlType) ? handleKeyInput() : handleControllerInput();
 
-	m_speed *= FRICTION; // Apply a friction force
+		// Clamp the speed to a minimum and maximum speed
+		clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT);
 
-	// If the speed is less than 1 pixel per frame set it to 0 to avoid jitter
-	if (m_speed < 1.0 && m_speed > -1.0)
-	{
-		m_speed = 0.0;
-	}
+		m_previousPosition = m_tankBase.getPosition();
+		sf::Vector2f m_newPosition; // Create a variable for new position calculations
 
-	if (checkWallCollision())
-	{
-		deflect();
-	}
-	else
-	{
-		m_enableRotation = true;
-	}
+		// Calculate the new position
+		m_newPosition.x = m_tankBase.getPosition().x + cosf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
+		m_newPosition.y = m_tankBase.getPosition().y + sinf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
 
-	checkBulletWallCollisions();
-
-	if (m_bullet != nullptr)
-	{
-		bool stillAlive = m_bullet->update(dt);
-		if (!stillAlive)
+		// Check if the turret is centring
+		if (m_centringTurret)
 		{
-			m_bullet = nullptr;
+			centreTurret();
+		}
+
+		// Set the position of the tank base
+		m_tankBase.setPosition(m_newPosition);
+
+		// Set the position of the turret with n offset for fire recoil
+		sf::Vector2f directionVector = { cosf(thor::toRadian(m_rotation + m_turretRotation)), sinf(thor::toRadian(m_rotation + m_turretRotation)) };
+		m_turret.setPosition(m_newPosition - (directionVector * m_fireTimer * 3.0f));
+
+		// Set the rotation of the tank base and turret
+		m_tankBase.setRotation(m_rotation);
+		m_turret.setRotation(m_rotation + m_turretRotation);
+
+		if (!m_moving)
+		{
+			m_speed *= FRICTION; // Apply a friction force
+		}
+
+		// If the speed is less than 1 pixel per frame set it to 0 to avoid jitter
+		if (abs(m_speed) < 1.0)
+		{
+			m_speed = 0.0;
+			m_driveSound.stop();
+		}
+		// If the tank is moving
+		else
+		{
+			// Manage the volume of the tank movement
+			if (abs(m_speed) < 100)
+			{
+				m_driveSound.setVolume(abs(m_speed));
+			}
+			else
+			{
+				m_driveSound.setVolume(100.0f);
+			}
+
+			if (m_driveSound.getStatus() != sf::SoundSource::Status::Playing)
+			{
+				m_driveSound.play();
+			}
+		}
+
+		// Manage turret rotation sounds
+		if (m_previousTurretRotation != m_turretRotation)
+		{
+			// Only play the track if not already playing
+			if (m_turretRotateSound.getStatus() != sf::SoundSource::Status::Playing)
+			{
+				m_turretRotateSound.play();
+			}
+		}
+		else
+		{
+			m_turretRotateSound.stop();
+		}
+
+		if (checkWallCollision())
+		{
+			deflect();
+		}
+		else
+		{
+			m_enableRotation = true;
+		}
+
+		checkBulletWallCollisions();
+
+		if (m_bullet != nullptr)
+		{
+			bool stillAlive = m_bullet->update(dt);
+			if (!stillAlive)
+			{
+				m_bullet = nullptr;
+			}
+		}
+
+		// Decrement the fire timer and set it to 0 if it goes below
+		if (m_fireTimer > 0.0f)
+		{
+			m_fireTimer -= static_cast<float>(dt) / 1000.0f;
+		}
+		else if (m_fireTimer != 0.0f)
+		{
+			m_fireTimer = 0.0f;
 		}
 	}
 
-	// Decrement the fire timer and set it to 0 if it goes below
-	if (m_fireTimer > 0.0f)
-	{
-		m_fireTimer -= static_cast<float>(dt) / 1000.0f;
-	}
-	else if (m_fireTimer != 0.0f)
-	{
-		m_fireTimer = 0.0f;
-	}
-
-	m_partSys.update(m_particleClock.restart());
+	m_explosionPartSys.update(m_particleClock.getElapsedTime());
+	m_smokePartSys.update(m_particleClock.restart());
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::render(sf::RenderWindow & window) 
 {
-	window.draw(m_tankBase);
-	window.draw(m_turret);
+	if (m_healthPercent > 0.0f)
+	{
+		window.draw(m_tankBase);
+		window.draw(m_turret);
+	}
+	
 	if (m_bullet != nullptr)
 	{
 		window.draw(m_bullet->getBody());
 	}
-	window.draw(m_partSys);
+	window.draw(m_smokePartSys);
+	window.draw(m_explosionPartSys);
 }
 
 ////////////////////////////////////////////////////////////
@@ -173,22 +206,28 @@ void Tank::resetRotation()
 void Tank::increaseSpeed()
 {
 	m_speed += ACCELERATION;
+	m_moving = true;
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::decreaseSpeed()
 {
 	m_speed -= ACCELERATION;
+	m_moving = true;
 }
 
+////////////////////////////////////////////////////////////
 void Tank::increaseSpeed(float t_percent)
 {
 	m_speed += ACCELERATION * t_percent;
+	m_moving = true;
 }
 
+////////////////////////////////////////////////////////////
 void Tank::decreaseSpeed(float t_percent)
 {
 	m_speed -= ACCELERATION * t_percent;
+	m_moving = true;
 }
 
 ////////////////////////////////////////////////////////////
@@ -578,6 +617,11 @@ void Tank::checkBulletWallCollisions()
 			// Checks if either the tank base or turret has collided with the current wall sprite
 			if (CollisionDetector::collision(m_bullet->getBody(), sprite))
 			{
+				// Emit smoke particles at the point of impact
+				m_smokeEmitter.setParticlePosition(m_bullet->getBody().getPosition()); // Emit particles at tank barrel end
+				m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(-m_bullet->getVelocity() * 0.2f, 45.f)); // Emit towards direction with deviation of 45°
+				m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
+
 				delete m_bullet;
 				m_bullet = nullptr;
 				break;
@@ -599,11 +643,21 @@ bool Tank::checkBulletTargetCollisions()
 			if (m_targets[i].active()
 				&& CollisionDetector::collision(m_bullet->getBody(), m_targets[i].getSprite()))
 			{
+				// Delete the bullet hit
 				delete m_bullet;
 				m_bullet = nullptr;
 
+				// Emit explosion particles on impact
+				m_explosionEmitter.setParticlePosition(m_targets[i].getSprite().getPosition()); // Emit particles at tank barrel end
+				m_explosionEmitter.setParticleVelocity(thor::Distributions::deflect({ 50.0f, 0.0 }, 180.f)); // Emit towards direction with deviation of 180°
+				m_explosionPartSys.addEmitter(m_explosionEmitter, sf::seconds(0.3f));
+
+				m_explosionSound.play();
+
+				// Set the target to inactive
 				m_targets[i].setActive(false);
 
+				// Increase target hit and score
 				m_targetsHit++;
 				m_score += 10;
 
@@ -704,10 +758,16 @@ void Tank::takeDamage(float t_amount)
 {
 	m_healthPercent -= t_amount;
 
+	// If health is less than or equal to 0, play death sound and emit particles
 	if (m_healthPercent <= 0.0f)
 	{
 		m_healthPercent = 0;
 		m_explosionSound.play();
+
+		// Emit explosion particles
+		m_explosionEmitter.setParticlePosition(m_tankBase.getPosition()); // Emit particles at tank position
+		m_explosionEmitter.setParticleVelocity(thor::Distributions::deflect({ 50.0f, 0.0 }, 180.f)); // Emit towards direction with deviation of 180°
+		m_explosionPartSys.addEmitter(m_explosionEmitter, sf::seconds(0.3f));
 	}
 }
 
@@ -740,10 +800,13 @@ sf::Sprite Tank::getSprite()
 	return m_tankBase;
 }
 
-void Tank::setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer)
+void Tank::setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer, sf::SoundBuffer const& t_driveSoundBuffer,
+						sf::SoundBuffer const& t_turretRotateSound)
 {
 	m_shotSound.setBuffer(t_shotSoundBuffer);
 	m_explosionSound.setBuffer(t_explosionSoundBuffer);
+	m_driveSound.setBuffer(t_driveSoundBuffer);
+	m_turretRotateSound.setBuffer(t_turretRotateSound);
 }
 
 ////////////////////////////////////////////////////////////
@@ -759,9 +822,9 @@ void Tank::fireBullet()
 		sf::Vector2f directionVector = { cos(thor::toRadian(m_turret.getRotation())), sin(thor::toRadian(m_turret.getRotation())) };
 		sf::Vector2f tankBarrelPosition = m_turret.getPosition() + directionVector * 60.0f;
 
-		m_emitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
-		m_emitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.f)); // Emit towards direction with deviation of 45°
-		m_partSys.addEmitter(m_emitter, sf::seconds(0.1f));
+		m_smokeEmitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
+		m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.f)); // Emit towards direction with deviation of 45°
+		m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
 	}
 }
 
@@ -848,4 +911,59 @@ void Tank::initSprites()
 
 	m_healthIndicator.setFillColor(sf::Color{ 0, 255, 0, 100 });
 	m_healthIndicator.setOrigin(65.0f, 65.0f);
+}
+
+////////////////////////////////////////////////////////////
+void Tank::setupParticleSystems(sf::Texture const& t_guiTexture)
+{
+	// Setup the smoke particle system
+	m_smokePartSys.setTexture(t_guiTexture);
+
+	m_smokePartSys.addTextureRect({ 550, 0, 100, 100 });
+	m_smokePartSys.addTextureRect({ 650, 0, 100, 100 });
+	m_smokePartSys.addTextureRect({ 550, 100, 100, 100 });
+	m_smokePartSys.addTextureRect({ 650, 100, 100, 100 });
+
+	m_smokeEmitter.setEmissionRate(120);
+	m_smokeEmitter.setParticleLifetime(sf::seconds(0.30f));
+	m_smokeEmitter.setParticleTextureIndex(thor::Distributions::uniform(0, 3));
+	m_smokeEmitter.setParticleScale(sf::Vector2f{ 0.3f, 0.3f });
+
+	thor::FadeAnimation fader(0.0f, 0.8f);
+	m_smokePartSys.addAffector(thor::AnimationAffector(fader));
+
+	// Setup the explosion particle system
+	m_explosionPartSys.setTexture(t_guiTexture);
+
+	for (int row = 0; row < 2; row++)
+	{
+		for (int col = 0; col < 3; col++)
+		{
+			m_explosionPartSys.addTextureRect({ 500 + 100 * col, 200 + 100 * row, 100, 100 });
+		}
+	}
+
+	m_explosionPartSys.addTextureRect({ 550, 0, 100, 100 });
+	m_explosionPartSys.addTextureRect({ 650, 0, 100, 100 });
+	m_explosionPartSys.addTextureRect({ 550, 100, 100, 100 });
+
+	m_explosionEmitter.setEmissionRate(30);
+	m_explosionEmitter.setParticleLifetime(sf::seconds(0.60f));
+	m_explosionEmitter.setParticleTextureIndex(thor::Distributions::uniform(0, 8));
+	m_explosionEmitter.setParticleScale(sf::Vector2f{ 0.1f, 0.1f });
+
+	m_explosionPartSys.addAffector(thor::ScaleAffector({ 1.5f, 1.5f }));
+	m_explosionPartSys.addAffector(thor::AnimationAffector(fader));
+}
+
+void Tank::clamp(float& t_value, float const t_minValue, float const t_maxValue)
+{
+	if (t_value > t_maxValue)
+	{
+		t_value = t_maxValue;
+	}
+	else if (t_value < t_minValue)
+	{
+		t_value = t_minValue;
+	}
 }

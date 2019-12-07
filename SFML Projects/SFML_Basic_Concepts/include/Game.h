@@ -170,6 +170,8 @@ protected:
 	// Audio
 	sf::SoundBuffer m_shotSoundBuffer;
 	sf::SoundBuffer m_explosionSoundBuffer;
+	sf::SoundBuffer m_tankDriveSoundBuffer;
+	sf::SoundBuffer m_tankTurretRotateSoundBuffer;
 
 	// Load the game level data
 	LevelData m_level;

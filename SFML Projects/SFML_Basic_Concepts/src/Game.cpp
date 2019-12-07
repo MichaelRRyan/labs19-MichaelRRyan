@@ -85,9 +85,9 @@ Game::Game() :
 
 
 	// PARTICLE TESTING TEMP
-	m_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
+	/*m_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
 	m_gameState = GameState::TargetPractice;
-	m_numberOfPlayers++;
+	m_numberOfPlayers++;*/
 }
 
 ////////////////////////////////////////////////////////////
@@ -397,13 +397,25 @@ void Game::loadSounds()
 
 	if (!m_explosionSoundBuffer.loadFromFile("./resources/audio/explosion.wav"))
 	{
-		std::string s("Error loading tank shoot sound effect");
+		std::string s("Error loading tank explosion sound effect");
+		throw std::exception(s.c_str());
+	}
+
+	if (!m_tankDriveSoundBuffer.loadFromFile("./resources/audio/tankDrive.wav"))
+	{
+		std::string s("Error loading tank drive sound effect");
+		throw std::exception(s.c_str());
+	}
+
+	if (!m_tankTurretRotateSoundBuffer.loadFromFile("./resources/audio/tankTurretRotate.wav"))
+	{
+		std::string s("Error loading tank rotate sound effect");
 		throw std::exception(s.c_str());
 	}
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		m_tanks[i].setSounds(m_shotSoundBuffer, m_explosionSoundBuffer);
+		m_tanks[i].setSounds(m_shotSoundBuffer, m_explosionSoundBuffer, m_tankDriveSoundBuffer, m_tankTurretRotateSoundBuffer);
 	}
 }
 
@@ -463,22 +475,20 @@ void Game::update(double dt)
 
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
-			if (m_tanks[i].getHealth() > 0.0f)
-			{
-				m_tanks[i].update(dt);
+			m_tanks[i].update(dt);
 
-				// Check collisions with all other alive tanks
-				for (int j = 0; j < m_numberOfPlayers; j++)
+			// Check collisions with all other alive tanks
+			for (int j = 0; j < m_numberOfPlayers; j++)
+			{
+				if (i != j) // Don't check collisions with ourselves
 				{
-					if (i != j) // Don't check collisions with ourselves
+					if (m_tanks[j].getHealth() > 0.0f)
 					{
-						if (m_tanks[j].getHealth() > 0.0f)
-						{
-							m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
-						}
+						m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
 					}
 				}
 			}
+
 
 			m_playerTexts[i].setString("player" + std::to_string(i + 1) + " HP: " + std::to_string(static_cast<int>(m_tanks[i].getHealth())) + "%");
 		}
@@ -669,10 +679,7 @@ void Game::render()
 		// Draw the tanks if they're alive
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
-			if (m_tanks[i].getHealth() > 0.0f)
-			{
-				m_tanks[i].render(m_window);
-			}
+			m_tanks[i].render(m_window);
 		}
 
 		break;

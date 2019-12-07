@@ -20,7 +20,7 @@ Bullet::Bullet(sf::Texture const& t_texture, sf::Vector2f t_position, float t_an
 Bullet::~Bullet()
 {
 #ifdef _DEBUG
-	std::cout << "Bullet Deleted" << std::endl;
+	//std::cout << "Bullet Deleted" << std::endl;
 #endif // _DEBUG
 }
 

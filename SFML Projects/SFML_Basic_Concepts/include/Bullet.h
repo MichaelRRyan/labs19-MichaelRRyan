@@ -11,6 +11,7 @@ public:
 	Bullet(sf::Texture const& t_texture, sf::Vector2f t_position, float t_angleDeg, float t_barrelOffset);
 	~Bullet();
 	inline sf::Sprite getBody() { return m_sprite; }
+	inline sf::Vector2f getVelocity() { return m_velocity; }
 	bool update(double dt);
 private:
 	sf::Texture const& m_texture;

@@ -204,7 +204,8 @@ public:
 	/// @brief set the sound buffer for the shot sound effect
 	/// </summary>
 	/// <param name="t_shotSoundBuffer">Shot sound buffer</param>
-	void setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer);
+	void setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer, sf::SoundBuffer const& t_driveSoundBuffer,
+					sf::SoundBuffer const& t_turretRotateSound);
 
 	/// <summary>
 	/// @brief Fires a bullet from the tank
@@ -218,12 +219,28 @@ public:
 	/// <param name="t_controlScheme"></param>
 	void setControlType(ControlType t_controlType, ControlScheme t_controlScheme = ControlScheme::None);
 
+	/// <summary>
+	/// @brief Returns the control type the tank object is in (e.g. controller, keyboard)
+	/// </summary>
+	/// <returns>Control type</returns>
 	ControlType getControlType();
 
+	/// <summary>
+	/// @brief sets the pointer to the controller
+	/// </summary>
+	/// <param name="t_ptrController">Controller pointer</param>
 	void setControllerPtr(XBox360Controller* t_ptrController);
 
+	/// <summary>
+	/// @brief return the controller pointer's joystick index. Returns -1 if nullptr
+	/// </summary>
+	/// <returns>Controller pointer's joystick index</returns>
 	int getJoystickIndex();
 
+	/// <summary>
+	/// @brief Process player input events
+	/// </summary>
+	/// <param name="t_event">Player input</param>
 	void processEvents(sf::Event t_event);
 
 	/// <summary>
@@ -239,13 +256,33 @@ public:
 	void drawHealthIndicator(sf::RenderWindow &t_window);
 
 private:
+	/// <summary>
+	/// @brief Sets up all the sprites
+	/// </summary>
 	void initSprites();
+
+	/// <summary>
+	/// Setup the particle systems with the passed in texture file
+	/// </summary>
+	/// <param name="t_guiTexture">GUI textures</param>
+	void setupParticleSystems(sf::Texture const& t_guiTexture);
+
+	/// <summary>
+	/// @brief Clamps t_value to a minimum and maximum value
+	/// </summary>
+	/// <param name="t_value">value to clamp</param>
+	/// <param name="t_minValue">minimum value</param>
+	/// <param name="t_maxValue">maximum value</param>
+	void clamp(float& t_value, float const t_minValue, float const t_maxValue);
+
 	sf::Sprite m_tankBase;
 	sf::Sprite m_turret;
 	sf::Texture const& m_texture;
 
 	sf::Sound m_shotSound;
 	sf::Sound m_explosionSound;
+	sf::Sound m_driveSound;
+	sf::Sound m_turretRotateSound;
 
 	sf::Vector2f m_previousPosition{ 0.0f, 0.0f };
 
@@ -276,6 +313,8 @@ private:
 	bool m_centringTurret{ false };
 	bool m_centringClockwise{ false };
 
+	bool m_moving;
+
 	Bullet* m_bullet;
 
 	// Statistics
@@ -295,7 +334,12 @@ private:
 
 	CircularSectorShape m_healthIndicator;
 
+	// Particle systems
 	sf::Clock m_particleClock;
-	thor::UniversalEmitter m_emitter;
-	thor::ParticleSystem m_partSys;
+
+	thor::UniversalEmitter m_smokeEmitter;
+	thor::UniversalEmitter m_explosionEmitter;
+
+	thor::ParticleSystem m_smokePartSys;
+	thor::ParticleSystem m_explosionPartSys;
 };
