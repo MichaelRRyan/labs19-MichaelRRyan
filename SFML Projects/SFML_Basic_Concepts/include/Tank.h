@@ -29,8 +29,28 @@ public:
 	/// <param name="texture">A reference to the sprite sheet texture</param>
 	///< param name="texture">A reference to the container of wall sprites</param>  
 	Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
+
+	/// <summary>
+	/// @brief update the tank
+	/// </summary>
+	/// <param name="dt"></param>
 	void update(double dt);
+
+	/// <summary>
+	/// @brief Update the particle systems
+	/// </summary>
+	void updateParticleSys();
+
+	/// <summary>
+	/// @Draws the tank and it's particle system
+	/// </summary>
+	/// <param name="window"></param>
 	void render(sf::RenderWindow& window);
+
+	/// <summary>
+	/// @brief Set the position of the tank body and turret
+	/// </summary>
+	/// <param name="t_position"></param>
 	void setPosition(sf::Vector2f t_position);
 
 	/// <summary>
@@ -39,8 +59,16 @@ public:
 	/// <returns>Tank's score</returns>
 	int getScore();
 
+	/// <summary>
+	/// @brief Returns the tank's targets hit value
+	/// </summary>
+	/// <returns>Tank's target hit percent</returns>
 	int getPercentTargetsHit();
 
+	/// <summary>
+	/// @brief Returns the tank's accuracy value
+	/// </summary>
+	/// <returns>Tank's accuracy</returns>
 	int getAccuracy();
 
 	/// <summary>

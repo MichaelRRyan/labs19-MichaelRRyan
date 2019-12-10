@@ -30,11 +30,18 @@ Game::Game() :
 		{m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET},
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, m_TANK_OFFSET},
 		{static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET} },
-		m_tanks{
-			{m_texture, m_guiTextures, m_wallSprites, m_targets},
-			{m_texture, m_guiTextures, m_wallSprites, m_targets},
-			{m_texture, m_guiTextures, m_wallSprites, m_targets},
-			{m_texture, m_guiTextures, m_wallSprites, m_targets} }
+	m_TANK_TEXT_POSITIONS
+	{
+		{m_TANK_OFFSET, m_TANK_OFFSET},
+		{m_TANK_OFFSET, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET - 100.0f},
+		{ static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET - 600.0f, m_TANK_OFFSET},
+		{ static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET - 600.0f, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET - 100.0f}
+	},
+	m_tanks{
+		{m_texture, m_guiTextures, m_wallSprites, m_targets},
+		{m_texture, m_guiTextures, m_wallSprites, m_targets},
+		{m_texture, m_guiTextures, m_wallSprites, m_targets},
+		{m_texture, m_guiTextures, m_wallSprites, m_targets} }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -229,7 +236,7 @@ void Game::startTargetPractice()
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		m_playerTexts[i].setPosition(m_TANK_POSITIONS[i]);
+		m_playerTexts[i].setPosition(m_TANK_TEXT_POSITIONS[i]);
 	}
 
 	// Set targets
@@ -247,8 +254,10 @@ void Game::startVersusGame()
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		m_playerTexts[i].setPosition(m_TANK_POSITIONS[i]);
+		m_playerTexts[i].setPosition(m_TANK_TEXT_POSITIONS[i]);
 	}
+
+	m_gamePaused = false;
 }
 
 ////////////////////////////////////////////////////////////
@@ -350,10 +359,17 @@ void Game::setupText()
 
 	m_bestScoreText.setFont(m_font);
 	m_bestScoreText.setCharacterSize(35u);
-	m_bestScoreText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2 + 100);
+	m_bestScoreText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
 	m_bestScoreText.setFillColor(sf::Color::White);
 	m_bestScoreText.setOutlineThickness(2.0f);
 	m_bestScoreText.setOutlineColor(sf::Color::Black);
+
+	m_endGameText.setFont(m_font);
+	m_endGameText.setCharacterSize(35u);
+	m_endGameText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
+	m_endGameText.setFillColor(sf::Color::White);
+	m_endGameText.setOutlineThickness(2.0f);
+	m_endGameText.setOutlineColor(sf::Color::Black);
 }
 
 ////////////////////////////////////////////////////////////
@@ -425,57 +441,78 @@ void Game::update(double dt)
 	// Update the controllers
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		m_controllers[i].update(); 
+		m_controllers[i].update();
 	}
 
-	// If the game is in the gameplay state
-	if (GameState::PlayerJoinScreen == m_gameState)
+	switch (m_gameState)
 	{
+	case GameState::PlayerJoinScreen:
 		m_playerJoinScreen.update(m_tanks, m_controllers, m_numberOfPlayers);
+		break;
+	case GameState::TargetPractice:
+		updateTargetPractice(dt);
+		break;
+	case GameState::Versus:
+		updateVersus(dt);
+		break;
 	}
-	else if (GameState::TargetPractice == m_gameState)
+}
+
+////////////////////////////////////////////////////////////
+void Game::updateTargetPractice(double dt)
+{
+	// If the round is still on
+	if (m_gameTimer > 0.0)
 	{
-		// If the round is still on
-		if (m_gameTimer > 0.0)
+		m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer)))); // Set the timer text string
+
+		updatePlayers(dt); // update the players (tanks)
+
+		// Update timer
+		sf::Time timeSinceLastUpdate = m_clockTimer.restart();
+		m_gameTimer -= timeSinceLastUpdate.asSeconds();
+
+		// Spawn new target
+		if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
 		{
-			m_timerText.setString("Timer: " + std::to_string(static_cast<int>(ceil(m_gameTimer)))); // Set the timer text string
-
-			updatePlayers(dt); // update the players (tanks)
-
-			// Update timer
-			sf::Time timeSinceLastUpdate = m_clockTimer.restart();
-			m_gameTimer -= timeSinceLastUpdate.asSeconds();
-
-			// Spawn new target
-			if (m_targets.size() > 0 && m_spawnTimer.getElapsedTime().asSeconds() > (m_ROUND_TIME - 5.0) / m_numberOfTargets)
-			{
-				spawnTarget();
-			}
-
-			// Update the targets
-			updateTargets(timeSinceLastUpdate);
-
-			// Update the player score text
-
-			for (int i = 0; i < m_numberOfPlayers; i++)
-			{
-				m_playerTexts[i].setString("Player" + std::to_string(i + 1) + "'s Score: " + std::to_string(m_tanks[i].getScore()));
-			}
-
-			// If the round ends
-			if (m_gameTimer < 0.0)
-			{
-				endRound();
-			}
+			spawnTarget();
 		}
-	}
-	else if (GameState::Versus == m_gameState)
-	{
-		// update the first player if alive
+
+		// Update the targets
+		updateTargets(timeSinceLastUpdate);
+
+		// Update the player score text
 
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
+			m_playerTexts[i].setString(std::to_string(m_tanks[i].getScore()));
+			m_playerTexts[i].setPosition(m_tanks[i].getPosition().x, m_tanks[i].getPosition().y + 50.0f);
+		}
+
+		// If the round ends
+		if (m_gameTimer < 0.0)
+		{
+			endRound();
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::updateVersus(double dt)
+{
+	if (!m_gamePaused)
+	{
+		int tanksAlive = 0;
+
+		// update the first player if alive
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
 			m_tanks[i].update(dt);
+
+			if (m_tanks[i].getHealth() > 0.0f)
+			{
+				tanksAlive++;
+			}
 
 			// Check collisions with all other alive tanks
 			for (int j = 0; j < m_numberOfPlayers; j++)
@@ -489,9 +526,33 @@ void Game::update(double dt)
 				}
 			}
 
-
 			m_playerTexts[i].setString("player" + std::to_string(i + 1) + " HP: " + std::to_string(static_cast<int>(m_tanks[i].getHealth())) + "%");
 		}
+
+		if (tanksAlive < 2)
+		{
+			m_gamePaused = true;
+
+			// Find the index of the last player alive
+			int index = 0;
+			for (int i = 0; i < m_numberOfPlayers; i++)
+			{
+				if (m_tanks[i].getHealth() > 0.0f)
+				{
+					index = i;
+					break;
+				}
+			}
+
+			m_endGameText.setString("GAME OVER! Player" + std::to_string(index + 1) + " has won!\nPress Escape to exit");
+			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+		}
+	}
+
+	// update the particle systems even if the game is paused
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_tanks[i].updateParticleSys();
 	}
 }
 
@@ -577,7 +638,7 @@ void Game::endRound()
 	// Move the timer text and rescale it
 	m_timerText.setCharacterSize(40u);
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
-	m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2);
+	m_timerText.setPosition(ScreenSize::s_width / 2, ScreenSize::s_height / 2 - 100.0f);
 
 	// Save the new stats
 	try
@@ -656,6 +717,7 @@ void Game::render()
 			m_window.draw(m_bestScoreText);
 		}
 		break;
+
 	case GameState::Versus:
 		m_window.clear();
 
@@ -680,6 +742,11 @@ void Game::render()
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
 			m_tanks[i].render(m_window);
+		}
+
+		if (m_gamePaused)
+		{
+			m_window.draw(m_endGameText);
 		}
 
 		break;

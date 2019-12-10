@@ -49,6 +49,18 @@ protected:
 	void update(double dt);
 
 	/// <summary>
+	/// @brief Update the target practice mode
+	/// </summary>
+	/// <param name="dt">Delta time</param>
+	void updateTargetPractice(double dt);
+
+	/// <summary>
+	/// @brief Update the versus mode
+	/// </summary>
+	/// <param name="dt">Delta time</param>
+	void updateVersus(double dt);
+
+	/// <summary>
 	/// @brief Updates all the player objects
 	/// </summary>
 	/// <param name="dt">update delta time</param>
@@ -146,6 +158,7 @@ protected:
 	sf::Text m_timerText;
 	sf::Text m_bestScoreText;
 	sf::Text m_playerTexts[MAX_PLAYERS];
+	sf::Text m_endGameText;
 
 	// Texures and sprites
 	sf::Texture m_texture;
@@ -185,6 +198,7 @@ protected:
 
 	const float m_TANK_OFFSET{ 100.0f }; // Offset in from the screen boundaries that the tank will spawn
 	const sf::Vector2f m_TANK_POSITIONS[4]; // Corner positions the tank spawns in
+	const sf::Vector2f m_TANK_TEXT_POSITIONS[4]; // Corner positions the tank text displays in
 
 	int m_targetsSpawned; // Number of targets spawned in a round
 	int m_numberOfTargets; // Number targets loaded from a file
@@ -197,4 +211,6 @@ protected:
 
 	GameState m_gameState; // Current state the game is in
 	GameState m_previousGameState;
+
+	bool m_gamePaused;
 };

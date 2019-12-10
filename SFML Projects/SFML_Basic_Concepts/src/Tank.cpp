@@ -132,7 +132,11 @@ void Tank::update(double dt)
 			m_fireTimer = 0.0f;
 		}
 	}
+}
 
+////////////////////////////////////////////////////////////
+void Tank::updateParticleSys()
+{
 	m_explosionPartSys.update(m_particleClock.getElapsedTime());
 	m_smokePartSys.update(m_particleClock.restart());
 }
