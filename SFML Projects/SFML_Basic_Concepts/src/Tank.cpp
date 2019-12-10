@@ -827,7 +827,7 @@ void Tank::fireBullet()
 		sf::Vector2f tankBarrelPosition = m_turret.getPosition() + directionVector * 60.0f;
 
 		m_smokeEmitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
-		m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.f)); // Emit towards direction with deviation of 45°
+		m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.0f)); // Emit towards direction with deviation of 45°
 		m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
 	}
 }

@@ -67,10 +67,6 @@ Game::Game() :
 	// Setup the background
 	m_bgSprite.setTexture(m_bgTexture);
 
-	// Set the position for the tanks
-	//m_tank.setPosition(m_level.m_tank.m_position);
-	//m_controllerTank.setPosition({ m_level.m_tank.m_position.x - 200.0f, m_level.m_tank.m_position.y });
-
 	// Generate the walls and targets
 	generateWalls();
 	generateTargets();
@@ -89,12 +85,6 @@ Game::Game() :
 	m_menuScreen.setup();
 	m_modeSelectScreen.setup();
 	m_playerJoinScreen.setup();
-
-
-	// PARTICLE TESTING TEMP
-	/*m_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
-	m_gameState = GameState::TargetPractice;
-	m_numberOfPlayers++;*/
 }
 
 ////////////////////////////////////////////////////////////
@@ -233,11 +223,6 @@ void Game::startTargetPractice()
 	m_timerText.setCharacterSize(40u);
 	m_timerText.setOrigin(m_timerText.getGlobalBounds().width / 2.0f, m_timerText.getGlobalBounds().height / 2.0f);
 	m_timerText.setPosition(ScreenSize::s_width / 2, 30.0f);
-
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		m_playerTexts[i].setPosition(m_TANK_TEXT_POSITIONS[i]);
-	}
 
 	// Set targets
 	m_targetsSpawned = 0;
@@ -495,6 +480,12 @@ void Game::updateTargetPractice(double dt)
 			endRound();
 		}
 	}
+
+	// update the particle systems even if the game is paused
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_tanks[i].updateParticleSys();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -566,7 +557,24 @@ void Game::updatePlayers(double dt)
 
 		if (m_tanks[i].checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
 		{
-			spawnTarget();
+			// Check if there was already a target active before spawning another
+			bool targetExists = false;
+
+			// Loop through all the targets and check if they're active
+			for (Target& target : m_targets)
+			{
+				if (target.active())
+				{
+					targetExists = true;
+					break;
+				}
+			}
+
+			// If no target exists, 
+			if (!targetExists)
+			{
+				spawnTarget();
+			}
 		}
 	}
 }
@@ -633,6 +641,7 @@ void Game::endRound()
 	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
 		m_playerTexts[i].setString("Player" + std::to_string(i + 1) + ":\n" + m_tanks[i].getStatistics());
+		m_playerTexts[i].setPosition(m_TANK_TEXT_POSITIONS[i]);
 	}
 
 	// Move the timer text and rescale it
