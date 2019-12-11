@@ -1,5 +1,11 @@
 #include "Tank.h"
 
+/// <summary>
+/// @Author Michael Rainsford Ryan
+/// @Date 11/10/19
+/// </summary>
+
+////////////////////////////////////////////////////////////
 Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
 	m_texture{ t_texture },
 	m_wallSprites{ t_wallSprites },
@@ -9,6 +15,7 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 	ACCELERATION{ 1.0f },
 	TURN_SPEED{ 0.8f },
 	m_BULLET_DAMAGE{ 10.0f },
+	FIRE_DELAY{ 1.0f },
 	m_bullet{ nullptr },
 	m_score{ 0 },
 	m_healthPercent{ 100.0f },
@@ -34,12 +41,12 @@ void Tank::update(double dt)
 		// Clamp the speed to a minimum and maximum speed
 		clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT);
 
-		m_previousPosition = m_tankBase.getPosition();
+		m_previousPosition = m_baseSprite.getPosition();
 		sf::Vector2f m_newPosition; // Create a variable for new position calculations
 
 		// Calculate the new position
-		m_newPosition.x = m_tankBase.getPosition().x + cosf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
-		m_newPosition.y = m_tankBase.getPosition().y + sinf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
+		m_newPosition.x = m_baseSprite.getPosition().x + cosf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
+		m_newPosition.y = m_baseSprite.getPosition().y + sinf(thor::toRadian(m_rotation)) * m_speed * (static_cast<float>(dt) / 1000.0f);
 
 		// Check if the turret is centring
 		if (m_centringTurret)
@@ -48,15 +55,15 @@ void Tank::update(double dt)
 		}
 
 		// Set the position of the tank base
-		m_tankBase.setPosition(m_newPosition);
+		m_baseSprite.setPosition(m_newPosition);
 
 		// Set the position of the turret with n offset for fire recoil
 		sf::Vector2f directionVector = { cosf(thor::toRadian(m_rotation + m_turretRotation)), sinf(thor::toRadian(m_rotation + m_turretRotation)) };
-		m_turret.setPosition(m_newPosition - (directionVector * m_fireTimer * 3.0f));
+		m_turretSprite.setPosition(m_newPosition - (directionVector * m_fireTimer * 3.0f));
 
 		// Set the rotation of the tank base and turret
-		m_tankBase.setRotation(m_rotation);
-		m_turret.setRotation(m_rotation + m_turretRotation);
+		m_baseSprite.setRotation(m_rotation);
+		m_turretSprite.setRotation(m_rotation + m_turretRotation);
 
 		if (!m_moving)
 		{
@@ -125,7 +132,7 @@ void Tank::update(double dt)
 		// Decrement the fire timer and set it to 0 if it goes below
 		if (m_fireTimer > 0.0f)
 		{
-			m_fireTimer -= static_cast<float>(dt) / 1000.0f;
+			m_fireTimer -= m_fireClock.restart().asSeconds();
 		}
 		else if (m_fireTimer != 0.0f)
 		{
@@ -146,8 +153,8 @@ void Tank::render(sf::RenderWindow & window)
 {
 	if (m_healthPercent > 0.0f)
 	{
-		window.draw(m_tankBase);
-		window.draw(m_turret);
+		window.draw(m_baseSprite);
+		window.draw(m_turretSprite);
 	}
 	
 	if (m_bullet != nullptr)
@@ -161,8 +168,8 @@ void Tank::render(sf::RenderWindow & window)
 ////////////////////////////////////////////////////////////
 void Tank::setPosition(sf::Vector2f t_position)
 {
-	m_tankBase.setPosition(t_position);
-	m_turret.setPosition(t_position);
+	m_baseSprite.setPosition(t_position);
+	m_turretSprite.setPosition(t_position);
 }
 
 ////////////////////////////////////////////////////////////
@@ -603,8 +610,8 @@ bool Tank::checkWallCollision()
 	for (sf::Sprite const & sprite : m_wallSprites)
 	{
 		// Checks if either the tank base or turret has collided with the current wall sprite
-		if (CollisionDetector::collision(m_turret, sprite)
-			|| CollisionDetector::collision(m_tankBase, sprite))
+		if (CollisionDetector::collision(m_turretSprite, sprite)
+			|| CollisionDetector::collision(m_baseSprite, sprite))
 		{
 			return true;
 		}
@@ -699,7 +706,7 @@ void Tank::deflect()
 		m_enableRotation = false;
 		m_centringTurret = false;
 		// Back up to position in previous frame.
-		m_tankBase.setPosition(m_previousPosition);
+		m_baseSprite.setPosition(m_previousPosition);
 		// Apply small force in opposite direction of travel
 		if (m_previousSpeed < 0)
 		{
@@ -742,7 +749,7 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 {
 	if (t_tank.getHealth() > 0.0f)
 	{
-		if (CollisionDetector::collision(m_tankBase, t_tank.getSprite()))
+		if (CollisionDetector::collision(m_baseSprite, t_tank.getSprite()))
 		{
 			deflect();
 		}
@@ -771,7 +778,7 @@ void Tank::takeDamage(float t_amount)
 		m_explosionSound.play();
 
 		// Emit explosion particles
-		m_explosionEmitter.setParticlePosition(m_tankBase.getPosition()); // Emit particles at tank position
+		m_explosionEmitter.setParticlePosition(m_baseSprite.getPosition()); // Emit particles at tank position
 		m_explosionEmitter.setParticleVelocity(thor::Distributions::deflect({ 50.0f, 0.0 }, 180.f)); // Emit towards direction with deviation of 180°
 		m_explosionPartSys.addEmitter(m_explosionEmitter, sf::seconds(0.3f));
 	}
@@ -803,7 +810,7 @@ std::string Tank::getStatistics()
 ////////////////////////////////////////////////////////////
 sf::Sprite Tank::getSprite()
 {
-	return m_tankBase;
+	return m_baseSprite;
 }
 
 void Tank::setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer, sf::SoundBuffer const& t_driveSoundBuffer,
@@ -820,17 +827,19 @@ void Tank::fireBullet()
 {
 	if (m_bullet == nullptr && m_fireTimer == 0)
 	{
-		m_bullet = new Bullet(m_texture, m_turret.getPosition(), m_turret.getRotation(), 60.0f);
+		m_bullet = new Bullet(m_texture, m_turretSprite.getPosition(), m_turretSprite.getRotation(), 60.0f);
 		m_fireTimer = FIRE_DELAY;
 		m_bulletsFired++;
 		m_shotSound.play();
 
-		sf::Vector2f directionVector = { cos(thor::toRadian(m_turret.getRotation())), sin(thor::toRadian(m_turret.getRotation())) };
-		sf::Vector2f tankBarrelPosition = m_turret.getPosition() + directionVector * 60.0f;
+		sf::Vector2f directionVector = { cos(thor::toRadian(m_turretSprite.getRotation())), sin(thor::toRadian(m_turretSprite.getRotation())) };
+		sf::Vector2f tankBarrelPosition = m_turretSprite.getPosition() + directionVector * 60.0f;
 
 		m_smokeEmitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
 		m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.0f)); // Emit towards direction with deviation of 45°
 		m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
+
+		m_fireClock.restart();
 	}
 }
 
@@ -889,13 +898,13 @@ void Tank::processEvents(sf::Event t_event)
 ////////////////////////////////////////////////////////////
 sf::Vector2f Tank::getPosition()
 {
-	return m_tankBase.getPosition();
+	return m_baseSprite.getPosition();
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::drawHealthIndicator(sf::RenderWindow& t_window)
 {
-	m_healthIndicator.setPosition(m_tankBase.getPosition());
+	m_healthIndicator.setPosition(m_baseSprite.getPosition());
 	m_healthIndicator.setCompleteness(m_healthPercent / 100.0f);
 	t_window.draw(m_healthIndicator);
 }
@@ -904,16 +913,16 @@ void Tank::drawHealthIndicator(sf::RenderWindow& t_window)
 void Tank::initSprites()
 {
 	// Initialise the tank base
-	m_tankBase.setTexture(m_texture);
+	m_baseSprite.setTexture(m_texture);
 	sf::IntRect baseRect(95, 42, 100, 51);
-	m_tankBase.setTextureRect(baseRect);
-	m_tankBase.setOrigin(static_cast<float>(baseRect.width) / 2.0f, static_cast<float>(baseRect.height) / 2.0f);
+	m_baseSprite.setTextureRect(baseRect);
+	m_baseSprite.setOrigin(static_cast<float>(baseRect.width) / 2.0f, static_cast<float>(baseRect.height) / 2.0f);
 
 	// Initialise the turret
-	m_turret.setTexture(m_texture);
+	m_turretSprite.setTexture(m_texture);
 	sf::IntRect turretRect(120, 3, 87, 37);
-	m_turret.setTextureRect(turretRect);
-	m_turret.setOrigin(static_cast<float>(turretRect.width) / 3.0f, static_cast<float>(turretRect.height) / 2.0f);
+	m_turretSprite.setTextureRect(turretRect);
+	m_turretSprite.setOrigin(static_cast<float>(turretRect.width) / 3.0f, static_cast<float>(turretRect.height) / 2.0f);
 
 	m_healthIndicator.setFillColor(sf::Color{ 0, 255, 0, 100 });
 	m_healthIndicator.setOrigin(65.0f, 65.0f);

@@ -1,4 +1,11 @@
-#pragma once
+#ifndef TANK_H
+#define TANK_H
+
+/// <summary>
+/// @Author Michael Rainsford Ryan
+/// @Date 11/10/19
+/// </summary>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "MathUtility.h"
@@ -323,64 +330,76 @@ private:
 
 	// Private data members
 
-	sf::Sprite m_tankBase;
-	sf::Sprite m_turret;
-	sf::Texture const& m_texture;
+	// Constants
+	const float FRICTION;
+	const float SPEED_LIMIT;
+	const float ACCELERATION;
+	const float TURN_SPEED;
+	const float FIRE_DELAY;
+	const float m_BULLET_DAMAGE;
 
+	// Tank sprites and textures
+	sf::Texture const& m_texture;
+	sf::Sprite m_baseSprite;
+	sf::Sprite m_turretSprite;
+	
+	// Tank sounds
 	sf::Sound m_shotSound;
 	sf::Sound m_explosionSound;
 	sf::Sound m_driveSound;
 	sf::Sound m_turretRotateSound;
 
-	sf::Vector2f m_previousPosition{ 0.0f, 0.0f };
-
-	// A reference to the container of wall sprites.
+	// A references to targets and walls
 	std::vector<sf::Sprite>& m_wallSprites;
 	std::vector<Target>& m_targets;
 
-	// The tank speed.
-	const float FRICTION;
-	const float SPEED_LIMIT;
-	const float ACCELERATION;
-	const float TURN_SPEED;
-	const float FIRE_DELAY{ 1.0f };
-	const float m_BULLET_DAMAGE;
-
+	// Previous variables for collisions
+	sf::Vector2f m_previousPosition{ 0.0f, 0.0f };
 	float m_previousSpeed{ 0.0 };
+	float m_previousRotation;
+	float m_previousTurretRotation{ 0.0 };
+
+	// Speed value
 	float m_speed{ 0.0 };
 
-	// The current rotation as applied to tank base.
-	float m_previousRotation;
+	// The current rotation as applied to tank base
 	float m_rotation{ 0.0 };
-	float m_previousTurretRotation{ 0.0 };
+	
+	// The current rotation as applied to tank turret
 	float m_turretRotation{ 0.0 };
 
+	// Clock to find the time until able to fire again
+	sf::Clock m_fireClock; 
+
+	// Time until able to fire again (Effected by time but used a float for calculations)
 	float m_fireTimer{ 0 };
 
+	// Turret centering and collision bools
 	bool m_enableRotation{ true };
 	bool m_centringTurret{ false };
 	bool m_centringClockwise{ false };
-
 	bool m_moving;
 
-	Bullet* m_bullet;
+	// Pointer to hold a bullet upon fire
+	// Only one as there will never be an instance in which the bullet is still alive after 1 second (fire rate)
+	Bullet* m_bullet; 
 
 	// Statistics
 	int m_targetsHit;
 	int m_score;
 	int m_bulletsFired;
-
 	float m_healthPercent;
+
+	// Visual indicator for tank health
+	CircularSectorShape m_healthIndicator;
 
 	// Controller Support
 	const float CONTROLLER_ANALOG_DEADZONE{ 25.0f };
-
 	XBox360Controller *m_ptrController;
 
+	// Control configurations
 	ControlType m_controlType;
 	KeyConfiguration m_controlScheme;
-
-	CircularSectorShape m_healthIndicator;
 
 	// Particle systems
 	sf::Clock m_particleClock;
@@ -391,3 +410,5 @@ private:
 	thor::ParticleSystem m_smokePartSys;
 	thor::ParticleSystem m_explosionPartSys;
 };
+
+#endif // !TANK_H
