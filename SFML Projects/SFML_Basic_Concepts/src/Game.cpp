@@ -24,6 +24,7 @@ Game::Game() :
 	m_menuScreen(m_guiTextures, m_menuBackground, m_font),
 	m_modeSelectScreen(m_guiTextures, m_menuBackground, m_font),
 	m_playerJoinScreen(m_guiTextures, m_menuBackground, m_font),
+	m_helpScreen(m_guiTextures, m_menuBackground, m_font),
 	m_gameState{ GameState::MenuScreen },
 	m_TANK_POSITIONS{
 		{m_TANK_OFFSET, m_TANK_OFFSET},
@@ -85,6 +86,7 @@ Game::Game() :
 	m_menuScreen.setup();
 	m_modeSelectScreen.setup();
 	m_playerJoinScreen.setup();
+	m_helpScreen.setup();
 }
 
 ////////////////////////////////////////////////////////////
@@ -133,6 +135,9 @@ void Game::processGameEvents(sf::Event& event)
 	{
 	case GameState::MenuScreen:
 		m_menuScreen.processEvents(event, m_gameState, m_window);
+		break;
+	case GameState::HelpScreen:
+		m_helpScreen.processEvents(event, m_gameState);
 		break;
 	case GameState::PlayerJoinScreen:
 		m_playerJoinScreen.processEvents(event, m_gameState, m_tanks, m_numberOfPlayers);
@@ -678,6 +683,9 @@ void Game::render()
 	{
 	case GameState::MenuScreen:
 		m_menuScreen.draw(m_window);
+		break;
+	case GameState::HelpScreen:
+		m_helpScreen.draw(m_window);
 		break;
 	case GameState::PlayerJoinScreen:
 		m_playerJoinScreen.draw(m_window, m_numberOfPlayers);

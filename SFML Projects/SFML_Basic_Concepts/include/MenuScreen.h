@@ -23,7 +23,7 @@ private:
 	sf::Sprite m_background;
 
 	GUIButton m_playButton;
-	GUIButton m_optionsButton;
+	GUIButton m_helpButton;
 	GUIButton m_exitButton;
 
 	sf::Text m_titleText;

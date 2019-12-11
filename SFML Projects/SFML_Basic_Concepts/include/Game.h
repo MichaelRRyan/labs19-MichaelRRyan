@@ -19,6 +19,7 @@
 #include "GameState.h"
 #include "ModeSelectScreen.h"
 #include "PlayerJoinScreen.h"
+#include "HelpScreen.h"
 
 class Game
 {
@@ -206,6 +207,7 @@ protected:
 	int m_numberOfPlayers;
 
 	MenuScreen m_menuScreen;
+	HelpScreen m_helpScreen;
 	ModeSelectScreen m_modeSelectScreen;
 	PlayerJoinScreen m_playerJoinScreen;
 
