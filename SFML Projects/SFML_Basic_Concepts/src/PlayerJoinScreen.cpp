@@ -13,12 +13,12 @@ PlayerJoinScreen::PlayerJoinScreen(sf::Texture const& t_guiSheet, sf::Texture co
 		m_playerSprites[i].setTexture(t_guiSheet);
 		m_playerSprites[i].setTextureRect(textureRext);
 		m_playerSprites[i].setOrigin(textureRext.width / 2.0f, textureRext.height / 2.0f);
-		m_playerSprites[i].setPosition((ScreenSize::s_width / (MAX_PLAYERS + 1)) * (i + 1) , ScreenSize::s_height / 2.0f);
+		m_playerSprites[i].setPosition(static_cast<float>((ScreenSize::s_width / (MAX_PLAYERS + 1)) * (i + 1)), static_cast<float>(ScreenSize::s_height / 2));
 		m_playerSprites[i].setColor(sf::Color{ 180, 180, 180, 180});
 
 		m_playerControlSprites[i].setTexture(t_guiSheet);
 		m_playerControlSprites[i].setOrigin(101.0f, 42.0f);
-		m_playerControlSprites[i].setPosition((ScreenSize::s_width / (MAX_PLAYERS + 1)) * (i + 1), ScreenSize::s_height / 2.0f - (textureRext.height / 2.0f) - 40.0f);
+		m_playerControlSprites[i].setPosition(static_cast<float>((ScreenSize::s_width / (MAX_PLAYERS + 1)) * (i + 1)), static_cast<float>(ScreenSize::s_height / 2.0f - (textureRext.height / 2.0f) - 40.0f));
 	}
 
 	m_playerSelectBackground.setPosition(ScreenSize::s_width * 0.1f, ScreenSize::s_height / 4.0f);
@@ -50,7 +50,7 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 				// If there's no players in the game, add player1 with keyboard config
 				if (0 == t_numberOfPlayers)
 				{
-					t_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
+					t_tanks[0].setControlType(ControlType::Keyboard, KeyConfiguration::ArrowKeys);
 					t_numberOfPlayers++;
 					m_playerSprites[0].setColor(sf::Color::Green);
 					m_continueButton.setLocked(false);
@@ -60,7 +60,7 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 				else if (t_numberOfPlayers > 0
 						&& ControlType::Controller == t_tanks[0].getControlType())
 				{
-					t_tanks[0].setControlType(ControlType::Keyboard, ControlScheme::ArrowKeys);
+					t_tanks[0].setControlType(ControlType::Keyboard, KeyConfiguration::ArrowKeys);
 					m_playerControlSprites[0].setTextureRect({ 132, 303, 202, 83 });
 				}
 				// Else if there is only one player and they're in keyboard config, remove them from the game
@@ -78,7 +78,7 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 				// If there's 1 player in the game, add player2 with keyboard config
 				if (1 == t_numberOfPlayers)
 				{
-					t_tanks[1].setControlType(ControlType::Keyboard, ControlScheme::YGHJKeys);
+					t_tanks[1].setControlType(ControlType::Keyboard, KeyConfiguration::YGHJKeys);
 					t_numberOfPlayers++;
 					m_playerSprites[1].setColor(sf::Color::Red);
 					m_playerControlSprites[1].setTextureRect({ 132, 386, 202, 83 });
@@ -87,7 +87,7 @@ void PlayerJoinScreen::processEvents(sf::Event t_event, GameState& t_gameState, 
 				else if (t_numberOfPlayers > 1
 						 && ControlType::Controller == t_tanks[1].getControlType())
 				{
-					t_tanks[1].setControlType(ControlType::Keyboard, ControlScheme::YGHJKeys);
+					t_tanks[1].setControlType(ControlType::Keyboard, KeyConfiguration::YGHJKeys);
 					m_playerControlSprites[1].setTextureRect({ 132, 386, 202, 83 });
 				}
 				// Else if there is only two players and they the last is in keyboard config, remove them from the game

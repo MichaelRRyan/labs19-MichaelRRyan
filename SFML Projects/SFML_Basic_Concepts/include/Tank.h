@@ -149,9 +149,15 @@ public:
 	/// </summary>
 	void handleKeyInput();
 
+	/// <summary>
+	/// @brief takes input for the arrow key configuration of the input
+	/// </summary>
 	void arrowKeysInput();
 
-	void YGHJJKeysInput();
+	/// <summary>
+	/// @brief takes input for the YGHJ key configuration of the input
+	/// </summary>
+	void YGHJKeysInput();
 
 	/// <summary>
 	/// @brief handles controller input from the player to move the tank
@@ -204,10 +210,21 @@ public:
 	/// </summary>
 	void deflect();
 
+	/// <summary>
+	/// @brief adjust the rotation upon collision
+	/// </summary>
 	void adjustRotation();
 
+	/// <summary>
+	/// @brief check if two tanks have collided
+	/// </summary>
+	/// <param name="t_tank">tank to collide with</param>
 	void checkTanktoTankCollisions(Tank &t_tank);
 
+	/// <summary>
+	/// @brief removes from health the value given, then checks if dead and create particles and play sound if so
+	/// </summary>
+	/// <param name="t_amount">damage amount</param>
 	void takeDamage(float t_amount);
 
 	/// <summary>
@@ -245,7 +262,7 @@ public:
 	/// </summary>
 	/// <param name="t_controlType"></param>
 	/// <param name="t_controlScheme"></param>
-	void setControlType(ControlType t_controlType, ControlScheme t_controlScheme = ControlScheme::None);
+	void setControlType(ControlType t_controlType, KeyConfiguration t_controlScheme = KeyConfiguration::None);
 
 	/// <summary>
 	/// @brief Returns the control type the tank object is in (e.g. controller, keyboard)
@@ -303,6 +320,9 @@ private:
 	/// <param name="t_maxValue">maximum value</param>
 	void clamp(float& t_value, float const t_minValue, float const t_maxValue);
 
+
+	// Private data members
+
 	sf::Sprite m_tankBase;
 	sf::Sprite m_turret;
 	sf::Texture const& m_texture;
@@ -358,7 +378,7 @@ private:
 	XBox360Controller *m_ptrController;
 
 	ControlType m_controlType;
-	ControlScheme m_controlScheme;
+	KeyConfiguration m_controlScheme;
 
 	CircularSectorShape m_healthIndicator;
 

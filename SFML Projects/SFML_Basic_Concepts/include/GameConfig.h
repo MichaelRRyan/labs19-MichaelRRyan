@@ -17,7 +17,7 @@ enum class ControlType
 	Controller
 };
 
-enum class ControlScheme
+enum class KeyConfiguration
 {
 	None,
 	ArrowKeys,

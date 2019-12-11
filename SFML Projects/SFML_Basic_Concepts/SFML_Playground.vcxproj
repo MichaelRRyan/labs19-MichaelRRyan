@@ -23,7 +23,6 @@
     <None Include="resources\levels\level1.yaml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HelpScreen.h" />
     <ClInclude Include="include\Bullet.h" />
     <ClInclude Include="include\CircularSectorShape.h" />
     <ClInclude Include="include\CollisionDetector.h" />
@@ -31,6 +30,7 @@
     <ClInclude Include="include\GameConfig.h" />
     <ClInclude Include="include\GameState.h" />
     <ClInclude Include="include\GUIButton.h" />
+    <ClInclude Include="include\HelpScreen.h" />
     <ClInclude Include="include\LevelLoader.h" />
     <ClInclude Include="include\MathUtility.h" />
     <ClInclude Include="include\MenuScreen.h" />
@@ -44,12 +44,12 @@
     <ClInclude Include="include\XBox360Controller.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HelpScreen.cpp" />
     <ClCompile Include="src\Bullet.cpp" />
     <ClCompile Include="src\CircularSectorShape.cpp" />
     <ClCompile Include="src\CollisionDetector.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GUIButton.cpp" />
+    <ClCompile Include="src\HelpScreen.cpp" />
     <ClCompile Include="src\LevelLoader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MathUtility.cpp" />

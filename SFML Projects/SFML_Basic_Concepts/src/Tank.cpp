@@ -152,7 +152,7 @@ void Tank::render(sf::RenderWindow & window)
 	
 	if (m_bullet != nullptr)
 	{
-		window.draw(m_bullet->getBody());
+		window.draw(m_bullet->getSprite());
 	}
 	window.draw(m_smokePartSys);
 	window.draw(m_explosionPartSys);
@@ -314,13 +314,13 @@ void Tank::setPrevious()
 ////////////////////////////////////////////////////////////
 void Tank::handleKeyInput()
 {
-	if (ControlScheme::ArrowKeys == m_controlScheme)
+	if (KeyConfiguration::ArrowKeys == m_controlScheme)
 	{
 		arrowKeysInput();
 	}
 	else
 	{
-		YGHJJKeysInput();
+		YGHJKeysInput();
 	}
 }
 
@@ -361,7 +361,7 @@ void Tank::arrowKeysInput()
 	}
 }
 
-void Tank::YGHJJKeysInput()
+void Tank::YGHJKeysInput()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 	{
@@ -409,7 +409,7 @@ void Tank::handleControllerInput()
 	float inputSpeed = thor::length(movementInputVector);
 
 	// Get the angle in degrees from the movement vector
-	float inputDirection = atan2f(movementInputVector.y, movementInputVector.x) * MathUtility::RAD_TO_DEG;
+	float inputDirection = thor::toDegree(atan2f(movementInputVector.y, movementInputVector.x));
 
 	// Deal with negative rotations
 	if (inputDirection < 0.0f)
@@ -612,6 +612,7 @@ bool Tank::checkWallCollision()
 	return false;
 }
 
+////////////////////////////////////////////////////////////
 void Tank::checkBulletWallCollisions()
 {
 	if (m_bullet != nullptr)
@@ -619,10 +620,10 @@ void Tank::checkBulletWallCollisions()
 		for (sf::Sprite const& sprite : m_wallSprites)
 		{
 			// Checks if either the tank base or turret has collided with the current wall sprite
-			if (CollisionDetector::collision(m_bullet->getBody(), sprite))
+			if (CollisionDetector::collision(m_bullet->getSprite(), sprite))
 			{
 				// Emit smoke particles at the point of impact
-				m_smokeEmitter.setParticlePosition(m_bullet->getBody().getPosition()); // Emit particles at tank barrel end
+				m_smokeEmitter.setParticlePosition(m_bullet->getSprite().getPosition()); // Emit particles at tank barrel end
 				m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(-m_bullet->getVelocity() * 0.2f, 45.f)); // Emit towards direction with deviation of 45°
 				m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
 
@@ -634,6 +635,7 @@ void Tank::checkBulletWallCollisions()
 	}
 }
 
+////////////////////////////////////////////////////////////
 bool Tank::checkBulletTargetCollisions()
 {
 	int numberOfTargets = m_targets.size();
@@ -645,7 +647,7 @@ bool Tank::checkBulletTargetCollisions()
 		{
 			// Checks if either the tank base or turret has collided with the current target and the target is alive
 			if (m_targets[i].active()
-				&& CollisionDetector::collision(m_bullet->getBody(), m_targets[i].getSprite()))
+				&& CollisionDetector::collision(m_bullet->getSprite(), m_targets[i].getSprite()))
 			{
 				// Delete the bullet hit
 				delete m_bullet;
@@ -747,7 +749,7 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 
 		if (m_bullet != nullptr)
 		{
-			if (CollisionDetector::collision(m_bullet->getBody(), t_tank.getSprite()))
+			if (CollisionDetector::collision(m_bullet->getSprite(), t_tank.getSprite()))
 			{
 				t_tank.takeDamage(m_BULLET_DAMAGE);
 				delete m_bullet;
@@ -833,7 +835,7 @@ void Tank::fireBullet()
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::setControlType(ControlType t_controlType, ControlScheme t_controlScheme)
+void Tank::setControlType(ControlType t_controlType, KeyConfiguration t_controlScheme)
 {
 	m_controlType = t_controlType;
 	m_controlScheme = t_controlScheme;
@@ -867,7 +869,7 @@ void Tank::processEvents(sf::Event t_event)
 {
 	if (sf::Event::KeyPressed == t_event.type)
 	{
-		if (ControlScheme::ArrowKeys == m_controlScheme)
+		if (KeyConfiguration::ArrowKeys == m_controlScheme)
 		{
 			if (sf::Keyboard::L == t_event.key.code)
 			{

@@ -31,6 +31,9 @@
     <Filter Include="Header Files\Abstract">
       <UniqueIdentifier>{13758c68-8d30-4927-991a-e0b13d1da8fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Config">
+      <UniqueIdentifier>{cbfdaab3-6a86-4a65-9394-9b7a92428eed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\levels\level1.yaml">
@@ -71,12 +74,6 @@
     <ClInclude Include="include\CollisionDetector.h">
       <Filter>Header Files\Abstract</Filter>
     </ClInclude>
-    <ClInclude Include="include\GameConfig.h">
-      <Filter>Header Files\Abstract</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GameState.h">
-      <Filter>Header Files\Abstract</Filter>
-    </ClInclude>
     <ClInclude Include="include\LevelLoader.h">
       <Filter>Header Files\Abstract</Filter>
     </ClInclude>
@@ -89,14 +86,20 @@
     <ClInclude Include="include\RoundStatsSaver.h">
       <Filter>Header Files\Abstract</Filter>
     </ClInclude>
-    <ClInclude Include="include\ScreenSize.h">
-      <Filter>Header Files\Abstract</Filter>
-    </ClInclude>
     <ClInclude Include="include\XBox360Controller.h">
       <Filter>Header Files\Abstract</Filter>
     </ClInclude>
-    <ClInclude Include="HelpScreen.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\HelpScreen.h">
+      <Filter>Header Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ScreenSize.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameConfig.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameState.h">
+      <Filter>Header Files\Config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,8 +151,8 @@
     <ClCompile Include="src\XBox360Controller.cpp">
       <Filter>Source Files\Abstract</Filter>
     </ClCompile>
-    <ClCompile Include="HelpScreen.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\HelpScreen.cpp">
+      <Filter>Source Files\Screens</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
