@@ -331,6 +331,7 @@ void Tank::handleKeyInput()
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Tank::arrowKeysInput()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -368,6 +369,7 @@ void Tank::arrowKeysInput()
 	}
 }
 
+////////////////////////////////////////////////////////////
 void Tank::YGHJKeysInput()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
@@ -747,20 +749,24 @@ void Tank::adjustRotation()
 ////////////////////////////////////////////////////////////
 void Tank::checkTanktoTankCollisions(Tank& t_tank)
 {
+	// Check collisions only if the tank is alive
 	if (t_tank.getHealth() > 0.0f)
 	{
+		// Check against tank on tank collision
 		if (CollisionDetector::collision(m_baseSprite, t_tank.getSprite()))
 		{
 			deflect();
 		}
 
+		// If the bullet is alive
 		if (m_bullet != nullptr)
 		{
+			// Check collisions between bullet and tank
 			if (CollisionDetector::collision(m_bullet->getSprite(), t_tank.getSprite()))
 			{
-				t_tank.takeDamage(m_BULLET_DAMAGE);
-				delete m_bullet;
-				m_bullet = nullptr;
+				t_tank.takeDamage(m_BULLET_DAMAGE); // Damage the other tank
+				delete m_bullet; // Delete the bullet
+				m_bullet = nullptr; // Set the bullet pointer to nullptr to avoid dangling pointer
 			}
 		}
 	}
