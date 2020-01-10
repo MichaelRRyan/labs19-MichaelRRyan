@@ -20,7 +20,9 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 	m_score{ 0 },
 	m_healthPercent{ 100.0f },
 	m_ptrController{ nullptr },
-	m_healthIndicator{ 65.0f, 0.0f, 60u }
+	m_healthIndicator{ 65.0f, 0.0f, 60u },
+	m_fireRequested{ false },
+	m_shootTimer{ s_TIME_BETWEEN_SHOTS }
 {
 	initSprites();
 	setupParticleSystems(t_guiTexture);
@@ -139,6 +141,19 @@ void Tank::update(double dt)
 			m_fireTimer = 0.0f;
 		}
 	}
+
+	if (m_fireRequested)
+	{
+		m_shootTimer -= dt;
+
+		if (m_shootTimer <= 0)
+		{
+			m_shootTimer = s_TIME_BETWEEN_SHOTS;
+			m_fireRequested = false;
+		}
+	}
+
+	m_pool.update(dt, m_wallSprites);
 }
 
 ////////////////////////////////////////////////////////////
@@ -157,10 +172,13 @@ void Tank::render(sf::RenderWindow & window)
 		window.draw(m_turretSprite);
 	}
 	
-	if (m_bullet != nullptr)
+	/*if (m_bullet != nullptr)
 	{
 		window.draw(m_bullet->getSprite());
-	}
+	}*/
+
+	m_pool.render(window);
+
 	window.draw(m_smokePartSys);
 	window.draw(m_explosionPartSys);
 }
@@ -837,6 +855,7 @@ void Tank::fireBullet()
 		m_fireTimer = FIRE_DELAY;
 		m_bulletsFired++;
 		m_shotSound.play();
+		requestFire();
 
 		sf::Vector2f directionVector = { cos(thor::toRadian(m_turretSprite.getRotation())), sin(thor::toRadian(m_turretSprite.getRotation())) };
 		sf::Vector2f tankBarrelPosition = m_turretSprite.getPosition() + directionVector * 60.0f;
@@ -977,6 +996,7 @@ void Tank::setupParticleSystems(sf::Texture const& t_guiTexture)
 	m_explosionPartSys.addAffector(thor::AnimationAffector(fader));
 }
 
+////////////////////////////////////////////////////////////
 void Tank::clamp(float& t_value, float const t_minValue, float const t_maxValue)
 {
 	if (t_value > t_maxValue)
@@ -988,3 +1008,18 @@ void Tank::clamp(float& t_value, float const t_minValue, float const t_maxValue)
 		t_value = t_minValue;
 	}
 }
+
+////////////////////////////////////////////////////////////
+void Tank::requestFire()
+{
+	m_fireRequested = true;
+	if (m_shootTimer == s_TIME_BETWEEN_SHOTS)
+	{
+		sf::Vector2f tipOfTurret(m_turretSprite.getPosition().x + 2.0f, m_turretSprite.getPosition().y);
+		tipOfTurret.x += std::cos(MathUtility::DEG_TO_RAD * m_turretSprite.getRotation()) * ((m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f);
+		tipOfTurret.y += std::sin(MathUtility::DEG_TO_RAD * m_turretSprite.getRotation()) * ((m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f);
+		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_baseSprite.getRotation());
+	}
+}
+
+////////////////////////////////////////////////////////////

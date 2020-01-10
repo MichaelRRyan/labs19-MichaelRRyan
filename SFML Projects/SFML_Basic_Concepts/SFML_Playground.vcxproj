@@ -37,6 +37,8 @@
     <ClInclude Include="include\ModeSelectScreen.h" />
     <ClInclude Include="include\OrientedBoundingBox.h" />
     <ClInclude Include="include\PlayerJoinScreen.h" />
+    <ClInclude Include="include\Projectile.h" />
+    <ClInclude Include="include\ProjectilePool.h" />
     <ClInclude Include="include\RoundStatsSaver.h" />
     <ClInclude Include="include\ScreenSize.h" />
     <ClInclude Include="include\Tank.h" />
@@ -57,6 +59,8 @@
     <ClCompile Include="src\ModeSelectScreen.cpp" />
     <ClCompile Include="src\OrientedBoundingBox.cpp" />
     <ClCompile Include="src\PlayerJoinScreen.cpp" />
+    <ClCompile Include="src\Projectile.cpp" />
+    <ClCompile Include="src\ProjectilePool.cpp" />
     <ClCompile Include="src\RoundStatsSaver.cpp" />
     <ClCompile Include="src\Tank.cpp" />
     <ClCompile Include="src\Target.cpp" />

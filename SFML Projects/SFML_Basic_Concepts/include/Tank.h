@@ -19,6 +19,7 @@
 #include "Thor/Particles.hpp"
 #include "Thor/Math.hpp"
 #include "Thor/Animations.hpp"
+#include "ProjectilePool.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -327,6 +328,13 @@ private:
 	/// <param name="t_maxValue">maximum value</param>
 	void clamp(float& t_value, float const t_minValue, float const t_maxValue);
 
+	/// <summary>
+	/// @brief Generates a request to fire a projectile.
+	/// A projectile will be fired from the tip of the turret only if time limit between shots
+	///  has expired. Fire requests are not queued.
+	/// </summary>
+	void requestFire();
+
 
 	// Private data members
 
@@ -337,6 +345,8 @@ private:
 	const float TURN_SPEED;
 	const float FIRE_DELAY;
 	const float m_BULLET_DAMAGE;
+
+	static int const s_TIME_BETWEEN_SHOTS{ 800 };
 
 	// Tank sprites and textures
 	sf::Texture const& m_texture;
@@ -374,6 +384,10 @@ private:
 	// Time until able to fire again (Effected by time but used a float for calculations)
 	float m_fireTimer{ 0 };
 
+	// Projectile
+	bool m_fireRequested;
+	int m_shootTimer;
+
 	// Turret centering and collision bools
 	bool m_enableRotation{ true };
 	bool m_centringTurret{ false };
@@ -383,6 +397,8 @@ private:
 	// Pointer to hold a bullet upon fire
 	// Only one as there will never be an instance in which the bullet is still alive after 1 second (fire rate)
 	Bullet* m_bullet; 
+
+	ProjectilePool m_pool;
 
 	// Statistics
 	int m_targetsHit;

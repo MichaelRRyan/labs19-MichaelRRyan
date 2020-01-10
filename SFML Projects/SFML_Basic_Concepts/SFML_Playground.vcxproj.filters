@@ -101,6 +101,12 @@
     <ClInclude Include="include\GameState.h">
       <Filter>Header Files\Config</Filter>
     </ClInclude>
+    <ClInclude Include="include\Projectile.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ProjectilePool.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Game.cpp">
@@ -153,6 +159,12 @@
     </ClCompile>
     <ClCompile Include="src\HelpScreen.cpp">
       <Filter>Source Files\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Projectile.cpp">
+      <Filter>Source Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProjectilePool.cpp">
+      <Filter>Source Files\GameObjects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
