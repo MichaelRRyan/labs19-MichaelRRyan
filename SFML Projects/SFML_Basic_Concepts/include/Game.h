@@ -20,6 +20,7 @@
 #include "ModeSelectScreen.h"
 #include "PlayerJoinScreen.h"
 #include "HelpScreen.h"
+#include "TankAI.h"
 
 class Game
 {
@@ -180,6 +181,8 @@ protected:
 	XBox360Controller m_controllers[MAX_PLAYERS];
 
 	Tank m_tanks[MAX_PLAYERS];
+
+	TankAi m_aiTank;
 
 	// Audio
 	sf::SoundBuffer m_shotSoundBuffer;

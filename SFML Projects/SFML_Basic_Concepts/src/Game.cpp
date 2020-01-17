@@ -42,7 +42,8 @@ Game::Game() :
 		{m_texture, m_guiTextures, m_wallSprites, m_targets},
 		{m_texture, m_guiTextures, m_wallSprites, m_targets},
 		{m_texture, m_guiTextures, m_wallSprites, m_targets},
-		{m_texture, m_guiTextures, m_wallSprites, m_targets} }
+		{m_texture, m_guiTextures, m_wallSprites, m_targets} },
+	m_aiTank{ m_texture, m_wallSprites }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -87,6 +88,8 @@ Game::Game() :
 	m_modeSelectScreen.setup();
 	m_playerJoinScreen.setup();
 	m_helpScreen.setup();
+
+	m_aiTank.init(m_level.m_aiTank.m_position);
 }
 
 ////////////////////////////////////////////////////////////
@@ -550,6 +553,8 @@ void Game::updateVersus(double dt)
 	{
 		m_tanks[i].updateParticleSys();
 	}
+
+	m_aiTank.update(m_tanks[0], dt);
 }
 
 ////////////////////////////////////////////////////////////
@@ -760,6 +765,8 @@ void Game::render()
 		{
 			m_tanks[i].render(m_window);
 		}
+
+		m_aiTank.render(m_window);
 
 		if (m_gamePaused)
 		{

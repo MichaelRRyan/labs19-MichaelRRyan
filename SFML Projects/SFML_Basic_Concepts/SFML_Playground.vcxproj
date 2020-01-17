@@ -42,6 +42,7 @@
     <ClInclude Include="include\RoundStatsSaver.h" />
     <ClInclude Include="include\ScreenSize.h" />
     <ClInclude Include="include\Tank.h" />
+    <ClInclude Include="include\TankAI.h" />
     <ClInclude Include="include\Target.h" />
     <ClInclude Include="include\XBox360Controller.h" />
   </ItemGroup>
@@ -63,6 +64,7 @@
     <ClCompile Include="src\ProjectilePool.cpp" />
     <ClCompile Include="src\RoundStatsSaver.cpp" />
     <ClCompile Include="src\Tank.cpp" />
+    <ClCompile Include="src\TankAI.cpp" />
     <ClCompile Include="src\Target.cpp" />
     <ClCompile Include="src\XBox360Controller.cpp" />
   </ItemGroup>

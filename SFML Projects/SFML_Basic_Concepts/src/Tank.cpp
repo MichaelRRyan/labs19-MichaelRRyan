@@ -921,7 +921,7 @@ void Tank::processEvents(sf::Event t_event)
 }
 
 ////////////////////////////////////////////////////////////
-sf::Vector2f Tank::getPosition()
+sf::Vector2f Tank::getPosition() const
 {
 	return m_baseSprite.getPosition();
 }
@@ -1018,7 +1018,7 @@ void Tank::requestFire()
 		sf::Vector2f tipOfTurret(m_turretSprite.getPosition().x + 2.0f, m_turretSprite.getPosition().y);
 		tipOfTurret.x += std::cos(MathUtility::DEG_TO_RAD * m_turretSprite.getRotation()) * ((m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f);
 		tipOfTurret.y += std::sin(MathUtility::DEG_TO_RAD * m_turretSprite.getRotation()) * ((m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f);
-		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_baseSprite.getRotation());
+		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_baseSprite.getRotation() + m_turretRotation);
 	}
 }
 

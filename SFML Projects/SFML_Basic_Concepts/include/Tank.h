@@ -300,7 +300,7 @@ public:
 	/// @brief returns the position of the tank body
 	/// </summary>
 	/// <returns>tank position</returns>
-	sf::Vector2f getPosition();
+	sf::Vector2f getPosition() const;
 
 	/// <summary>
 	/// @brief Draws the health indicator
