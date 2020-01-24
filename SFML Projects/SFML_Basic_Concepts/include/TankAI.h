@@ -109,6 +109,6 @@ private:
 		RETREAT
 	} m_aiBehaviour;
 
-
+	const float MASS{ 10.0f };
 };
 

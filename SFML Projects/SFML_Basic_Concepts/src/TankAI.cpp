@@ -15,6 +15,7 @@ TankAi::TankAi(sf::Texture const & texture, std::vector<sf::Sprite> & wallSprite
 void TankAi::update(Tank const & playerTank, double dt)
 {
 	sf::Vector2f vectorToPlayer = seek(playerTank.getPosition());
+	sf::Vector2f acceleration;
 
 	switch (m_aiBehaviour)
 	{
@@ -22,7 +23,9 @@ void TankAi::update(Tank const & playerTank, double dt)
 		m_steering += thor::unitVector(vectorToPlayer);
 		m_steering += collisionAvoidance();
 		m_steering = MathUtility::truncate(m_steering, MAX_FORCE);
-		m_velocity = MathUtility::truncate(m_velocity + m_steering, MAX_SPEED);
+		acceleration = m_steering / MASS;
+		//m_velocity = MathUtility::truncate(m_velocity + m_steering, MAX_SPEED);
+		m_velocity = MathUtility::truncate(m_velocity + acceleration, MAX_SPEED);
 
 		break;
 	case AiBehaviour::STOP:
@@ -105,9 +108,12 @@ sf::Vector2f TankAi::collisionAvoidance()
 {
 	auto headingRadians = thor::toRadian(m_rotation);
 	sf::Vector2f headingVector(std::cos(headingRadians) * MAX_SEE_AHEAD, std::sin(headingRadians) * MAX_SEE_AHEAD);
+
 	m_ahead = m_tankBase.getPosition() + headingVector;
 	m_halfAhead = m_tankBase.getPosition() + (headingVector * 0.5f);
+
 	const sf::CircleShape mostThreatening = findMostThreateningObstacle();
+
 	sf::Vector2f avoidance(0, 0);
 	if (mostThreatening.getRadius() != 0.0)
 	{		
@@ -116,18 +122,31 @@ sf::Vector2f TankAi::collisionAvoidance()
 		avoidance = thor::unitVector(avoidance);
 		avoidance *= MAX_AVOID_FORCE;
 	}
-	else
-	{
-		avoidance *= 0.0f;
-	}
+	
 	return avoidance;
 }
 
 ////////////////////////////////////////////////////////////
 const sf::CircleShape TankAi::findMostThreateningObstacle()
 {
-	// The initialisation of mostThreatening is just a placeholder...
-	sf::CircleShape mostThreatening = m_obstacles.at(0);
+	sf::CircleShape mostThreatening{ 0.0f };
+
+	for (sf::CircleShape circle : m_obstacles)
+	{
+		bool collides = MathUtility::lineIntersectsCircle(m_ahead, m_halfAhead, circle);
+		if (collides && (mostThreatening.getRadius() == 0 || MathUtility::distance(m_tankBase.getPosition(), circle.getPosition())
+			< MathUtility::distance(m_tankBase.getPosition(), mostThreatening.getPosition())))
+		{
+			mostThreatening = circle;
+		}
+	}
+
+	float distance = MathUtility::distance(m_tankBase.getPosition() + m_ahead, mostThreatening.getPosition());
+
+	if (distance > mostThreatening.getRadius() * 0.95f && distance < mostThreatening.getRadius() * 1.05f)
+	{
+		return sf::CircleShape{ 0.0f };
+	}
 
 	return mostThreatening;
 }
