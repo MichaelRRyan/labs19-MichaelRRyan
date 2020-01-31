@@ -20,6 +20,7 @@
 #include "Thor/Math.hpp"
 #include "Thor/Animations.hpp"
 #include "ProjectilePool.h"
+#include "TankAI.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -42,7 +43,7 @@ public:
 	/// @brief update the tank
 	/// </summary>
 	/// <param name="dt"></param>
-	void update(double dt);
+	void update(double dt, TankAi & t_tankAI);
 
 	/// <summary>
 	/// @brief Update the particle systems
@@ -251,7 +252,13 @@ public:
 	/// Return the tank base sprite
 	/// </summary>
 	/// <returns></returns>
-	sf::Sprite getSprite();
+	sf::Sprite getBase() const;
+
+	/// <summary>
+	/// Return the tank turret sprite
+	/// </summary>
+	/// <returns></returns>
+	sf::Sprite getTurret() const;
 
 	/// <summary>
 	/// @brief set the sound buffer for the shot sound effect

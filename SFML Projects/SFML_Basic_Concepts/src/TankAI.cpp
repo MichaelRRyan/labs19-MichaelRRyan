@@ -179,3 +179,15 @@ void TankAi::updateMovement(double dt)
 	m_turret.setPosition(m_tankBase.getPosition());
 	m_turret.setRotation(m_rotation);
 }
+
+////////////////////////////////////////////////////////////
+bool TankAi::collidesWithPlayer(Tank const& playerTank) const
+{
+	// Checks if the AI tank has collided with the player tank.
+	if (CollisionDetector::collision(m_turret, playerTank.getTurret()) ||
+		CollisionDetector::collision(m_tankBase, playerTank.getBase()))
+	{
+		return true;
+	}
+	return false;
+}

@@ -525,6 +525,11 @@ void Game::updateVersus(double dt)
 				}
 			}
 
+			if (m_aiTank.collidesWithPlayer(m_tanks[i]))
+			{
+				m_tanks[i].takeDamage(10.0f);
+			}
+
 			m_playerTexts[i].setString("player" + std::to_string(i + 1) + " HP: " + std::to_string(static_cast<int>(m_tanks[i].getHealth())) + "%");
 		}
 

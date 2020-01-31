@@ -29,7 +29,7 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 }
 
 ////////////////////////////////////////////////////////////
-void Tank::update(double dt)
+void Tank::update(double dt, TankAi & t_tankAI)
 {	
 	if (m_healthPercent > 0.0f)
 	{
@@ -771,7 +771,7 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 	if (t_tank.getHealth() > 0.0f)
 	{
 		// Check against tank on tank collision
-		if (CollisionDetector::collision(m_baseSprite, t_tank.getSprite()))
+		if (CollisionDetector::collision(m_baseSprite, t_tank.getBase()))
 		{
 			deflect();
 		}
@@ -780,7 +780,7 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 		if (m_bullet != nullptr)
 		{
 			// Check collisions between bullet and tank
-			if (CollisionDetector::collision(m_bullet->getSprite(), t_tank.getSprite()))
+			if (CollisionDetector::collision(m_bullet->getSprite(), t_tank.getBase()))
 			{
 				t_tank.takeDamage(m_BULLET_DAMAGE); // Damage the other tank
 				delete m_bullet; // Delete the bullet
@@ -832,9 +832,14 @@ std::string Tank::getStatistics()
 }
 
 ////////////////////////////////////////////////////////////
-sf::Sprite Tank::getSprite()
+sf::Sprite Tank::getBase() const
 {
 	return m_baseSprite;
+}
+
+sf::Sprite Tank::getTurret() const
+{
+	return m_turretSprite;
 }
 
 void Tank::setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer const& t_explosionSoundBuffer, sf::SoundBuffer const& t_driveSoundBuffer,
