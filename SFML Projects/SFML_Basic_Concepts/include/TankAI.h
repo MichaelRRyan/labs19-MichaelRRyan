@@ -5,6 +5,8 @@
 #include <iostream>
 #include <queue>
 #include "CollisionDetector.h"
+#include "ScreenSize.h"
+#include "CircularSectorShape.h"
 
 class Tank; // forward reference
 
@@ -72,13 +74,9 @@ public:
 	/// Takes a value to set the active bool to
 	/// </summary>
 	/// <param name="t_active"></param>
-	void setActive(bool t_active);
+	void reset();
 
-	/// <summary>
-	/// Sets the position of the tank body and turret
-	/// </summary>
-	/// <param name="t_position"></param>
-	void setPosition(sf::Vector2f t_position);
+	void drawHealthIndicator(sf::RenderWindow& t_window);
 
 	enum class AiType
 	{
@@ -149,6 +147,10 @@ private:
 	const float MASS{ 10.0f };
 
 	bool m_active;
+
+	float m_healthPercent;
+
+	CircularSectorShape m_healthIndicator;
 };
 
 #include "Tank.h"

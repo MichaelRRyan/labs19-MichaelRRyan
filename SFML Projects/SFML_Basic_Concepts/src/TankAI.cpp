@@ -6,7 +6,9 @@ TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites)
 	, m_texture(texture)
 	, m_wallSprites(wallSprites)
 	, m_steering(0, 0),
-	m_active{ true }
+	m_active{ true },
+	m_healthPercent{ 100.0f },
+	m_healthIndicator{ 65.0f, 0.0f, 60u }
 {
 	// Initialises the tank base and turret sprites.
 	initSprites();
@@ -105,6 +107,9 @@ void TankAi::init(sf::Vector2f position)
 		circle.setPosition(wallSprite.getPosition());
 		m_obstacles.push_back(circle);
 	}
+
+	m_healthIndicator.setFillColor(sf::Color{ 0, 255, 0, 100 });
+	m_healthIndicator.setOrigin(65.0f, 65.0f);
 }
 
 ////////////////////////////////////////////////////////////
@@ -220,10 +225,15 @@ const sf::Sprite TankAi::getTurretSprite() const
 ////////////////////////////////////////////////////////////
 void TankAi::takeDamage(float t_amount)
 {
-	m_active = false;
+	m_healthPercent -= t_amount;
 
-	m_tankBase.setPosition(-500.0f, -500.0f);
-	m_turret.setPosition(-500.0f, -500.0f);
+	if (m_healthPercent <= 0.0f)
+	{
+		m_active = false;
+
+		m_tankBase.setPosition(-500.0f, -500.0f);
+		m_turret.setPosition(-500.0f, -500.0f);
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -233,16 +243,20 @@ const bool TankAi::isActive() const
 }
 
 ////////////////////////////////////////////////////////////
-void TankAi::setActive(bool t_active)
+void TankAi::reset()
 {
-	m_active = t_active;
+	m_active = true;
+	m_tankBase.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
+	m_turret.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
+	m_healthPercent = 100.0f;
 }
 
 ////////////////////////////////////////////////////////////
-void TankAi::setPosition(sf::Vector2f t_position)
+void TankAi::drawHealthIndicator(sf::RenderWindow& t_window)
 {
-	m_tankBase.setPosition(t_position);
-	m_turret.setPosition(t_position);
+	m_healthIndicator.setPosition(m_tankBase.getPosition());
+	m_healthIndicator.setCompleteness(m_healthPercent / 100.0f);
+	t_window.draw(m_healthIndicator);
 }
 
 ////////////////////////////////////////////////////////////

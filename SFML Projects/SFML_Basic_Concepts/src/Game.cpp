@@ -244,8 +244,7 @@ void Game::startTargetPractice()
 void Game::startVersusGame()
 {
 	resetTanks();
-	m_aiTank.setActive(true);
-	m_aiTank.setPosition({ static_cast<float>(ScreenSize::s_width) / 2.0f, static_cast<float>(ScreenSize::s_height / 2.0f) });
+	m_aiTank.reset();
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
@@ -519,7 +518,8 @@ void Game::updateVersus(double dt)
 			{
 				tanksAlive++;
 
-				if (m_aiTank.collidesWithPlayer(m_tanks[i]))
+				if (m_tanks[i].getHealth() > 0.0f 
+					&& m_aiTank.collidesWithPlayer(m_tanks[i]))
 				{
 					m_tanks[i].takeDamage(10.0f);
 				}
@@ -772,12 +772,18 @@ void Game::render()
 			}
 		}
 
+		if (m_aiTank.isActive())
+		{
+			m_aiTank.drawHealthIndicator(m_window);
+		}
+
 		// Draw the tanks if they're alive
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
 			m_tanks[i].render(m_window);
 		}
 
+		
 		m_aiTank.render(m_window);
 
 		if (m_gamePaused)
