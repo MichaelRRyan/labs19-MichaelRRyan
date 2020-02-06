@@ -244,6 +244,8 @@ void Game::startTargetPractice()
 void Game::startVersusGame()
 {
 	resetTanks();
+	m_aiTank.setActive(true);
+	m_aiTank.setPosition({ static_cast<float>(ScreenSize::s_width) / 2.0f, static_cast<float>(ScreenSize::s_height / 2.0f) });
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
@@ -506,11 +508,21 @@ void Game::updateVersus(double dt)
 		// update the first player if alive
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
-			m_tanks[i].update(dt);
+			m_tanks[i].update(dt, m_aiTank);
 
 			if (m_tanks[i].getHealth() > 0.0f)
 			{
 				tanksAlive++;
+			}
+
+			if (m_aiTank.isActive())
+			{
+				tanksAlive++;
+
+				if (m_aiTank.collidesWithPlayer(m_tanks[i]))
+				{
+					m_tanks[i].takeDamage(10.0f);
+				}
 			}
 
 			// Check collisions with all other alive tanks
@@ -523,11 +535,6 @@ void Game::updateVersus(double dt)
 						m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
 					}
 				}
-			}
-
-			if (m_aiTank.collidesWithPlayer(m_tanks[i]))
-			{
-				m_tanks[i].takeDamage(10.0f);
 			}
 
 			m_playerTexts[i].setString("player" + std::to_string(i + 1) + " HP: " + std::to_string(static_cast<int>(m_tanks[i].getHealth())) + "%");
@@ -568,7 +575,7 @@ void Game::updatePlayers(double dt)
 	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
 		// update the first player
-		m_tanks[i].update(dt);
+		m_tanks[i].update(dt, m_aiTank);
 
 		if (m_tanks[i].checkBulletTargetCollisions()) // If a target is destroyed spawn a new one
 		{

@@ -6,7 +6,7 @@
 #include <queue>
 #include "CollisionDetector.h"
 
-class Tank; // forward reference, do not #include "Tank.h"
+class Tank; // forward reference
 
 class TankAi
 {
@@ -52,6 +52,33 @@ public:
 	/// <param name="player">The player tank instance</param>
 	/// <returns>True if collision detected between AI and player tanks.</returns>
 	bool collidesWithPlayer(Tank const& playerTank) const;
+
+	const sf::Sprite getBaseSprite() const;
+	const sf::Sprite getTurretSprite() const;
+
+	/// <summary>
+	/// @brief removes from health the value given, then checks if dead
+	/// </summary>
+	/// <param name="t_amount">damage amount</param>
+	void takeDamage(float t_amount);
+
+	/// <summary>
+	/// Returns true if the tank is active (alive)
+	/// </summary>
+	/// <returns></returns>
+	const bool isActive() const;
+
+	/// <summary>
+	/// Takes a value to set the active bool to
+	/// </summary>
+	/// <param name="t_active"></param>
+	void setActive(bool t_active);
+
+	/// <summary>
+	/// Sets the position of the tank body and turret
+	/// </summary>
+	/// <param name="t_position"></param>
+	void setPosition(sf::Vector2f t_position);
 
 	enum class AiType
 	{
@@ -120,6 +147,8 @@ private:
 	} m_aiBehaviour;
 
 	const float MASS{ 10.0f };
+
+	bool m_active;
 };
 
 #include "Tank.h"

@@ -13,37 +13,55 @@ void Projectile::init(sf::Texture const & texture, float x, float y, float rotat
 }
 
 ////////////////////////////////////////////////////////////
-bool Projectile::update(double dt, std::vector<sf::Sprite> & wallSprites)
+std::pair<bool, bool> Projectile::update(double dt, std::vector<sf::Sprite> & wallSprites, std::pair<sf::Sprite, sf::Sprite> aiTankSprites)
 {
+	std::pair<bool, bool> result{ false, false };
+
 	if (!inUse())
 	{
 		// If this projectile is not in use, there is no update routine to perform.
-		return false;
+		result.first = true;
 	}
-	
-	sf::Vector2f position = m_projectile.getPosition();
-	sf::Vector2f newPos(position.x + std::cos(MathUtility::DEG_TO_RAD  * m_projectile.getRotation()) * m_speed * (dt / 1000),
-		position.y + std::sin(MathUtility::DEG_TO_RAD  * m_projectile.getRotation()) * m_speed * (dt / 1000));
-
-	m_projectile.setPosition(newPos.x, newPos.y);
-
-	if (!isOnScreen(newPos)) 
+	else
 	{
-		m_speed = 0;	
-	}
-	else 
-	{
-		// Still on-screen, have we collided with a wall?
-		for (sf::Sprite const & sprite : wallSprites)
+		sf::Vector2f position = m_projectile.getPosition();
+		sf::Vector2f newPos(position.x + std::cos(MathUtility::DEG_TO_RAD * m_projectile.getRotation()) * m_speed * (dt / 1000),
+			position.y + std::sin(MathUtility::DEG_TO_RAD * m_projectile.getRotation()) * m_speed * (dt / 1000));
+
+		m_projectile.setPosition(newPos.x, newPos.y);
+
+		if (!isOnScreen(newPos))
 		{
-			// Checks if the projectile has collided with the current wall sprite.
-			if (CollisionDetector::collision(m_projectile, sprite)) 
+			m_speed = 0;
+			result.first = true;
+		}
+		else
+		{
+			// Still on-screen, have we collided with a wall?
+			for (sf::Sprite const& sprite : wallSprites)
+			{
+				// Checks if the projectile has collided with the current wall sprite.
+				if (CollisionDetector::collision(m_projectile, sprite))
+				{
+					m_speed = 0;
+					result.first = true;
+				}
+			}
+
+			// Checks if the projectile has collided with the tank sprite.
+			if (CollisionDetector::collision(m_projectile, aiTankSprites.first)
+				|| CollisionDetector::collision(m_projectile, aiTankSprites.second))
 			{
 				m_speed = 0;
+				result.first = true;
+				result.second = true;
 			}
-		}		
+		}
 	}
-	return m_speed == s_MAX_SPEED;
+
+	//return m_speed == s_MAX_SPEED;
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////

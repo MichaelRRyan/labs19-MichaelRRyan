@@ -1,11 +1,12 @@
 #include "TankAi.h"
 
 ////////////////////////////////////////////////////////////
-TankAi::TankAi(sf::Texture const & texture, std::vector<sf::Sprite> & wallSprites)
+TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites)
 	: m_aiBehaviour(AiBehaviour::SEEK_PLAYER)
 	, m_texture(texture)
 	, m_wallSprites(wallSprites)
-	, m_steering(0, 0)
+	, m_steering(0, 0),
+	m_active{ true }
 {
 	// Initialises the tank base and turret sprites.
 	initSprites();
@@ -14,6 +15,11 @@ TankAi::TankAi(sf::Texture const & texture, std::vector<sf::Sprite> & wallSprite
 ////////////////////////////////////////////////////////////
 void TankAi::update(Tank const & playerTank, double dt)
 {
+	if (!m_active)
+	{
+		return;
+	}
+
 	sf::Vector2f vectorToPlayer = seek(playerTank.getPosition());
 	sf::Vector2f acceleration;
 
@@ -78,8 +84,12 @@ void TankAi::update(Tank const & playerTank, double dt)
 void TankAi::render(sf::RenderWindow & window)
 {
 	// TODO: Don't draw if off-screen...
-	window.draw(m_tankBase);
-	window.draw(m_turret);
+	
+	if (m_active)
+	{
+		window.draw(m_tankBase);
+		window.draw(m_turret);
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -183,11 +193,56 @@ void TankAi::updateMovement(double dt)
 ////////////////////////////////////////////////////////////
 bool TankAi::collidesWithPlayer(Tank const& playerTank) const
 {
-	// Checks if the AI tank has collided with the player tank.
-	if (CollisionDetector::collision(m_turret, playerTank.getTurret()) ||
-		CollisionDetector::collision(m_tankBase, playerTank.getBase()))
+	if (m_active)
 	{
-		return true;
+		// Checks if the AI tank has collided with the player tank.
+		if (CollisionDetector::collision(m_turret, playerTank.getTurret()) ||
+			CollisionDetector::collision(m_tankBase, playerTank.getBase()))
+		{
+			return true;
+		}
 	}
 	return false;
 }
+
+////////////////////////////////////////////////////////////
+const sf::Sprite TankAi::getBaseSprite() const
+{
+	return m_tankBase;
+}
+
+////////////////////////////////////////////////////////////
+const sf::Sprite TankAi::getTurretSprite() const
+{
+	return m_turret;
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::takeDamage(float t_amount)
+{
+	m_active = false;
+
+	m_tankBase.setPosition(-500.0f, -500.0f);
+	m_turret.setPosition(-500.0f, -500.0f);
+}
+
+////////////////////////////////////////////////////////////
+const bool TankAi::isActive() const
+{
+	return m_active;
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::setActive(bool t_active)
+{
+	m_active = t_active;
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::setPosition(sf::Vector2f t_position)
+{
+	m_tankBase.setPosition(t_position);
+	m_turret.setPosition(t_position);
+}
+
+////////////////////////////////////////////////////////////

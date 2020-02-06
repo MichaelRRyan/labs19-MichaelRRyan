@@ -153,7 +153,10 @@ void Tank::update(double dt, TankAi & t_tankAI)
 		}
 	}
 
-	m_pool.update(dt, m_wallSprites);
+	if (m_pool.update(dt, m_wallSprites, std::pair<sf::Sprite, sf::Sprite>{t_tankAI.getBaseSprite(), t_tankAI.getTurretSprite()}))
+	{
+		t_tankAI.takeDamage(m_BULLET_DAMAGE);
+	}
 }
 
 ////////////////////////////////////////////////////////////
