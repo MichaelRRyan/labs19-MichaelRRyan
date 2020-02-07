@@ -7,6 +7,7 @@
 #include "CollisionDetector.h"
 #include "ScreenSize.h"
 #include "CircularSectorShape.h"
+#include "GameConfig.h"
 
 class Tank; // forward reference
 
@@ -32,7 +33,7 @@ public:
 	/// </summary>
 	/// <param name="playerTank">A reference to the player tank</param>
 	/// <param name="dt">update delta time</param>
-	void update(Tank const & playerTank, double dt);
+	void update(Tank playerTanks[], const int t_numberOfPlayers, double dt);
 
 	/// <summary>
 	/// @brief Draws the tank base and turret.
@@ -89,7 +90,7 @@ private:
 
 	void updateMovement(double dt);
 
-	sf::Vector2f seek(sf::Vector2f playerPosition) const;
+	sf::Vector2f seek(Tank t_playerTanks[], const int t_numberOfPlayers) const;
 
 	sf::Vector2f collisionAvoidance();
 

@@ -15,20 +15,24 @@ TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites)
 }
 
 ////////////////////////////////////////////////////////////
-void TankAi::update(Tank const & playerTank, double dt)
+void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 {
 	if (!m_active)
 	{
 		return;
 	}
 
-	sf::Vector2f vectorToPlayer = seek(playerTank.getPosition());
+	sf::Vector2f vectorToPlayer = seek(playerTanks, t_numberOfPlayers);
 	sf::Vector2f acceleration;
 
 	switch (m_aiBehaviour)
 	{
 	case AiBehaviour::SEEK_PLAYER:
-		m_steering += thor::unitVector(vectorToPlayer);
+		if (thor::length(vectorToPlayer) != 0.0f)
+		{
+			m_steering += thor::unitVector(vectorToPlayer);
+		}
+
 		m_steering += collisionAvoidance();
 		m_steering = MathUtility::truncate(m_steering, MAX_FORCE);
 		acceleration = m_steering / MASS;
@@ -113,9 +117,29 @@ void TankAi::init(sf::Vector2f position)
 }
 
 ////////////////////////////////////////////////////////////
-sf::Vector2f TankAi::seek(sf::Vector2f playerPosition) const
+sf::Vector2f TankAi::seek(Tank t_playerTanks[], const int t_numberOfPlayers) const
 {
-	return playerPosition - m_tankBase.getPosition();
+	float shortestDistance{ 100000.0f }; // Impossibly high distance as an initialisation value
+	int indexOfClosest{ -1 };
+
+	// Loop to find the closest player
+	for (int i = 0; i < t_numberOfPlayers; i++)
+	{
+		float distance = thor::length(t_playerTanks[i].getPosition() - m_tankBase.getPosition());
+		if (t_playerTanks[i].getHealth() > 0.0f && distance < shortestDistance)
+		{
+			indexOfClosest = i;
+			shortestDistance = thor::length(t_playerTanks[i].getPosition() - m_tankBase.getPosition());
+		}
+	}
+
+	// Don't move if no player is left
+	if (indexOfClosest < 0)
+	{
+		return { 0.0f, 0.0f };
+	}
+
+	return t_playerTanks[indexOfClosest].getPosition() - m_tankBase.getPosition();
 }
 
 ////////////////////////////////////////////////////////////

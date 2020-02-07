@@ -144,7 +144,7 @@ void Tank::update(double dt, TankAi & t_tankAI)
 
 	if (m_fireRequested)
 	{
-		m_shootTimer -= dt;
+		m_shootTimer -= static_cast<int>(dt);
 
 		if (m_shootTimer <= 0)
 		{
@@ -225,6 +225,7 @@ void Tank::resetStats()
 	m_bulletsFired = 0;
 	m_targetsHit = 0;
 	m_healthPercent = 100.0f;
+	m_speed = 0.0f;
 }
 
 ////////////////////////////////////////////////////////////
@@ -1024,8 +1025,12 @@ void Tank::requestFire()
 	if (m_shootTimer == s_TIME_BETWEEN_SHOTS)
 	{
 		sf::Vector2f tipOfTurret(m_turretSprite.getPosition().x + 2.0f, m_turretSprite.getPosition().y);
-		tipOfTurret.x += std::cos(MathUtility::DEG_TO_RAD * m_turretSprite.getRotation()) * ((m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f);
-		tipOfTurret.y += std::sin(MathUtility::DEG_TO_RAD * m_turretSprite.getRotation()) * ((m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f);
+
+		float turretTopBounds{ (m_turretSprite.getLocalBounds().top + m_turretSprite.getLocalBounds().height) * 1.7f };
+
+		tipOfTurret.x += cosf(static_cast<float>(MathUtility::DEG_TO_RAD) * m_turretSprite.getRotation()) * turretTopBounds;
+		tipOfTurret.y += sinf(static_cast<float>(MathUtility::DEG_TO_RAD) * m_turretSprite.getRotation()) * turretTopBounds;
+;
 		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_baseSprite.getRotation() + m_turretRotation);
 	}
 }

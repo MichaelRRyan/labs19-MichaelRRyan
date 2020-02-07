@@ -516,8 +516,6 @@ void Game::updateVersus(double dt)
 
 			if (m_aiTank.isActive())
 			{
-				tanksAlive++;
-
 				if (m_tanks[i].getHealth() > 0.0f 
 					&& m_aiTank.collidesWithPlayer(m_tanks[i]))
 				{
@@ -540,12 +538,19 @@ void Game::updateVersus(double dt)
 			m_playerTexts[i].setString("player" + std::to_string(i + 1) + " HP: " + std::to_string(static_cast<int>(m_tanks[i].getHealth())) + "%");
 		}
 
+		if (m_aiTank.isActive())
+		{
+			tanksAlive++;
+		}
+
+		m_aiTank.update(m_tanks, m_numberOfPlayers, dt);
+
 		if (tanksAlive < 2)
 		{
 			m_gamePaused = true;
 
 			// Find the index of the last player alive
-			int index = 0;
+			int index = -1;
 			for (int i = 0; i < m_numberOfPlayers; i++)
 			{
 				if (m_tanks[i].getHealth() > 0.0f)
@@ -555,8 +560,16 @@ void Game::updateVersus(double dt)
 				}
 			}
 
-			m_endGameText.setString("GAME OVER! Player" + std::to_string(index + 1) + " has won!\nPress Escape to exit");
-			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+			if (index >= 0)
+			{
+				m_endGameText.setString("GAME OVER! Player" + std::to_string(index + 1) + " has won!\nPress Escape to exit");
+				m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+			}
+			else
+			{
+				m_endGameText.setString("GAME OVER! The AI has won!\nPress Escape to exit");
+				m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+			}
 		}
 	}
 
@@ -565,8 +578,6 @@ void Game::updateVersus(double dt)
 	{
 		m_tanks[i].updateParticleSys();
 	}
-
-	m_aiTank.update(m_tanks[0], dt);
 }
 
 ////////////////////////////////////////////////////////////
