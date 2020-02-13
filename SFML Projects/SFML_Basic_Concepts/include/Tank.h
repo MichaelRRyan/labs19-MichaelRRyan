@@ -315,6 +315,12 @@ public:
 	/// <param name="t_window"></param>
 	void drawHealthIndicator(sf::RenderWindow &t_window);
 
+	/// <summary>
+	/// @brief enable or disable the turret depending on the input
+	/// </summary>
+	/// <param name="t_value">Enabled or not</param>
+	void setTurretEnabled(bool t_value);
+
 private:
 	/// <summary>
 	/// @brief Sets up all the sprites
@@ -394,6 +400,7 @@ private:
 	// Projectile
 	bool m_fireRequested;
 	int m_shootTimer;
+	bool m_turretEnabled;
 
 	// Turret centering and collision bools
 	bool m_enableRotation{ true };

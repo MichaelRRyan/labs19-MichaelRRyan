@@ -2,8 +2,9 @@
 
 ////////////////////////////////////////////////////////////
 ModeSelectScreen::ModeSelectScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
-	m_gameMode1Button(t_guiSheet, t_font, "Target Practice", m_TARGET_PRACTICE_BUTTON_POS),
-	m_gameMode2Button(t_guiSheet, t_font, "Versus", m_VERSUS_BUTTON_POS),
+	m_targetPracticeButton(t_guiSheet, t_font, "Target Practice", m_TARGET_PRACTICE_BUTTON_POS),
+	m_collectionButton(t_guiSheet, t_font, "Cargo Collection", m_COLLECTION_BUTTON_POS),
+	m_versusButton(t_guiSheet, t_font, "Versus", m_VERSUS_BUTTON_POS),
 	m_backButton(t_guiSheet, t_font, "Back", m_BACK_BUTTON_POS),
 	m_background(t_background, { 0, 0, ScreenSize::s_width, ScreenSize::s_height })
 {
@@ -16,7 +17,7 @@ ModeSelectScreen::ModeSelectScreen(sf::Texture const& t_guiSheet, sf::Texture co
 	m_modeText.setOutlineThickness(5.0f);
 
 	m_versusLockedText.setFont(t_font);
-	m_versusLockedText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 1.4f);
+	m_versusLockedText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 1.3f);
 	m_versusLockedText.setString("You must have at least 2 players for versus mode");
 	m_versusLockedText.setCharacterSize(20u);
 	m_versusLockedText.setFillColor(sf::Color{ 200, 200, 200 });
@@ -29,11 +30,12 @@ void ModeSelectScreen::draw(sf::RenderWindow& t_window)
 {
 	t_window.draw(m_background);
 
-	m_gameMode1Button.draw(t_window);
-	m_gameMode2Button.draw(t_window);
+	m_targetPracticeButton.draw(t_window);
+	m_collectionButton.draw(t_window);
+	m_versusButton.draw(t_window);
 	m_backButton.draw(t_window);
 
-	if (m_gameMode2Button.getLocked())
+	if (m_versusButton.getLocked())
 	{
 		t_window.draw(m_versusLockedText);
 	}
@@ -44,8 +46,9 @@ void ModeSelectScreen::draw(sf::RenderWindow& t_window)
 ////////////////////////////////////////////////////////////
 void ModeSelectScreen::setup()
 {
-	m_gameMode1Button.setup();
-	m_gameMode2Button.setup();
+	m_targetPracticeButton.setup();
+	m_collectionButton.setup();
+	m_versusButton.setup();
 	m_backButton.setup();
 	m_modeText.setOrigin(m_modeText.getGlobalBounds().width / 2.0f, m_modeText.getGlobalBounds().height / 2.0f);
 	m_versusLockedText.setOrigin(m_versusLockedText.getGlobalBounds().width / 2.0f, m_versusLockedText.getGlobalBounds().height / 2.0f);
@@ -54,12 +57,17 @@ void ModeSelectScreen::setup()
 ////////////////////////////////////////////////////////////
 void ModeSelectScreen::processEvents(sf::Event t_event, GameState& t_gameState, int t_numberOfPlayers)
 {
-	if (m_gameMode1Button.processMouseEvents(t_event))
+	if (m_targetPracticeButton.processMouseEvents(t_event))
 	{
 		t_gameState = GameState::TargetPractice;
 	}
 
-	if (m_gameMode2Button.processMouseEvents(t_event))
+	if (m_collectionButton.processMouseEvents(t_event))
+	{
+		t_gameState = GameState::Collection;
+	}
+
+	if (m_versusButton.processMouseEvents(t_event))
 	{
 		t_gameState = GameState::Versus;
 	}
@@ -75,10 +83,10 @@ void ModeSelectScreen::updateLocked(int t_numberOfPlayers)
 {
 	if (t_numberOfPlayers > 1)
 	{
-		m_gameMode2Button.setLocked(false);
+		m_versusButton.setLocked(false);
 	}
 	else
 	{
-		m_gameMode2Button.setLocked(true);
+		m_versusButton.setLocked(true);
 	}
 }

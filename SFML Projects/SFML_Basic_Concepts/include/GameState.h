@@ -8,7 +8,8 @@ enum class GameState
 	PlayerJoinScreen,
 	ModeSelect,
 	TargetPractice,
-	Versus
+	Versus,
+	Collection
 };
 
 #endif // !GAME_STATE_H

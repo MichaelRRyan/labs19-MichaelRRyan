@@ -79,10 +79,20 @@ public:
 
 	void drawHealthIndicator(sf::RenderWindow& t_window);
 
+	void lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers);
+
+	void pickNewPatrolLocation();
+
 	enum class AiType
 	{
 		AI_ID_NONE,
 		AI_ID_SEEK_SHOOT_AT_PLAYER
+	};
+
+	enum class AIState
+	{
+		PatrolMap,
+		AttackPlayer
 	};
 
 private:
@@ -145,13 +155,22 @@ private:
 		RETREAT
 	} m_aiBehaviour;
 
-	const float MASS{ 10.0f };
+	const float MASS{ 5.0f };
 
 	bool m_active;
 
 	float m_healthPercent;
 
 	CircularSectorShape m_healthIndicator;
+
+	AIState m_state;
+
+	sf::VertexArray m_visionCone{ sf::Lines };
+
+	const float m_VISION_CONE_WIDTH;
+	const float m_VISION_CONE_LENGTH;
+
+	sf::Vector2f m_goalLocation;
 };
 
 #include "Tank.h"

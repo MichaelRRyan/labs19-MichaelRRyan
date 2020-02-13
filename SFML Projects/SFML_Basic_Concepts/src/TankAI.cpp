@@ -1,14 +1,17 @@
 #include "TankAi.h"
 
 ////////////////////////////////////////////////////////////
-TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites)
-	: m_aiBehaviour(AiBehaviour::SEEK_PLAYER)
-	, m_texture(texture)
-	, m_wallSprites(wallSprites)
-	, m_steering(0, 0),
+TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites) :
+	m_aiBehaviour(AiBehaviour::SEEK_PLAYER),
+	m_state{ AIState::PatrolMap },
+	m_texture(texture),
+	m_wallSprites(wallSprites),
+	m_steering(0, 0),
 	m_active{ true },
 	m_healthPercent{ 100.0f },
-	m_healthIndicator{ 65.0f, 0.0f, 60u }
+	m_healthIndicator{ 65.0f, 0.0f, 60u },
+	m_VISION_CONE_WIDTH{ 30.0f },
+	m_VISION_CONE_LENGTH{ 200.0f }
 {
 	// Initialises the tank base and turret sprites.
 	initSprites();
@@ -22,15 +25,27 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 		return;
 	}
 
-	sf::Vector2f vectorToPlayer = seek(playerTanks, t_numberOfPlayers);
+	lookForPlayer(playerTanks, t_numberOfPlayers);
+
+	if (AIState::PatrolMap == m_state)
+	{
+		// If the distance to the goal is less than 10 pixels, find a new goal
+		if (thor::length(m_goalLocation - m_tankBase.getPosition()) < 10.0f)
+		{
+			pickNewPatrolLocation();
+		}	
+	}
+
+	sf::Vector2f vectorToGoal = m_goalLocation - m_tankBase.getPosition();
+
 	sf::Vector2f acceleration;
 
 	switch (m_aiBehaviour)
 	{
 	case AiBehaviour::SEEK_PLAYER:
-		if (thor::length(vectorToPlayer) != 0.0f)
+		if (thor::length(vectorToGoal) != 0.0f)
 		{
-			m_steering += thor::unitVector(vectorToPlayer);
+			m_steering += thor::unitVector(vectorToGoal);
 		}
 
 		m_steering += collisionAvoidance();
@@ -73,14 +88,16 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 		m_rotation = static_cast<int>((m_rotation) - 1) % 360;
 	}
 
-
-	if (thor::length(vectorToPlayer) < MAX_SEE_AHEAD)
+	if (AIState::AttackPlayer == m_state)
 	{
-		m_aiBehaviour = AiBehaviour::STOP;
-	}
-	else
-	{
-		m_aiBehaviour = AiBehaviour::SEEK_PLAYER;
+		if (thor::length(m_goalLocation) < MAX_SEE_AHEAD)
+		{
+			m_aiBehaviour = AiBehaviour::STOP;
+		}
+		else
+		{
+			m_aiBehaviour = AiBehaviour::SEEK_PLAYER;
+		}
 	}
 
 	updateMovement(dt);
@@ -95,6 +112,7 @@ void TankAi::render(sf::RenderWindow & window)
 	{
 		window.draw(m_tankBase);
 		window.draw(m_turret);
+		window.draw(m_visionCone);
 	}
 }
 
@@ -103,6 +121,7 @@ void TankAi::init(sf::Vector2f position)
 {
 	m_tankBase.setPosition(position);
 	m_turret.setPosition(position);
+	m_goalLocation = position;
 
 	for (sf::Sprite const wallSprite : m_wallSprites)
 	{
@@ -204,6 +223,13 @@ void TankAi::initSprites()
 	sf::IntRect turretRect(120, 3, 87, 37);
 	m_turret.setTextureRect(turretRect);
 	m_turret.setOrigin(turretRect.width / 3.0, turretRect.height / 2.0);
+
+	// Setup the lines with zero values for position.
+	// Position of the lines will be updated in the updateMovement function.
+	for (int i = 0; i < 4; i++)
+	{
+		m_visionCone.append({ { 2.0f, 2.0 }, sf::Color::Green });
+	}
 }
 
 
@@ -217,6 +243,15 @@ void TankAi::updateMovement(double dt)
 	m_tankBase.setRotation(m_rotation);
 	m_turret.setPosition(m_tankBase.getPosition());
 	m_turret.setRotation(m_rotation);
+
+	m_visionCone[0].position = newPos;
+	m_visionCone[2].position = newPos;
+	
+	m_visionCone[1].position = newPos + sf::Vector2f{ cosf(thor::toRadian(m_rotation - m_VISION_CONE_WIDTH)),
+		sinf(thor::toRadian(m_rotation - m_VISION_CONE_WIDTH)) } * m_VISION_CONE_LENGTH;
+
+	m_visionCone[3].position = newPos + sf::Vector2f{ cosf(thor::toRadian(m_rotation + m_VISION_CONE_WIDTH)),
+		sinf(thor::toRadian(m_rotation + m_VISION_CONE_WIDTH)) } * m_VISION_CONE_LENGTH;
 }
 
 ////////////////////////////////////////////////////////////
@@ -272,6 +307,8 @@ void TankAi::reset()
 	m_active = true;
 	m_tankBase.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
 	m_turret.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 2.0f);
+	m_goalLocation = m_tankBase.getPosition();
+	m_state = AIState::PatrolMap;
 	m_healthPercent = 100.0f;
 }
 
@@ -281,6 +318,49 @@ void TankAi::drawHealthIndicator(sf::RenderWindow& t_window)
 	m_healthIndicator.setPosition(m_tankBase.getPosition());
 	m_healthIndicator.setCompleteness(m_healthPercent / 100.0f);
 	t_window.draw(m_healthIndicator);
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
+{
+	bool inSight = false;
+
+	for (int i = 0; i < t_numberOfPlayers; i++)
+	{
+		sf::Vector2f vectorToPlayer = playerTanks[i].getPosition() - m_tankBase.getPosition();
+		sf::Vector2f visionVector1 = m_visionCone[1].position - m_visionCone[0].position;
+		sf::Vector2f visionVector2 = m_visionCone[3].position - m_visionCone[2].position;
+
+		if (thor::crossProduct(vectorToPlayer, visionVector1) < 0.0
+			&& thor::crossProduct(vectorToPlayer, visionVector2) > 0.0f)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				m_visionCone[j].color = sf::Color::Red;
+			}
+
+			inSight = true;
+			m_goalLocation = playerTanks[i].getPosition();
+			m_state = AIState::AttackPlayer;
+		}
+	}
+
+	if (!inSight)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			m_visionCone[j].color = sf::Color::Green;
+		}
+
+		pickNewPatrolLocation();
+		m_state = AIState::PatrolMap;
+	}
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::pickNewPatrolLocation()
+{
+	m_goalLocation = { static_cast<float>(rand() % ScreenSize::s_width), static_cast<float>(rand() % ScreenSize::s_height) };
 }
 
 ////////////////////////////////////////////////////////////

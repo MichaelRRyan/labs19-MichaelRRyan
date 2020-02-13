@@ -164,6 +164,11 @@ void Game::processGameEvents(sf::Event& event)
 		{
 			startVersusGame();
 		}
+		// If the gamestate is now target practice
+		else if (GameState::Collection == m_gameState)
+		{
+			startCollectionGame();
+		}
 
 		break;
 	case GameState::TargetPractice:
@@ -193,6 +198,26 @@ void Game::processGameEvents(sf::Event& event)
 		}
 		break;
 	case GameState::Versus:
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			if (m_tanks[i].getControlType() == ControlType::Keyboard)
+			{
+				m_tanks[i].processEvents(event);
+			}
+		}
+
+		// check if the event is a a key button press
+		if (sf::Event::KeyPressed == event.type)
+		{
+			switch (event.key.code)
+			{
+			case sf::Keyboard::Escape:
+				m_gameState = GameState::MenuScreen;
+				break;
+			}
+		}
+		break;
+	case GameState::Collection:
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
 			if (m_tanks[i].getControlType() == ControlType::Keyboard)
@@ -255,6 +280,26 @@ void Game::startVersusGame()
 }
 
 ////////////////////////////////////////////////////////////
+void Game::startCollectionGame()
+{
+	resetTanks();
+
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_tanks[i].setTurretEnabled(false);
+	}
+
+	m_aiTank.reset();
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		m_playerTexts[i].setPosition(m_TANK_TEXT_POSITIONS[i]);
+	}
+
+	m_gamePaused = false;
+}
+
+////////////////////////////////////////////////////////////
 void Game::resetTanks()
 {
 	// Setup the tanks
@@ -286,6 +331,7 @@ void Game::resetTanks()
 		m_tanks[i].setPosition(m_TANK_POSITIONS[positionIndex]);
 		m_tanks[i].resetStats();
 		m_tanks[i].resetRotation();
+		m_tanks[i].setTurretEnabled(true);
 	}
 }
 
@@ -449,6 +495,9 @@ void Game::update(double dt)
 	case GameState::Versus:
 		updateVersus(dt);
 		break;
+	case GameState::Collection:
+		updateVersus(dt);
+		break;
 	}
 }
 
@@ -574,6 +623,25 @@ void Game::updateVersus(double dt)
 	}
 
 	// update the particle systems even if the game is paused
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_tanks[i].updateParticleSys();
+	}
+}
+
+////////////////////////////////////////////////////////////
+void Game::updateCollection(double dt)
+{
+	// update the players
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		m_tanks[i].update(dt, m_aiTank);
+	}
+
+	// Update the AI Tank
+	m_aiTank.update(m_tanks, m_numberOfPlayers, dt);
+
+	// Update the particle system
 	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
 		m_tanks[i].updateParticleSys();
@@ -764,8 +832,6 @@ void Game::render()
 		break;
 
 	case GameState::Versus:
-		m_window.clear();
-
 		m_window.draw(m_bgSprite);
 
 		// Draw all the obstacles
@@ -803,8 +869,41 @@ void Game::render()
 		}
 
 		break;
-	}
 
+	case GameState::Collection:
+		m_window.draw(m_bgSprite);
+
+		// Draw all the obstacles
+		for (sf::Sprite const& obstacle : m_wallSprites)
+		{
+			m_window.draw(obstacle);
+		}
+
+		// Draw the tanks' health indicators
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			if (m_tanks[i].getHealth() > 0.0f)
+			{
+				m_tanks[i].drawHealthIndicator(m_window);
+			}
+		}
+
+		if (m_aiTank.isActive())
+		{
+			m_aiTank.drawHealthIndicator(m_window);
+		}
+
+		// Draw the tanks if they're alive
+		for (int i = 0; i < m_numberOfPlayers; i++)
+		{
+			m_tanks[i].render(m_window);
+		}
+
+
+		m_aiTank.render(m_window);
+
+		break;
+	}
 
 	m_window.display();
 }

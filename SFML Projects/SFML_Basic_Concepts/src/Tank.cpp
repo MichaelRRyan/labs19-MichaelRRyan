@@ -22,7 +22,8 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 	m_ptrController{ nullptr },
 	m_healthIndicator{ 65.0f, 0.0f, 60u },
 	m_fireRequested{ false },
-	m_shootTimer{ s_TIME_BETWEEN_SHOTS }
+	m_shootTimer{ s_TIME_BETWEEN_SHOTS },
+	m_turretEnabled{ false }
 {
 	initSprites();
 	setupParticleSystems(t_guiTexture);
@@ -858,22 +859,25 @@ void Tank::setSounds(sf::SoundBuffer const& t_shotSoundBuffer, sf::SoundBuffer c
 ////////////////////////////////////////////////////////////
 void Tank::fireBullet()
 {
-	if (m_bullet == nullptr && m_fireTimer == 0)
+	if (m_turretEnabled)
 	{
-		m_bullet = new Bullet(m_texture, m_turretSprite.getPosition(), m_turretSprite.getRotation(), 60.0f);
-		m_fireTimer = FIRE_DELAY;
-		m_bulletsFired++;
-		m_shotSound.play();
-		requestFire();
+		if (m_bullet == nullptr && m_fireTimer == 0)
+		{
+			m_bullet = new Bullet(m_texture, m_turretSprite.getPosition(), m_turretSprite.getRotation(), 60.0f);
+			m_fireTimer = FIRE_DELAY;
+			m_bulletsFired++;
+			m_shotSound.play();
+			requestFire();
 
-		sf::Vector2f directionVector = { cos(thor::toRadian(m_turretSprite.getRotation())), sin(thor::toRadian(m_turretSprite.getRotation())) };
-		sf::Vector2f tankBarrelPosition = m_turretSprite.getPosition() + directionVector * 60.0f;
+			sf::Vector2f directionVector = { cos(thor::toRadian(m_turretSprite.getRotation())), sin(thor::toRadian(m_turretSprite.getRotation())) };
+			sf::Vector2f tankBarrelPosition = m_turretSprite.getPosition() + directionVector * 60.0f;
 
-		m_smokeEmitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
-		m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.0f)); // Emit towards direction with deviation of 45°
-		m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
+			m_smokeEmitter.setParticlePosition(tankBarrelPosition); // Emit particles at tank barrel end
+			m_smokeEmitter.setParticleVelocity(thor::Distributions::deflect(directionVector * 300.0f, 45.0f)); // Emit towards direction with deviation of 45°
+			m_smokePartSys.addEmitter(m_smokeEmitter, sf::seconds(0.1f));
 
-		m_fireClock.restart();
+			m_fireClock.restart();
+		}
 	}
 }
 
@@ -941,6 +945,12 @@ void Tank::drawHealthIndicator(sf::RenderWindow& t_window)
 	m_healthIndicator.setPosition(m_baseSprite.getPosition());
 	m_healthIndicator.setCompleteness(m_healthPercent / 100.0f);
 	t_window.draw(m_healthIndicator);
+}
+
+////////////////////////////////////////////////////////////
+void Tank::setTurretEnabled(bool t_value)
+{
+	m_turretEnabled = t_value;
 }
 
 ////////////////////////////////////////////////////////////

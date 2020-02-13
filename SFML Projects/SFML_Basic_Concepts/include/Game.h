@@ -63,6 +63,12 @@ protected:
 	void updateVersus(double dt);
 
 	/// <summary>
+	/// Update the collection game mode
+	/// </summary>
+	/// <param name="dt">Delta Time</param>
+	void updateCollection(double dt);
+
+	/// <summary>
 	/// @brief Updates all the player objects
 	/// </summary>
 	/// <param name="dt">update delta time</param>
@@ -93,6 +99,11 @@ protected:
 	/// @brief Sets up everything for a new game in versus mode
 	/// </summary>
 	void startVersusGame();
+
+	/// <summary>
+	/// @brief sets up everything for a new game in Collection mode
+	/// </summary>
+	void startCollectionGame();
 
 	/// <summary>
 	/// @brief set the position of the tanks
