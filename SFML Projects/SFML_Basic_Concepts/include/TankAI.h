@@ -79,10 +79,6 @@ public:
 
 	void drawHealthIndicator(sf::RenderWindow& t_window);
 
-	void lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers);
-
-	void pickNewPatrolLocation();
-
 	enum class AiType
 	{
 		AI_ID_NONE,
@@ -105,6 +101,12 @@ private:
 	sf::Vector2f collisionAvoidance();
 
 	const sf::CircleShape findMostThreateningObstacle();
+
+	void lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers);
+
+	void pickNewPatrolLocation();
+
+	void updateVisionCone(float dt);
 
 	// A reference to the sprite sheet texture.
 	sf::Texture const & m_texture;
@@ -167,10 +169,12 @@ private:
 
 	sf::VertexArray m_visionCone{ sf::Lines };
 
-	const float m_VISION_CONE_WIDTH;
-	const float m_VISION_CONE_LENGTH;
+	const float m_VISION_CONE_SPREAD;
+	const float m_VISION_CONE_RADIUS;
 
 	sf::Vector2f m_goalLocation;
+
+	float m_scanAngle;
 };
 
 #include "Tank.h"

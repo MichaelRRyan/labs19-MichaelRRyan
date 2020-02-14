@@ -10,8 +10,9 @@ TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites)
 	m_active{ true },
 	m_healthPercent{ 100.0f },
 	m_healthIndicator{ 65.0f, 0.0f, 60u },
-	m_VISION_CONE_WIDTH{ 30.0f },
-	m_VISION_CONE_LENGTH{ 200.0f }
+	m_VISION_CONE_SPREAD{ 30.0f },
+	m_VISION_CONE_RADIUS{ 400.0f },
+	m_scanAngle{ 0.0f }
 {
 	// Initialises the tank base and turret sprites.
 	initSprites();
@@ -101,6 +102,7 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 	}
 
 	updateMovement(dt);
+	updateVisionCone(dt);
 }
 
 ////////////////////////////////////////////////////////////
@@ -243,15 +245,6 @@ void TankAi::updateMovement(double dt)
 	m_tankBase.setRotation(m_rotation);
 	m_turret.setPosition(m_tankBase.getPosition());
 	m_turret.setRotation(m_rotation);
-
-	m_visionCone[0].position = newPos;
-	m_visionCone[2].position = newPos;
-	
-	m_visionCone[1].position = newPos + sf::Vector2f{ cosf(thor::toRadian(m_rotation - m_VISION_CONE_WIDTH)),
-		sinf(thor::toRadian(m_rotation - m_VISION_CONE_WIDTH)) } * m_VISION_CONE_LENGTH;
-
-	m_visionCone[3].position = newPos + sf::Vector2f{ cosf(thor::toRadian(m_rotation + m_VISION_CONE_WIDTH)),
-		sinf(thor::toRadian(m_rotation + m_VISION_CONE_WIDTH)) } * m_VISION_CONE_LENGTH;
 }
 
 ////////////////////////////////////////////////////////////
@@ -334,14 +327,17 @@ void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
 		if (thor::crossProduct(vectorToPlayer, visionVector1) < 0.0
 			&& thor::crossProduct(vectorToPlayer, visionVector2) > 0.0f)
 		{
-			for (int j = 0; j < 4; j++)
+			if (thor::length(vectorToPlayer) <= m_VISION_CONE_RADIUS)
 			{
-				m_visionCone[j].color = sf::Color::Red;
-			}
+				for (int j = 0; j < 4; j++)
+				{
+					m_visionCone[j].color = sf::Color::Red;
+				}
 
-			inSight = true;
-			m_goalLocation = playerTanks[i].getPosition();
-			m_state = AIState::AttackPlayer;
+				inSight = true;
+				m_goalLocation = playerTanks[i].getPosition();
+				m_state = AIState::AttackPlayer;
+			}
 		}
 	}
 
@@ -361,6 +357,41 @@ void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
 void TankAi::pickNewPatrolLocation()
 {
 	m_goalLocation = { static_cast<float>(rand() % ScreenSize::s_width), static_cast<float>(rand() % ScreenSize::s_height) };
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::updateVisionCone(float dt)
+{
+	// Set the base of the cone to the tank body position
+	m_visionCone[0].position = m_tankBase.getPosition();
+	m_visionCone[2].position = m_tankBase.getPosition();
+
+	// If in the patrol state,
+	if (AIState::PatrolMap == m_state)
+	{
+		m_scanAngle += 45.0f * (dt / 1000); // Rotate the scan cone
+	}
+
+	// If attacking the player and the player is halfway inside the vision cone
+	if (AIState::AttackPlayer == m_state
+		&& thor::length(m_goalLocation - m_tankBase.getPosition()) < m_VISION_CONE_RADIUS / 2.0f)
+	{
+		// Set the ends of the cone with a wider range and shorter radius
+		m_visionCone[1].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)),
+			sinf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD - 10.0f)) } *(m_VISION_CONE_RADIUS * 0.666f);
+
+		m_visionCone[3].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)),
+			sinf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD + 10.0f)) } *(m_VISION_CONE_RADIUS * 0.666f);
+	}
+	else
+	{
+		// Set the ends of the cone with the preset range and radius
+		m_visionCone[1].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)),
+			sinf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)) } *m_VISION_CONE_RADIUS;
+
+		m_visionCone[3].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)),
+			sinf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)) } *m_VISION_CONE_RADIUS;
+	}
 }
 
 ////////////////////////////////////////////////////////////
