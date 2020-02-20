@@ -12,7 +12,11 @@ TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites)
 	m_healthIndicator{ 65.0f, 0.0f, 60u },
 	m_VISION_CONE_SPREAD{ 30.0f },
 	m_VISION_CONE_RADIUS{ 400.0f },
-	m_scanAngle{ 0.0f }
+	m_scanAngle{ 0.0f },
+	m_fireRequested{ false },
+	m_shootTimer{ s_TIME_BETWEEN_SHOTS },
+	m_BULLET_DAMAGE{ 10.0f },
+	m_enemyWithinRange{ false }
 {
 	// Initialises the tank base and turret sprites.
 	initSprites();
@@ -35,6 +39,14 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 		{
 			pickNewPatrolLocation();
 		}	
+	}
+	else if (AIState::AttackPlayer == m_state)
+	{
+		// Check if the angle to player is within a 10 degree range (to account for a margin of error)
+		if (m_enemyWithinRange)
+		{
+			requestFire();
+		}
 	}
 
 	sf::Vector2f vectorToGoal = m_goalLocation - m_tankBase.getPosition();
@@ -103,6 +115,27 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 
 	updateMovement(dt);
 	updateVisionCone(dt);
+
+	if (m_fireRequested)
+	{
+		m_shootTimer -= static_cast<int>(dt);
+
+		if (m_shootTimer <= 0)
+		{
+			m_shootTimer = s_TIME_BETWEEN_SHOTS;
+			m_fireRequested = false;
+		}
+	}
+
+	m_pool.update(dt, m_wallSprites);
+
+	for (int i = 0; i < t_numberOfPlayers; i++)
+	{
+		if (m_pool.checkTankCollisions(std::pair<sf::Sprite, sf::Sprite>{playerTanks[i].getBase(), playerTanks[i].getTurret()}))
+		{
+			playerTanks[i].takeDamage(m_BULLET_DAMAGE);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -116,6 +149,8 @@ void TankAi::render(sf::RenderWindow & window)
 		window.draw(m_turret);
 		window.draw(m_visionCone);
 	}
+
+	m_pool.render(window);
 }
 
 ////////////////////////////////////////////////////////////
@@ -244,7 +279,6 @@ void TankAi::updateMovement(double dt)
 	m_tankBase.setPosition(newPos.x, newPos.y);
 	m_tankBase.setRotation(m_rotation);
 	m_turret.setPosition(m_tankBase.getPosition());
-	m_turret.setRotation(m_rotation);
 }
 
 ////////////////////////////////////////////////////////////
@@ -336,7 +370,12 @@ void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
 
 				inSight = true;
 				m_goalLocation = playerTanks[i].getPosition();
-				m_state = AIState::AttackPlayer;
+
+				if (AIState::AttackPlayer != m_state)
+				{
+					m_state = AIState::AttackPlayer;
+					m_enemyWithinRange = false;
+				}
 			}
 		}
 	}
@@ -366,11 +405,7 @@ void TankAi::updateVisionCone(float dt)
 	m_visionCone[0].position = m_tankBase.getPosition();
 	m_visionCone[2].position = m_tankBase.getPosition();
 
-	// If in the patrol state,
-	if (AIState::PatrolMap == m_state)
-	{
-		m_scanAngle += 45.0f * (dt / 1000); // Rotate the scan cone
-	}
+	updateScanAngle(dt);
 
 	// If attacking the player and the player is halfway inside the vision cone
 	if (AIState::AttackPlayer == m_state
@@ -387,10 +422,73 @@ void TankAi::updateVisionCone(float dt)
 	{
 		// Set the ends of the cone with the preset range and radius
 		m_visionCone[1].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)),
-			sinf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)) } *m_VISION_CONE_RADIUS;
+			sinf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)) } * m_VISION_CONE_RADIUS;
 
 		m_visionCone[3].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)),
-			sinf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)) } *m_VISION_CONE_RADIUS;
+			sinf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)) } * m_VISION_CONE_RADIUS;
+	}
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::updateScanAngle(float dt)
+{
+	// If in the patrol state,
+	if (AIState::PatrolMap == m_state)
+	{
+		m_scanAngle += 45.0f * (dt / 1000); // Rotate the scan cone
+
+		m_turret.setRotation(m_rotation);
+	}
+	else
+	{
+		// Vector between the player and the tank
+		sf::Vector2f vectorToPlayer = m_goalLocation - m_tankBase.getPosition();
+
+		// Construct a vector from the scan angle
+		sf::Vector2f scanVector = thor::PolarVector2f(10.0f, m_scanAngle);
+
+		// Find the angle between the vector to the player and the scan angle
+		m_scanAngle += thor::signedAngle(scanVector, vectorToPlayer) / 10.0f;
+
+		// Construct a vector from the scan angle
+		sf::Vector2f turretRotationVector = thor::PolarVector2f(10.0f, m_turret.getRotation());
+
+		// Find the angle to the player
+		float angleToPlayer = thor::signedAngle(turretRotationVector, vectorToPlayer);
+
+		// Rotate the turret towards the player
+		m_turret.rotate(angleToPlayer / 10.0f);
+
+		// Update the angle to the player
+		angleToPlayer *= 0.9;
+
+		// Check if the enemy is within fire range
+		if (angleToPlayer < 10.0f && angleToPlayer > -10.0f
+			&& thor::length(m_goalLocation - m_tankBase.getPosition()) < m_VISION_CONE_RADIUS / 2.0f)
+		{
+			m_enemyWithinRange = true;
+		}
+		else
+		{
+			m_enemyWithinRange = false;
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+void TankAi::requestFire()
+{
+	m_fireRequested = true;
+	if (m_shootTimer == s_TIME_BETWEEN_SHOTS)
+	{
+		sf::Vector2f tipOfTurret(m_turret.getPosition().x + 2.0f, m_turret.getPosition().y);
+
+		float turretTopBounds{ (m_turret.getLocalBounds().top + m_turret.getLocalBounds().height) * 1.7f };
+
+		tipOfTurret.x += cosf(static_cast<float>(MathUtility::DEG_TO_RAD)* m_turret.getRotation())* turretTopBounds;
+		tipOfTurret.y += sinf(static_cast<float>(MathUtility::DEG_TO_RAD)* m_turret.getRotation())* turretTopBounds;
+
+		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_turret.getRotation());
 	}
 }
 

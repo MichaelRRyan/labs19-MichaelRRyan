@@ -8,6 +8,7 @@
 #include "ScreenSize.h"
 #include "CircularSectorShape.h"
 #include "GameConfig.h"
+#include "ProjectilePool.h"
 
 class Tank; // forward reference
 
@@ -108,6 +109,10 @@ private:
 
 	void updateVisionCone(float dt);
 
+	void updateScanAngle(float dt);
+
+	void requestFire();
+
 	// A reference to the sprite sheet texture.
 	sf::Texture const & m_texture;
 
@@ -175,6 +180,15 @@ private:
 	sf::Vector2f m_goalLocation;
 
 	float m_scanAngle;
+
+	static int const s_TIME_BETWEEN_SHOTS{ 1500 };
+	const float m_BULLET_DAMAGE;
+
+	ProjectilePool m_pool;
+	bool m_fireRequested;
+	int m_shootTimer;
+
+	bool m_enemyWithinRange;
 };
 
 #include "Tank.h"

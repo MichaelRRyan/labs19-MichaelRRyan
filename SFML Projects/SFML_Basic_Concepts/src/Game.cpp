@@ -563,14 +563,14 @@ void Game::updateVersus(double dt)
 				tanksAlive++;
 			}
 
-			if (m_aiTank.isActive())
+			/*if (m_aiTank.isActive())
 			{
 				if (m_tanks[i].getHealth() > 0.0f 
 					&& m_aiTank.collidesWithPlayer(m_tanks[i]))
 				{
 					m_tanks[i].takeDamage(10.0f);
 				}
-			}
+			}*/
 
 			// Check collisions with all other alive tanks
 			for (int j = 0; j < m_numberOfPlayers; j++)

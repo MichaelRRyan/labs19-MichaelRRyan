@@ -31,7 +31,14 @@ public:
 	/// </summary>
 	/// <param name="dt">The delta time</param>	
 	/// <param name="rotation">A reference to the container of wall sprites</param>
-	bool update(double dt, std::vector<sf::Sprite> & wallSprites, std::pair<sf::Sprite, sf::Sprite> t_aiTankSprites);
+	void update(double dt, std::vector<sf::Sprite> & wallSprites);
+
+	/// <summary>
+	/// @brief Checks collisions between a tank and returns true if they collided
+	/// </summary>
+	/// <param name="t_aiTankSprites"></param>
+	/// <returns>Whether a collision occured</returns>
+	bool checkTankCollisions(std::pair<sf::Sprite, sf::Sprite> t_tankSprites);
 
 	/// <summary>
 	/// @brief Draws all active projectiles.

@@ -154,7 +154,9 @@ void Tank::update(double dt, TankAi & t_tankAI)
 		}
 	}
 
-	if (m_pool.update(dt, m_wallSprites, std::pair<sf::Sprite, sf::Sprite>{t_tankAI.getBaseSprite(), t_tankAI.getTurretSprite()}))
+	m_pool.update(dt, m_wallSprites);
+
+	if (m_pool.checkTankCollisions(std::pair<sf::Sprite, sf::Sprite>{t_tankAI.getBaseSprite(), t_tankAI.getTurretSprite()}))
 	{
 		t_tankAI.takeDamage(m_BULLET_DAMAGE);
 	}
@@ -1040,7 +1042,7 @@ void Tank::requestFire()
 
 		tipOfTurret.x += cosf(static_cast<float>(MathUtility::DEG_TO_RAD) * m_turretSprite.getRotation()) * turretTopBounds;
 		tipOfTurret.y += sinf(static_cast<float>(MathUtility::DEG_TO_RAD) * m_turretSprite.getRotation()) * turretTopBounds;
-;
+
 		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_baseSprite.getRotation() + m_turretRotation);
 	}
 }

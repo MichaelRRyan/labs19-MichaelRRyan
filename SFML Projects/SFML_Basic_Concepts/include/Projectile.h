@@ -43,7 +43,14 @@ public:
 	/// <param name="dt">The delta time</param>
 	/// <param name="wallSprites">A reference to the container of wall sprites</param>
 	/// <returns>True if this projectile is currently not in use (i.e. speed is zero).</returns>
-	std::pair<bool, bool> update(double dt, std::vector<sf::Sprite> & wallSprites, std::pair<sf::Sprite, sf::Sprite> aiTankSprites);
+	bool update(double dt, std::vector<sf::Sprite> & wallSprites);
+
+	/// <summary>
+	/// @brief Checks collisions between a tank and returns true if they collided
+	/// </summary>
+	/// <param name="t_tankSprites"></param>
+	/// <returns>Whether a collision occured</returns>
+	bool checkTankCollisions(std::pair<sf::Sprite, sf::Sprite> t_tankSprites);
 	
 	/// <summary>
 	/// @brief Simpler helper function to determine if projectile is currently in use.

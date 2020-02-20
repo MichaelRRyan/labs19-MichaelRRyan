@@ -13,14 +13,14 @@ void Projectile::init(sf::Texture const & texture, float x, float y, float rotat
 }
 
 ////////////////////////////////////////////////////////////
-std::pair<bool, bool> Projectile::update(double dt, std::vector<sf::Sprite> & wallSprites, std::pair<sf::Sprite, sf::Sprite> aiTankSprites)
+bool Projectile::update(double dt, std::vector<sf::Sprite> & wallSprites)
 {
-	std::pair<bool, bool> result{ false, false };
+	bool result{ false };
 
 	if (!inUse())
 	{
 		// If this projectile is not in use, there is no update routine to perform.
-		result.first = true;
+		result = true;
 	}
 	else
 	{
@@ -33,7 +33,7 @@ std::pair<bool, bool> Projectile::update(double dt, std::vector<sf::Sprite> & wa
 		if (!isOnScreen(newPos))
 		{
 			m_speed = 0;
-			result.first = true;
+			result = true;
 		}
 		else
 		{
@@ -44,17 +44,8 @@ std::pair<bool, bool> Projectile::update(double dt, std::vector<sf::Sprite> & wa
 				if (CollisionDetector::collision(m_projectile, sprite))
 				{
 					m_speed = 0;
-					result.first = true;
+					result = true;
 				}
-			}
-
-			// Checks if the projectile has collided with the tank sprite.
-			if (CollisionDetector::collision(m_projectile, aiTankSprites.first)
-				|| CollisionDetector::collision(m_projectile, aiTankSprites.second))
-			{
-				m_speed = 0;
-				result.first = true;
-				result.second = true;
 			}
 		}
 	}
@@ -62,6 +53,23 @@ std::pair<bool, bool> Projectile::update(double dt, std::vector<sf::Sprite> & wa
 	//return m_speed == s_MAX_SPEED;
 
 	return result;
+}
+
+////////////////////////////////////////////////////////////
+bool Projectile::checkTankCollisions(std::pair<sf::Sprite, sf::Sprite> t_tankSprites)
+{
+	if (inUse())
+	{
+		// Checks if the projectile has collided with the tank sprite.
+		if (CollisionDetector::collision(m_projectile, t_tankSprites.first)
+			|| CollisionDetector::collision(m_projectile, t_tankSprites.second))
+		{
+			m_speed = 0;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 ////////////////////////////////////////////////////////////
