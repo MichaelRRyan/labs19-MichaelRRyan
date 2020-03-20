@@ -1,12 +1,12 @@
 #include "ModeSelectScreen.h"
 
 ////////////////////////////////////////////////////////////
-ModeSelectScreen::ModeSelectScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
-	m_targetPracticeButton(t_guiSheet, t_font, "Target Practice", m_TARGET_PRACTICE_BUTTON_POS),
-	m_collectionButton(t_guiSheet, t_font, "Cargo Collection", m_COLLECTION_BUTTON_POS),
-	m_versusButton(t_guiSheet, t_font, "Versus", m_VERSUS_BUTTON_POS),
-	m_backButton(t_guiSheet, t_font, "Back", m_BACK_BUTTON_POS),
-	m_background(t_background, { 0, 0, ScreenSize::s_width, ScreenSize::s_height })
+ModeSelectScreen::ModeSelectScreen(sf::Font const& t_font) :
+	m_targetPracticeButton(AssetManager::getTexture("gui"), t_font, "Target Practice", m_TARGET_PRACTICE_BUTTON_POS),
+	m_collectionButton(AssetManager::getTexture("gui"), t_font, "Cargo Collection", m_COLLECTION_BUTTON_POS),
+	m_versusButton(AssetManager::getTexture("gui"), t_font, "Versus", m_VERSUS_BUTTON_POS),
+	m_backButton(AssetManager::getTexture("gui"), t_font, "Back", m_BACK_BUTTON_POS),
+	m_background(AssetManager::getTexture("menuBackground"), { 0, 0, ScreenSize::s_width, ScreenSize::s_height })
 {
 	m_modeText.setFont(t_font);
 	m_modeText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 4.0f);

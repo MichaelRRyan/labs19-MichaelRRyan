@@ -1,10 +1,10 @@
 #include "MenuScreen.h"
 
-MenuScreen::MenuScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
-	m_playButton{ t_guiSheet, t_font, "PLAY", m_PLAY_BUTTON_POS },
-	m_helpButton{ t_guiSheet, t_font, "HELP", m_OPTIONS_BUTTON_POS },
-	m_exitButton{ t_guiSheet, t_font, "EXIT", m_EXIT_BUTTON_POS },
-	m_background(t_background, { 0, 0, ScreenSize::s_width, ScreenSize::s_height })
+MenuScreen::MenuScreen(sf::Font const& t_font) :
+	m_playButton{ AssetManager::getTexture("gui"), t_font, "PLAY", m_PLAY_BUTTON_POS },
+	m_helpButton{ AssetManager::getTexture("gui"), t_font, "HELP", m_OPTIONS_BUTTON_POS },
+	m_exitButton{ AssetManager::getTexture("gui"), t_font, "EXIT", m_EXIT_BUTTON_POS },
+	m_background(AssetManager::getTexture("menuBackground"), { 0, 0, ScreenSize::s_width, ScreenSize::s_height })
 {
 	m_titleText.setFont(t_font);
 	m_titleText.setPosition(ScreenSize::s_width / 2.0f, ScreenSize::s_height / 4.0f);

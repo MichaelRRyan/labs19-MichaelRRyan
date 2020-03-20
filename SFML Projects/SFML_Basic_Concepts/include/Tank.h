@@ -21,6 +21,7 @@
 #include "Thor/Animations.hpp"
 #include "ProjectilePool.h"
 #include "TankAI.h"
+#include "AssetManager.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -37,7 +38,7 @@ public:
 	/// </summary>
 	/// <param name="texture">A reference to the sprite sheet texture</param>
 	///< param name="texture">A reference to the container of wall sprites</param>  
-	Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
+	Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
 
 	/// <summary>
 	/// @brief update the tank

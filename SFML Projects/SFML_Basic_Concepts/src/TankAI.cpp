@@ -1,10 +1,10 @@
 #include "TankAi.h"
 
 ////////////////////////////////////////////////////////////
-TankAi::TankAi(sf::Texture const& texture, std::vector<sf::Sprite>& wallSprites) :
+TankAi::TankAi(std::vector<sf::Sprite>& wallSprites) :
 	m_aiBehaviour(AiBehaviour::SEEK_PLAYER),
 	m_state{ AIState::PatrolMap },
-	m_texture(texture),
+	m_texture(AssetManager::getTexture("spriteSheet")),
 	m_wallSprites(wallSprites),
 	m_steering(0, 0),
 	m_active{ true },

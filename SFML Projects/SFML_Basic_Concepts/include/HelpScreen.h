@@ -5,11 +5,12 @@
 #include "GUIButton.h"
 #include "ScreenSize.h"
 #include "GameState.h"
+#include "AssetManager.h"
 
 class HelpScreen
 {
 public:
-	HelpScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font);
+	HelpScreen(sf::Font const& t_font);
 	void draw(sf::RenderWindow& t_window);
 	void setup();
 	void processEvents(sf::Event t_event, GameState& t_gameState);

@@ -21,6 +21,9 @@
 #include "PlayerJoinScreen.h"
 #include "HelpScreen.h"
 #include "TankAI.h"
+#include "Collectable.h"
+#include "AssetManager.h"
+#include "AssetLoader.h"
 
 class Game
 {
@@ -165,6 +168,8 @@ protected:
 	// main window
 	sf::RenderWindow m_window;
 
+	AssetLoader m_assetLoader;
+
 	//Font and text
 	sf::Font m_font;
 
@@ -174,16 +179,18 @@ protected:
 	sf::Text m_endGameText;
 
 	// Texures and sprites
-	sf::Texture m_texture;
-	sf::Texture m_bgTexture;
-	sf::Texture m_guiTextures;
-	sf::Texture m_menuBackground;
+	//sf::Texture m_texture;
+	//sf::Texture m_bgTexture;
+	//sf::Texture m_guiTextures;
+	//sf::Texture m_menuBackground;
 
 	sf::Sprite m_bgSprite;
 	std::vector<sf::Sprite> m_wallSprites; // Wall sprites
 
 	std::vector<Target> m_targets;
 	CircularSectorShape m_targetTimerShape;
+
+	std::vector<Collectable> m_collectables;
 
 	// Instance of a tank object as a player controlled object
 	//Tank m_tank;

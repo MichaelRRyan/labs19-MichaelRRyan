@@ -6,8 +6,8 @@
 /// </summary>
 
 ////////////////////////////////////////////////////////////
-Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
-	m_texture{ t_texture },
+Tank::Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
+	m_texture{ AssetManager::getTexture("spriteSheet") },
 	m_wallSprites{ t_wallSprites },
 	m_targets{ t_targets },
 	FRICTION{ 0.98f },
@@ -26,7 +26,7 @@ Tank::Tank(sf::Texture const& t_texture, sf::Texture const& t_guiTexture, std::v
 	m_turretEnabled{ false }
 {
 	initSprites();
-	setupParticleSystems(t_guiTexture);
+	setupParticleSystems(AssetManager::getTexture("gui"));
 }
 
 ////////////////////////////////////////////////////////////

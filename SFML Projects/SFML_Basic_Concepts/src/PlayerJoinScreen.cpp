@@ -1,22 +1,22 @@
 #include "..\include\PlayerJoinScreen.h"
 
-PlayerJoinScreen::PlayerJoinScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
-	m_background(t_background, { 0, 0, ScreenSize::s_width, ScreenSize::s_height }),
-	m_continueButton(t_guiSheet, t_font, "Continue", m_CONTINUE_BUTTON_POS),
-	m_backButton(t_guiSheet, t_font, "Back", m_BACK_BUTTON_POS)
+PlayerJoinScreen::PlayerJoinScreen(sf::Font const& t_font) :
+	m_background(AssetManager::getTexture("menuBackground"), { 0, 0, ScreenSize::s_width, ScreenSize::s_height }),
+	m_continueButton(AssetManager::getTexture("gui"), t_font, "Continue", m_CONTINUE_BUTTON_POS),
+	m_backButton(AssetManager::getTexture("gui"), t_font, "Back", m_BACK_BUTTON_POS)
 {
 	m_continueButton.setLocked(true);
 
 	sf::IntRect textureRext{ 0, 202, 127, 266 };
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		m_playerSprites[i].setTexture(t_guiSheet);
+		m_playerSprites[i].setTexture(AssetManager::getTexture("gui"));
 		m_playerSprites[i].setTextureRect(textureRext);
 		m_playerSprites[i].setOrigin(textureRext.width / 2.0f, textureRext.height / 2.0f);
 		m_playerSprites[i].setPosition(static_cast<float>((ScreenSize::s_width / (MAX_PLAYERS + 1)) * (i + 1)), static_cast<float>(ScreenSize::s_height / 2));
 		m_playerSprites[i].setColor(sf::Color{ 180, 180, 180, 180});
 
-		m_playerControlSprites[i].setTexture(t_guiSheet);
+		m_playerControlSprites[i].setTexture(AssetManager::getTexture("gui"));
 		m_playerControlSprites[i].setOrigin(101.0f, 42.0f);
 		m_playerControlSprites[i].setPosition(static_cast<float>((ScreenSize::s_width / (MAX_PLAYERS + 1)) * (i + 1)), static_cast<float>(ScreenSize::s_height / 2.0f - (textureRext.height / 2.0f) - 40.0f));
 	}

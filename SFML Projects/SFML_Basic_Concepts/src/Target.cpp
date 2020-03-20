@@ -3,14 +3,14 @@
 static int s_targetsSpawned = 0;
 
 ////////////////////////////////////////////////////////////
-Target::Target(sf::Texture& t_texture, sf::IntRect t_textureRect, sf::Vector2f t_basePosition,
+Target::Target(sf::IntRect t_textureRect, sf::Vector2f t_basePosition,
 			   int t_randomOffset, float t_rotation, float t_durationSeconds) :
 	m_BASE_POSITION{ t_basePosition },
 	m_RANDOM_OFFSET{ t_randomOffset },
 	m_BASE_SECONDS_TO_LIVE{ t_durationSeconds },
 	m_active{ false }
 {
-	m_sprite.setTexture(t_texture);
+	m_sprite.setTexture(AssetManager::getTexture("spriteSheet"));
 	m_sprite.setTextureRect(t_textureRect);
 	m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2, m_sprite.getGlobalBounds().height / 2);
 	m_sprite.setRotation(t_rotation);

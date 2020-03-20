@@ -13,7 +13,7 @@
 class PlayerJoinScreen
 {
 public:
-	PlayerJoinScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font);
+	PlayerJoinScreen(sf::Font const& t_font);
 	void processEvents(sf::Event t_event, GameState& t_gameState, Tank t_tanks[], int & t_numberOfPlayers);
 	void update(Tank t_tanks[], XBox360Controller t_controllers[], int& t_numberOfPlayers);
 	void draw(sf::RenderWindow & t_window, int t_numberOfPlayers);

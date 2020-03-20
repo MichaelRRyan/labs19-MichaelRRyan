@@ -9,6 +9,7 @@
 #include "CircularSectorShape.h"
 #include "GameConfig.h"
 #include "ProjectilePool.h"
+#include "AssetManager.h"
 
 class Tank; // forward reference
 
@@ -22,7 +23,7 @@ public:
 	/// </summary>
 	/// <param name="texture">A reference to the sprite sheet texture</param>
 	///< param name="wallSprites">A reference to the container of wall sprites</param>
-	TankAi(sf::Texture const & texture, std::vector<sf::Sprite> & wallSprites);
+	TankAi(std::vector<sf::Sprite> & wallSprites);
 
 	/// <summary>
 	/// @brief Steers the AI tank towards the player tank avoiding obstacles along the way.

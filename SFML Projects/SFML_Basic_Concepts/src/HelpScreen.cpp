@@ -1,8 +1,8 @@
 #include "HelpScreen.h"
 
-HelpScreen::HelpScreen(sf::Texture const& t_guiSheet, sf::Texture const& t_background, sf::Font const& t_font) :
-	m_backButton(t_guiSheet, t_font, "Back", m_BACK_BUTTON_POS),
-	m_backgroundSprite(t_background, { 0, 0, ScreenSize::s_width, ScreenSize::s_height }),
+HelpScreen::HelpScreen(sf::Font const& t_font) :
+	m_backButton(AssetManager::getTexture("gui"), t_font, "Back", m_BACK_BUTTON_POS),
+	m_backgroundSprite(AssetManager::getTexture("menuBackground"), { 0, 0, ScreenSize::s_width, ScreenSize::s_height }),
 	m_controlsText("", t_font, 25u),
 	m_controlsDisplay{ Controls::Player1Keyboard }
 {

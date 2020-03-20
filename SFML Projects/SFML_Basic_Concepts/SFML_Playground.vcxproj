@@ -23,8 +23,11 @@
     <None Include="resources\levels\level1.yaml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AssetLoader.h" />
+    <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\Bullet.h" />
     <ClInclude Include="include\CircularSectorShape.h" />
+    <ClInclude Include="include\Collectable.h" />
     <ClInclude Include="include\CollisionDetector.h" />
     <ClInclude Include="include\Game.h" />
     <ClInclude Include="include\GameConfig.h" />
@@ -47,8 +50,11 @@
     <ClInclude Include="include\XBox360Controller.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AssetLoader.cpp" />
+    <ClCompile Include="src\AssetManager.cpp" />
     <ClCompile Include="src\Bullet.cpp" />
     <ClCompile Include="src\CircularSectorShape.cpp" />
+    <ClCompile Include="src\Collectable.cpp" />
     <ClCompile Include="src\CollisionDetector.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GUIButton.cpp" />

@@ -14,17 +14,15 @@ static double const MS_PER_UPDATE = 10.0;
 ////////////////////////////////////////////////////////////
 Game::Game() :
 	m_window(sf::VideoMode(ScreenSize::s_width, ScreenSize::s_height, 32), "SFML Playground", sf::Style::Default),
-	//m_tank{ m_texture, m_wallSprites, m_targets },
-	//m_controllerTank{ m_texture, m_wallSprites, m_targets },
 	m_gameTimer{ 0.0 },
 	m_targetsSpawned{ 0 },
 	m_ROUND_TIME{ 60.0 },
 	m_numberOfPlayers{ 0 },
 	m_targetTimerShape{ 80.0f, 0.0f, 120u },
-	m_menuScreen(m_guiTextures, m_menuBackground, m_font),
-	m_modeSelectScreen(m_guiTextures, m_menuBackground, m_font),
-	m_playerJoinScreen(m_guiTextures, m_menuBackground, m_font),
-	m_helpScreen(m_guiTextures, m_menuBackground, m_font),
+	m_menuScreen(m_font),
+	m_modeSelectScreen(m_font),
+	m_playerJoinScreen(m_font),
+	m_helpScreen(m_font),
 	m_gameState{ GameState::MenuScreen },
 	m_TANK_POSITIONS{
 		{m_TANK_OFFSET, m_TANK_OFFSET},
@@ -39,11 +37,11 @@ Game::Game() :
 		{ static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET - 600.0f, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET - 100.0f}
 	},
 	m_tanks{
-		{m_texture, m_guiTextures, m_wallSprites, m_targets},
-		{m_texture, m_guiTextures, m_wallSprites, m_targets},
-		{m_texture, m_guiTextures, m_wallSprites, m_targets},
-		{m_texture, m_guiTextures, m_wallSprites, m_targets} },
-	m_aiTank{ m_texture, m_wallSprites }
+		{ m_wallSprites, m_targets},
+		{ m_wallSprites, m_targets},
+		{ m_wallSprites, m_targets},
+		{ m_wallSprites, m_targets} },
+	m_aiTank{ m_wallSprites }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -66,8 +64,10 @@ Game::Game() :
 	loadSounds();
 	setupText(); // Load font and setup text
 
+	m_assetLoader.loadTextures(m_level);
+
 	// Setup the background
-	m_bgSprite.setTexture(m_bgTexture);
+	m_bgSprite.setTexture(AssetManager::getTexture("background"));
 
 	// Generate the walls and targets
 	generateWalls();
@@ -297,6 +297,9 @@ void Game::startCollectionGame()
 	}
 
 	m_gamePaused = false;
+
+	Collectable collectable;
+	m_collectables.push_back(collectable);
 }
 
 ////////////////////////////////////////////////////////////
@@ -344,7 +347,7 @@ void Game::generateWalls()
 	for (ObstacleData const& obstacle : m_level.m_obstacles)
 	{
 		sf::Sprite sprite;
-		sprite.setTexture(m_texture);
+		sprite.setTexture(AssetManager::getTexture("spriteSheet"));
 		sprite.setTextureRect(wallRect);
 		sprite.setOrigin(sprite.getGlobalBounds().width / 2, sprite.getGlobalBounds().height / 2);
 		sprite.setPosition(obstacle.m_position);
@@ -361,7 +364,7 @@ void Game::generateTargets()
 	// Create the targets
 	for (TargetData const& target : m_level.m_targets)
 	{
-		Target targetObject(m_texture, targetRect, target.m_position, target.m_randomOffset, target.m_rotation, target.m_durationSeconds);
+		Target targetObject(targetRect, target.m_position, target.m_randomOffset, target.m_rotation, target.m_durationSeconds);
 		targetObject.resetTarget(m_wallSprites);
 		m_targets.push_back(targetObject);
 	}
@@ -415,32 +418,32 @@ void Game::setupText()
 ////////////////////////////////////////////////////////////
 void Game::loadTextures()
 {
-	// Load tank sprite
-	if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
-	{
-		std::string s("Error loading spritesheet texture");
-		throw std::exception(s.c_str());
-	}
+	//// Load tank sprite
+	//if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
+	//{
+	//	std::string s("Error loading spritesheet texture");
+	//	throw std::exception(s.c_str());
+	//}
 
-	// Load the background texture
-	if (!m_bgTexture.loadFromFile(m_level.m_background.m_fileName))
-	{
-		std::string s("Error loading background texture");
-		throw std::exception(s.c_str());
-	}
+	//// Load the background texture
+	//if (!m_bgTexture.loadFromFile(m_level.m_background.m_fileName))
+	//{
+	//	std::string s("Error loading background texture");
+	//	throw std::exception(s.c_str());
+	//}
 
-	// Load the gui texture
-	if (!m_guiTextures.loadFromFile("./resources/images/GUI.png"))
-	{
-		std::string s("Error loading GUI textures");
-		throw std::exception(s.c_str());
-	}
+	//// Load the gui texture
+	//if (!m_guiTextures.loadFromFile("./resources/images/GUI.png"))
+	//{
+	//	std::string s("Error loading GUI textures");
+	//	throw std::exception(s.c_str());
+	//}
 
-	if (!m_menuBackground.loadFromFile("./resources/images/menuBackground.png"))
-	{
-		std::string s("Error loading menu background texture");
-		throw std::exception(s.c_str());
-	}
+	//if (!m_menuBackground.loadFromFile("./resources/images/menuBackground.png"))
+	//{
+	//	std::string s("Error loading menu background texture");
+	//	throw std::exception(s.c_str());
+	//}
 }
 
 void Game::loadSounds()
@@ -496,7 +499,7 @@ void Game::update(double dt)
 		updateVersus(dt);
 		break;
 	case GameState::Collection:
-		updateVersus(dt);
+		updateCollection(dt);
 		break;
 	}
 }
@@ -563,15 +566,6 @@ void Game::updateVersus(double dt)
 				tanksAlive++;
 			}
 
-			/*if (m_aiTank.isActive())
-			{
-				if (m_tanks[i].getHealth() > 0.0f 
-					&& m_aiTank.collidesWithPlayer(m_tanks[i]))
-				{
-					m_tanks[i].takeDamage(10.0f);
-				}
-			}*/
-
 			// Check collisions with all other alive tanks
 			for (int j = 0; j < m_numberOfPlayers; j++)
 			{
@@ -636,6 +630,18 @@ void Game::updateCollection(double dt)
 	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
 		m_tanks[i].update(dt, m_aiTank);
+
+		// Check collisions with all other alive tanks
+		for (int j = 0; j < m_numberOfPlayers; j++)
+		{
+			if (i != j) // Don't check collisions with ourselves
+			{
+				if (m_tanks[j].getHealth() > 0.0f) // Only check collisions if the tank is alive
+				{
+					m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
+				}
+			}
+		}
 	}
 
 	// Update the AI Tank
@@ -899,8 +905,13 @@ void Game::render()
 			m_tanks[i].render(m_window);
 		}
 
-
 		m_aiTank.render(m_window);
+
+		// Draw the collectables
+		for (Collectable const& collectable : m_collectables)
+		{
+			collectable.draw(m_window);
+		}
 
 		break;
 	}

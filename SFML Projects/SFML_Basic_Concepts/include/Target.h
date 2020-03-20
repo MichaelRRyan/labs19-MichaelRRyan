@@ -4,12 +4,13 @@
 #include <SFML/Graphics.hpp>
 #include <CollisionDetector.h>
 #include "CircularSectorShape.h"
+#include "AssetManager.h"
 
 class Target
 {
 public:
 	Target() = default;
-	Target(sf::Texture &t_texture, sf::IntRect t_textureRect, sf::Vector2f t_basePosition,
+	Target(sf::IntRect t_textureRect, sf::Vector2f t_basePosition,
 		   int t_randomOffset, float t_rotation, float t_durationSeconds);
 
 	void resetTarget(std::vector<sf::Sprite> t_walls);
