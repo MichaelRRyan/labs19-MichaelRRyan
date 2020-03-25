@@ -6,10 +6,11 @@
 /// </summary>
 
 ////////////////////////////////////////////////////////////
-Tank::Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets) :
+Tank::Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets, std::vector <Collectable>& t_collectables) :
 	m_texture{ AssetManager::getTexture("spriteSheet") },
 	m_wallSprites{ t_wallSprites },
 	m_targets{ t_targets },
+	m_collectables{ t_collectables },
 	FRICTION{ 0.98f },
 	SPEED_LIMIT{ 200.0f },
 	ACCELERATION{ 1.0f },
@@ -160,6 +161,8 @@ void Tank::update(double dt, TankAi & t_tankAI)
 	{
 		t_tankAI.takeDamage(m_BULLET_DAMAGE);
 	}
+
+	checkCollectableCollisions();
 }
 
 ////////////////////////////////////////////////////////////
@@ -718,6 +721,18 @@ bool Tank::checkBulletTargetCollisions()
 	}
 
 	return collision;
+}
+
+////////////////////////////////////////////////////////////
+void Tank::checkCollectableCollisions()
+{
+	for (Collectable & collectable : m_collectables)
+	{
+		if (collectable.isActive() && CollisionDetector::collision(m_baseSprite, collectable.getSprite()))
+		{
+			collectable.setActive(false);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////

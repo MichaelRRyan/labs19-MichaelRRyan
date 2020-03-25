@@ -22,6 +22,7 @@
 #include "ProjectilePool.h"
 #include "TankAI.h"
 #include "AssetManager.h"
+#include "Collectable.h"
 
 /// <summary>
 /// @brief A simple tank controller.
@@ -38,7 +39,7 @@ public:
 	/// </summary>
 	/// <param name="texture">A reference to the sprite sheet texture</param>
 	///< param name="texture">A reference to the container of wall sprites</param>  
-	Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets);
+	Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets, std::vector<Collectable> & t_collectables);
 
 	/// <summary>
 	/// @brief update the tank
@@ -209,6 +210,11 @@ public:
 	bool checkBulletTargetCollisions();
 
 	/// <summary>
+	/// @brief checks collisions between all collectables
+	/// </summary>
+	void checkCollectableCollisions();
+
+	/// <summary>
 	/// @brief Stops the tank if moving and applies a small increase in speed in the opposite direction of travel.
 	/// If the tank speed is currently 0, the rotation is set to a value that is less than the previous rotation value
 	///  (scenario: tank is stopped and rotates into a wall, so it gets rotated towards the opposite direction).
@@ -376,6 +382,7 @@ private:
 	// A references to targets and walls
 	std::vector<sf::Sprite>& m_wallSprites;
 	std::vector<Target>& m_targets;
+	std::vector<Collectable>& m_collectables;
 
 	// Previous variables for collisions
 	sf::Vector2f m_previousPosition{ 0.0f, 0.0f };

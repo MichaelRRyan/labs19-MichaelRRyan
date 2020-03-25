@@ -37,10 +37,10 @@ Game::Game() :
 		{ static_cast<float>(ScreenSize::s_width) - m_TANK_OFFSET - 600.0f, static_cast<float>(ScreenSize::s_height) - m_TANK_OFFSET - 100.0f}
 	},
 	m_tanks{
-		{ m_wallSprites, m_targets},
-		{ m_wallSprites, m_targets},
-		{ m_wallSprites, m_targets},
-		{ m_wallSprites, m_targets} },
+		{ m_wallSprites, m_targets, m_collectables},
+		{ m_wallSprites, m_targets, m_collectables},
+		{ m_wallSprites, m_targets, m_collectables},
+		{ m_wallSprites, m_targets, m_collectables} },
 	m_aiTank{ m_wallSprites }
 {
 	m_window.setVerticalSyncEnabled(true);
@@ -92,6 +92,12 @@ Game::Game() :
 	m_aiTank.init(m_level.m_aiTank.m_position);
 
 	m_hud.setupElements(m_window.getView());
+
+	// Setup the collectables
+	for (int i = 0; i < 10; i++)
+	{
+		m_collectables.push_back(Collectable());
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -300,8 +306,10 @@ void Game::startCollectionGame()
 
 	m_gamePaused = false;
 
-	Collectable collectable;
-	m_collectables.push_back(collectable);
+	for (Collectable & collectable : m_collectables)
+	{
+		collectable.reset();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -634,6 +642,29 @@ void Game::updateCollection(double dt)
 
 			// Setup the game over text
 			m_endGameText.setString("GAME OVER! You failed to collect the cargo!\nPress Escape to exit");
+			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+		}
+
+		// Check how many collectables are left
+		int collectableCount = 0;
+
+		for (Collectable const& collectable : m_collectables)
+		{
+			if (collectable.isActive())
+			{
+				collectableCount++;
+			}
+		}
+
+		m_hud.updateCargoText(collectableCount);
+
+		// Check if no cargo remains
+		if (collectableCount == 0)
+		{
+			m_gamePaused = true;
+
+			// Setup the game over text
+			m_endGameText.setString("You Won! You collected all the cargo!\nPress Escape to exit");
 			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
 		}
 	}
