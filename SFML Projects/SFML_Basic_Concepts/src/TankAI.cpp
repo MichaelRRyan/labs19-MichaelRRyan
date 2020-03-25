@@ -30,6 +30,8 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 		return;
 	}
 
+	m_aiBehaviour = AiBehaviour::SEEK_PLAYER;
+
 	lookForPlayer(playerTanks, t_numberOfPlayers);
 
 	if (AIState::PatrolMap == m_state)
@@ -46,6 +48,7 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 		if (m_enemyWithinRange)
 		{
 			requestFire();
+			m_aiBehaviour = AiBehaviour::STOP;
 		}
 	}
 
@@ -352,43 +355,57 @@ void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
 {
 	bool inSight = false;
 
+	// Loop through all active players (Have joined the game)
 	for (int i = 0; i < t_numberOfPlayers; i++)
 	{
-		sf::Vector2f vectorToPlayer = playerTanks[i].getPosition() - m_tankBase.getPosition();
-		sf::Vector2f visionVector1 = m_visionCone[1].position - m_visionCone[0].position;
-		sf::Vector2f visionVector2 = m_visionCone[3].position - m_visionCone[2].position;
-
-		if (thor::crossProduct(vectorToPlayer, visionVector1) < 0.0
-			&& thor::crossProduct(vectorToPlayer, visionVector2) > 0.0f)
+		// Check the player is alive
+		if (playerTanks[i].getHealth() > 0.0f)
 		{
+			// Get the vector from the tank to the player
+			sf::Vector2f vectorToPlayer = playerTanks[i].getPosition() - m_tankBase.getPosition();
+
+			// Check the player is within the sight range
 			if (thor::length(vectorToPlayer) <= m_VISION_CONE_RADIUS)
 			{
-				for (int j = 0; j < 4; j++)
-				{
-					m_visionCone[j].color = sf::Color::Red;
-				}
+				// Get the vectors for the edge of the vision cone
+				sf::Vector2f visionVector1 = m_visionCone[1].position - m_visionCone[0].position;
+				sf::Vector2f visionVector2 = m_visionCone[3].position - m_visionCone[2].position;
 
-				inSight = true;
-				m_goalLocation = playerTanks[i].getPosition();
-
-				if (AIState::AttackPlayer != m_state)
+				// Check the player is within the vision cone
+				if (thor::crossProduct(vectorToPlayer, visionVector1) < 0.0
+					&& thor::crossProduct(vectorToPlayer, visionVector2) > 0.0f)
 				{
-					m_state = AIState::AttackPlayer;
-					m_enemyWithinRange = false;
+					// Set each vertex of the vision cone to red
+					for (int j = 0; j < 4; j++)
+					{
+						m_visionCone[j].color = sf::Color::Red;
+					}
+
+					inSight = true; // Player is now in sight
+					m_goalLocation = playerTanks[i].getPosition(); // The player position is the new goal location
+
+					// If not already attacking player
+					if (AIState::AttackPlayer != m_state)
+					{
+						m_state = AIState::AttackPlayer; // State is not attack player state
+						m_enemyWithinRange = false; // The enemy is not yet in attack range
+					}
 				}
 			}
 		}
 	}
 
+	// If the player is not in sight
 	if (!inSight)
 	{
+		// Colour each vertex of the vision cone green
 		for (int j = 0; j < 4; j++)
 		{
 			m_visionCone[j].color = sf::Color::Green;
 		}
 
-		pickNewPatrolLocation();
-		m_state = AIState::PatrolMap;
+		pickNewPatrolLocation(); // Pick a new position to patrol to
+		m_state = AIState::PatrolMap; // Switch state to patrol state
 	}
 }
 
