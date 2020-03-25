@@ -60,7 +60,6 @@ Game::Game() :
 		//throw(e);
 	}
 
-	loadTextures(); // Load the textures
 	loadSounds();
 	setupText(); // Load font and setup text
 
@@ -415,37 +414,6 @@ void Game::setupText()
 	m_endGameText.setOutlineColor(sf::Color::Black);
 }
 
-////////////////////////////////////////////////////////////
-void Game::loadTextures()
-{
-	//// Load tank sprite
-	//if (!m_texture.loadFromFile("./resources/images/SpriteSheet.png"))
-	//{
-	//	std::string s("Error loading spritesheet texture");
-	//	throw std::exception(s.c_str());
-	//}
-
-	//// Load the background texture
-	//if (!m_bgTexture.loadFromFile(m_level.m_background.m_fileName))
-	//{
-	//	std::string s("Error loading background texture");
-	//	throw std::exception(s.c_str());
-	//}
-
-	//// Load the gui texture
-	//if (!m_guiTextures.loadFromFile("./resources/images/GUI.png"))
-	//{
-	//	std::string s("Error loading GUI textures");
-	//	throw std::exception(s.c_str());
-	//}
-
-	//if (!m_menuBackground.loadFromFile("./resources/images/menuBackground.png"))
-	//{
-	//	std::string s("Error loading menu background texture");
-	//	throw std::exception(s.c_str());
-	//}
-}
-
 void Game::loadSounds()
 {
 	if (!m_shotSoundBuffer.loadFromFile("./resources/audio/gunshot.wav"))
@@ -626,28 +594,48 @@ void Game::updateVersus(double dt)
 ////////////////////////////////////////////////////////////
 void Game::updateCollection(double dt)
 {
-	// update the players
-	for (int i = 0; i < m_numberOfPlayers; i++)
+	if (!m_gamePaused)
 	{
-		m_tanks[i].update(dt, m_aiTank);
+		int noOfTanksAlive = 0;
 
-		// Check collisions with all other alive tanks
-		for (int j = 0; j < m_numberOfPlayers; j++)
+		// update the players
+		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
-			if (i != j) // Don't check collisions with ourselves
+			m_tanks[i].update(dt, m_aiTank);
+
+			if (m_tanks[i].getHealth() > 0.0f)
 			{
-				if (m_tanks[j].getHealth() > 0.0f) // Only check collisions if the tank is alive
+				noOfTanksAlive++;
+			}
+
+			// Check collisions with all other alive tanks
+			for (int j = 0; j < m_numberOfPlayers; j++)
+			{
+				if (i != j) // Don't check collisions with ourselves
 				{
-					m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
+					if (m_tanks[j].getHealth() > 0.0f) // Only check collisions if the tank is alive
+					{
+						m_tanks[i].checkTanktoTankCollisions(m_tanks[j]);
+					}
 				}
 			}
 		}
+
+		// Update the AI Tank
+		m_aiTank.update(m_tanks, m_numberOfPlayers, dt);
+
+		// Check if no tanks remain alive
+		if (noOfTanksAlive == 0)
+		{
+			m_gamePaused = true;
+
+			// Setup the game over text
+			m_endGameText.setString("GAME OVER! You failed to collect the cargo!\nPress Escape to exit");
+			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+		}
 	}
 
-	// Update the AI Tank
-	m_aiTank.update(m_tanks, m_numberOfPlayers, dt);
-
-	// Update the particle system
+	// Update the particle system even if paused
 	for (int i = 0; i < m_numberOfPlayers; i++)
 	{
 		m_tanks[i].updateParticleSys();
@@ -911,6 +899,11 @@ void Game::render()
 		for (Collectable const& collectable : m_collectables)
 		{
 			collectable.draw(m_window);
+		}
+
+		if (m_gamePaused)
+		{
+			m_window.draw(m_endGameText);
 		}
 
 		break;

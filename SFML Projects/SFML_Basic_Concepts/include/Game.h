@@ -150,11 +150,6 @@ protected:
 	void setupText();
 
 	/// <summary>
-	/// @brief Load all the textures
-	/// </summary>
-	void loadTextures();
-
-	/// <summary>
 	/// @brief Load all the sounds
 	/// </summary>
 	void loadSounds();
@@ -178,12 +173,6 @@ protected:
 	sf::Text m_playerTexts[MAX_PLAYERS];
 	sf::Text m_endGameText;
 
-	// Texures and sprites
-	//sf::Texture m_texture;
-	//sf::Texture m_bgTexture;
-	//sf::Texture m_guiTextures;
-	//sf::Texture m_menuBackground;
-
 	sf::Sprite m_bgSprite;
 	std::vector<sf::Sprite> m_wallSprites; // Wall sprites
 
@@ -191,10 +180,6 @@ protected:
 	CircularSectorShape m_targetTimerShape;
 
 	std::vector<Collectable> m_collectables;
-
-	// Instance of a tank object as a player controlled object
-	//Tank m_tank;
-	//Tank m_controllerTank;
 
 	XBox360Controller m_controllers[MAX_PLAYERS];
 
