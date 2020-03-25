@@ -24,6 +24,7 @@
 #include "Collectable.h"
 #include "AssetManager.h"
 #include "AssetLoader.h"
+#include "HUD.h"
 
 class Game
 {
@@ -216,6 +217,7 @@ protected:
 	HelpScreen m_helpScreen;
 	ModeSelectScreen m_modeSelectScreen;
 	PlayerJoinScreen m_playerJoinScreen;
+	HUD m_hud;
 
 	GameState m_gameState; // Current state the game is in
 	GameState m_previousGameState;

@@ -1,13 +1,22 @@
 #include "AssetLoader.h"
 
+/// <summary>
+/// @Author Michael Rainsford Ryan
+/// @Date 20/03/2020
+/// </summary>
+
+////////////////////////////////////////////////////////////
 AssetLoader::AssetLoader()
 {
 	AssetManager::addTexture(m_spriteSheetTexture, "spriteSheet");
 	AssetManager::addTexture(m_backgroundTexture, "background");
 	AssetManager::addTexture(m_guiTextures, "gui");
 	AssetManager::addTexture(m_menuBackground, "menuBackground");
+
+	AssetManager::addFont(m_mainFont, "mainFont");
 }
 
+////////////////////////////////////////////////////////////
 void AssetLoader::loadTextures(LevelData const& t_levelData)
 {
 	// Load tank sprite
@@ -37,3 +46,15 @@ void AssetLoader::loadTextures(LevelData const& t_levelData)
 		throw std::exception(s.c_str());
 	}
 }
+
+////////////////////////////////////////////////////////////
+void AssetLoader::loadFonts()
+{
+	if (!m_mainFont.loadFromFile("./resources/fonts/Disarmer-pvVD.ttf"))
+	{
+		std::string s("Error loading font file");
+		throw std::exception(s.c_str());
+	}
+}
+
+////////////////////////////////////////////////////////////

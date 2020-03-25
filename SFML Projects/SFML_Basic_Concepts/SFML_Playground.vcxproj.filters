@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Screens">
-      <UniqueIdentifier>{7472b54f-e403-4847-be09-b668929f47f5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Screens">
-      <UniqueIdentifier>{d4bab571-7446-4b88-ad06-eb094ea4dfeb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\GameObjects">
       <UniqueIdentifier>{84903e15-033d-4555-b521-5cf7e148863c}</UniqueIdentifier>
     </Filter>
@@ -34,6 +28,12 @@
     <Filter Include="Header Files\Config">
       <UniqueIdentifier>{cbfdaab3-6a86-4a65-9394-9b7a92428eed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{7472b54f-e403-4847-be09-b668929f47f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{d4bab571-7446-4b88-ad06-eb094ea4dfeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\levels\level1.yaml">
@@ -48,16 +48,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ModeSelectScreen.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="include\MenuScreen.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="include\GUIButton.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="include\PlayerJoinScreen.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="include\Bullet.h">
       <Filter>Header Files\GameObjects</Filter>
@@ -90,7 +90,7 @@
       <Filter>Header Files\Abstract</Filter>
     </ClInclude>
     <ClInclude Include="include\HelpScreen.h">
-      <Filter>Header Files\Screens</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="include\ScreenSize.h">
       <Filter>Header Files\Config</Filter>
@@ -119,6 +119,9 @@
     <ClInclude Include="include\AssetLoader.h">
       <Filter>Header Files\Abstract</Filter>
     </ClInclude>
+    <ClInclude Include="include\HUD.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Game.cpp">
@@ -128,16 +131,16 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\MenuScreen.cpp">
-      <Filter>Source Files\Screens</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\ModeSelectScreen.cpp">
-      <Filter>Source Files\Screens</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\GUIButton.cpp">
-      <Filter>Source Files\Screens</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\PlayerJoinScreen.cpp">
-      <Filter>Source Files\Screens</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\Bullet.cpp">
       <Filter>Source Files\GameObjects</Filter>
@@ -170,7 +173,7 @@
       <Filter>Source Files\Abstract</Filter>
     </ClCompile>
     <ClCompile Include="src\HelpScreen.cpp">
-      <Filter>Source Files\Screens</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\Projectile.cpp">
       <Filter>Source Files\GameObjects</Filter>
@@ -189,6 +192,9 @@
     </ClCompile>
     <ClCompile Include="src\AssetLoader.cpp">
       <Filter>Source Files\Abstract</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HUD.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

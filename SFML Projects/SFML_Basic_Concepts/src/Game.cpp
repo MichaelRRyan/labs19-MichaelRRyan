@@ -64,6 +64,7 @@ Game::Game() :
 	setupText(); // Load font and setup text
 
 	m_assetLoader.loadTextures(m_level);
+	m_assetLoader.loadFonts();
 
 	// Setup the background
 	m_bgSprite.setTexture(AssetManager::getTexture("background"));
@@ -89,6 +90,8 @@ Game::Game() :
 	m_helpScreen.setup();
 
 	m_aiTank.init(m_level.m_aiTank.m_position);
+
+	m_hud.setupElements(m_window.getView());
 }
 
 ////////////////////////////////////////////////////////////
@@ -882,11 +885,6 @@ void Game::render()
 			}
 		}
 
-		if (m_aiTank.isActive())
-		{
-			m_aiTank.drawHealthIndicator(m_window);
-		}
-
 		// Draw the tanks if they're alive
 		for (int i = 0; i < m_numberOfPlayers; i++)
 		{
@@ -905,6 +903,8 @@ void Game::render()
 		{
 			m_window.draw(m_endGameText);
 		}
+
+		m_hud.render(m_window);
 
 		break;
 	}
