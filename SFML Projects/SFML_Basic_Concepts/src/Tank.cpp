@@ -113,7 +113,7 @@ void Tank::update(double dt, TankAi & t_tankAI)
 			m_turretRotateSound.stop();
 		}
 
-		if (checkWallCollision())
+		if (checkWallCollision() || checkScreenBoundaryCollisions())
 		{
 			deflect();
 		}
@@ -646,6 +646,18 @@ bool Tank::checkWallCollision()
 			return true;
 		}
 	}
+	return false;
+}
+
+////////////////////////////////////////////////////////////
+bool Tank::checkScreenBoundaryCollisions()
+{
+	if (m_baseSprite.getPosition().x - m_baseSprite.getGlobalBounds().width / 2.0f < 0.0f || m_baseSprite.getPosition().x + m_baseSprite.getGlobalBounds().width / 2.0f > ScreenSize::s_width
+		|| m_baseSprite.getPosition().y - m_baseSprite.getGlobalBounds().height / 2.0f  < 0.0f || m_baseSprite.getPosition().y + m_baseSprite.getGlobalBounds().height / 2.0f > ScreenSize::s_height)
+	{
+		return true;
+	}
+	
 	return false;
 }
 

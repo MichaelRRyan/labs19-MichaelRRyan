@@ -198,6 +198,11 @@ public:
 	bool checkWallCollision();
 
 	/// <summary>
+	/// @brief check for and handle collisions with the boundary of the screen
+	/// </summary>
+	bool checkScreenBoundaryCollisions();
+
+	/// <summary>
 	/// @brief Checks for collisions between the bullet and the walls.
 	/// 
 	/// </summary>
