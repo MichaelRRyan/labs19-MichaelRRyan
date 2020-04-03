@@ -2,8 +2,10 @@
 #define COLLECTABLE_H
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include "AssetManager.h"
 #include "ScreenSize.h"
+#include "CollisionDetector.h"
 
 class Collectable
 {
@@ -11,7 +13,7 @@ public:
 
 	Collectable();
 
-	void reset();
+	void reset(std::vector<sf::Sprite> const & t_walls, std::vector<Collectable> const& t_collectables);
 
 	void draw(sf::RenderWindow & t_window) const;
 

@@ -308,7 +308,7 @@ void Game::startCollectionGame()
 
 	for (Collectable & collectable : m_collectables)
 	{
-		collectable.reset();
+		collectable.reset(m_wallSprites, m_collectables);
 	}
 }
 
@@ -643,6 +643,12 @@ void Game::updateCollection(double dt)
 			// Setup the game over text
 			m_endGameText.setString("GAME OVER! You failed to collect the cargo!\nPress Escape to exit");
 			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+
+			// Set all cargo to inactive
+			for (Collectable & collectable : m_collectables)
+			{
+				collectable.setActive(false);
+			}
 		}
 
 		// Check how many collectables are left
