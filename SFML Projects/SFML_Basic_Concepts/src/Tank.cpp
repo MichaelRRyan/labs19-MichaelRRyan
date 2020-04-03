@@ -5,18 +5,17 @@
 /// @Date 11/10/19
 /// </summary>
 
+/// <summary>
+/// Returns a random value from the values passed to the function
+/// </summary>
+int random(std::vector<int> t_params);
+
 ////////////////////////////////////////////////////////////
 Tank::Tank(std::vector<sf::Sprite>& t_wallSprites, std::vector<Target>& t_targets, std::vector <Collectable>& t_collectables) :
 	m_texture{ AssetManager::getTexture("spriteSheet") },
 	m_wallSprites{ t_wallSprites },
 	m_targets{ t_targets },
 	m_collectables{ t_collectables },
-	FRICTION{ 0.98f },
-	SPEED_LIMIT{ 200.0f },
-	ACCELERATION{ 1.0f },
-	TURN_SPEED{ 0.8f },
-	m_BULLET_DAMAGE{ 10.0f },
-	FIRE_DELAY{ 1.0f },
 	m_bullet{ nullptr },
 	m_score{ 0 },
 	m_healthPercent{ 100.0f },
@@ -43,7 +42,7 @@ void Tank::update(double dt, TankAi & t_tankAI)
 		(ControlType::Keyboard == m_controlType) ? handleKeyInput() : handleControllerInput();
 
 		// Clamp the speed to a minimum and maximum speed
-		clamp(m_speed, -SPEED_LIMIT, SPEED_LIMIT);
+		clamp(m_speed, -m_speedLimit, m_speedLimit);
 
 		m_previousPosition = m_baseSprite.getPosition();
 		sf::Vector2f m_newPosition; // Create a variable for new position calculations
@@ -71,7 +70,7 @@ void Tank::update(double dt, TankAi & t_tankAI)
 
 		if (!m_moving)
 		{
-			m_speed *= FRICTION; // Apply a friction force
+			m_speed *= m_friction; // Apply a friction force
 		}
 
 		// If the speed is less than 1 pixel per frame set it to 0 to avoid jitter
@@ -159,7 +158,7 @@ void Tank::update(double dt, TankAi & t_tankAI)
 
 	if (m_pool.checkTankCollisions(std::pair<sf::Sprite, sf::Sprite>{t_tankAI.getBaseSprite(), t_tankAI.getTurretSprite()}))
 	{
-		t_tankAI.takeDamage(m_BULLET_DAMAGE);
+		t_tankAI.takeDamage(s_BULLET_DAMAGE);
 	}
 
 	checkCollectableCollisions();
@@ -232,6 +231,9 @@ void Tank::resetStats()
 	m_targetsHit = 0;
 	m_healthPercent = 100.0f;
 	m_speed = 0.0f;
+	m_friction = s_FRICTION;
+	m_turnSpeed = s_TURN_SPEED;
+	m_speedLimit = s_SPEED_LIMIT;
 }
 
 ////////////////////////////////////////////////////////////
@@ -244,35 +246,35 @@ void Tank::resetRotation()
 ////////////////////////////////////////////////////////////
 void Tank::increaseSpeed()
 {
-	m_speed += ACCELERATION;
+	m_speed += s_ACCELERATION;
 	m_moving = true;
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::decreaseSpeed()
 {
-	m_speed -= ACCELERATION;
+	m_speed -= s_ACCELERATION;
 	m_moving = true;
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::increaseSpeed(float t_percent)
 {
-	m_speed += ACCELERATION * t_percent;
+	m_speed += s_ACCELERATION * t_percent;
 	m_moving = true;
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::decreaseSpeed(float t_percent)
 {
-	m_speed -= ACCELERATION * t_percent;
+	m_speed -= s_ACCELERATION * t_percent;
 	m_moving = true;
 }
 
 ////////////////////////////////////////////////////////////
 void Tank::increaseRotation()
 {
-	m_rotation += TURN_SPEED;
+	m_rotation += m_turnSpeed;
 	if (m_rotation >= 360.0)
 	{
 		m_rotation = 0;
@@ -282,7 +284,7 @@ void Tank::increaseRotation()
 ////////////////////////////////////////////////////////////
 void Tank::decreaseRotation()
 {
-	m_rotation -= TURN_SPEED;
+	m_rotation -= m_turnSpeed;
 	if (m_rotation <= 0.0)
 	{
 		m_rotation = 359.0;
@@ -292,7 +294,7 @@ void Tank::decreaseRotation()
 ////////////////////////////////////////////////////////////
 void Tank::increaseTurretRotation()
 {
-	m_turretRotation += TURN_SPEED;
+	m_turretRotation += m_turnSpeed;
 	if (m_turretRotation >= 360.0)
 	{
 		m_turretRotation = 0;
@@ -302,7 +304,7 @@ void Tank::increaseTurretRotation()
 ////////////////////////////////////////////////////////////
 void Tank::decreaseTurretRotation()
 {
-	m_turretRotation -= TURN_SPEED;
+	m_turretRotation -= m_turnSpeed;
 	if (m_turretRotation <= 0.0)
 	{
 		m_turretRotation = 359.0;
@@ -320,7 +322,7 @@ void Tank::toggleCentring()
 void Tank::centreTurret()
 {
 	// Give the turret a snap zone
-	if (m_turretRotation < 360 - TURN_SPEED && m_turretRotation > TURN_SPEED)
+	if (m_turretRotation < 360 - m_turnSpeed && m_turretRotation > m_turnSpeed)
 	{
 		if (m_centringClockwise)
 		{
@@ -477,7 +479,7 @@ void Tank::handleControllerInput()
 	if (inputSpeed > 0.0f)
 	{
 		// Check if the absolute value of the distance between the values
-		if (fabsf(inputDirection - m_rotation) > TURN_SPEED)
+		if (fabsf(inputDirection - m_rotation) > m_turnSpeed)
 		{
 
 			if (inputDirection > m_rotation)
@@ -559,7 +561,7 @@ void Tank::handleControllerTurretRotation(float t_inputDirection)
 
 
 	// Check if the absolute value of the distance between the values is greater than  the turn speed to avoid jitter
-	if (fabsf(t_inputDirection - trueTurretRotation) > TURN_SPEED)
+	if (fabsf(t_inputDirection - trueTurretRotation) > m_turnSpeed)
 	{
 
 		if (t_inputDirection > trueTurretRotation)
@@ -816,7 +818,7 @@ void Tank::checkTanktoTankCollisions(Tank& t_tank)
 			// Check collisions between bullet and tank
 			if (CollisionDetector::collision(m_bullet->getSprite(), t_tank.getBase()))
 			{
-				t_tank.takeDamage(m_BULLET_DAMAGE); // Damage the other tank
+				t_tank.takeDamage(s_BULLET_DAMAGE); // Damage the other tank
 				delete m_bullet; // Delete the bullet
 				m_bullet = nullptr; // Set the bullet pointer to nullptr to avoid dangling pointer
 			}
@@ -839,6 +841,11 @@ void Tank::takeDamage(float t_amount)
 		m_explosionEmitter.setParticlePosition(m_baseSprite.getPosition()); // Emit particles at tank position
 		m_explosionEmitter.setParticleVelocity(thor::Distributions::deflect({ 50.0f, 0.0 }, 180.f)); // Emit towards direction with deviation of 180°
 		m_explosionPartSys.addEmitter(m_explosionEmitter, sf::seconds(0.3f));
+	}
+	// Random chance based on health percent to give a negative modifier
+	else if (rand() % 100 > m_healthPercent)
+	{
+		applyNegativeModifier();
 	}
 }
 
@@ -893,7 +900,7 @@ void Tank::fireBullet()
 		if (m_bullet == nullptr && m_fireTimer == 0)
 		{
 			m_bullet = new Bullet(m_texture, m_turretSprite.getPosition(), m_turretSprite.getRotation(), 60.0f);
-			m_fireTimer = FIRE_DELAY;
+			m_fireTimer = s_FIRE_DELAY;
 			m_bulletsFired++;
 			m_shotSound.play();
 			requestFire();
@@ -1072,6 +1079,56 @@ void Tank::requestFire()
 
 		m_pool.create(m_texture, tipOfTurret.x, tipOfTurret.y, m_baseSprite.getRotation() + m_turretRotation);
 	}
+}
+
+////////////////////////////////////////////////////////////
+void Tank::applyNegativeModifier()
+{
+	std::vector<int> m_possibleModifiers;
+
+	if (s_DAMAGED_SPEED_LIMIT != m_speedLimit)
+		m_possibleModifiers.push_back(0);
+
+	if (s_DAMAGED_TURN_SPEED != m_turnSpeed)
+		m_possibleModifiers.push_back(1);
+
+	if (s_DAMAGED_FRICTION != m_friction)
+		m_possibleModifiers.push_back(2);
+
+	// Only apply a modifier if there is one left to apply
+	if (!m_possibleModifiers.empty())
+	{
+		switch (random(m_possibleModifiers))
+		{
+		case 0:
+			m_speedLimit = s_DAMAGED_SPEED_LIMIT;
+			break;
+		case 1:
+			m_turnSpeed = s_DAMAGED_TURN_SPEED;
+			break;
+		case 2:
+			m_friction = s_DAMAGED_FRICTION;
+			break;
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+/// Returns a random value from the values passed to the function
+int random(std::vector<int> t_params)
+{
+	if (t_params.size())
+	{
+		int numberIndex = rand() % t_params.size();
+
+		return t_params.at(numberIndex);
+	}
+
+#ifdef _DEBUG
+	std::cout << "ERROR: No values passed to random function" << std::endl;
+#endif // _DEBUG
+
+	return -1;
 }
 
 ////////////////////////////////////////////////////////////

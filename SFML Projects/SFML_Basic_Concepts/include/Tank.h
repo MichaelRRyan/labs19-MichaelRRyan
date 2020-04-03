@@ -360,18 +360,32 @@ private:
 	/// </summary>
 	void requestFire();
 
+	/// <summary>
+	/// @brief picks a random negative modifier that has not been chosen already
+	/// </summary>
+	void applyNegativeModifier();
+
 
 	// Private data members
 
 	// Constants
-	const float FRICTION;
-	const float SPEED_LIMIT;
-	const float ACCELERATION;
-	const float TURN_SPEED;
-	const float FIRE_DELAY;
-	const float m_BULLET_DAMAGE;
+	static constexpr float s_FRICTION{ 0.98f };
+	static constexpr float s_SPEED_LIMIT{ 200.0f };
+	static constexpr float s_ACCELERATION{ 1.0f };
+	static constexpr float s_TURN_SPEED{ 0.8f };
+	static constexpr float s_BULLET_DAMAGE{ 10.0f };
+	static constexpr float s_FIRE_DELAY{ 1.0f };
 
 	static int const s_TIME_BETWEEN_SHOTS{ 800 };
+
+	static constexpr float s_DAMAGED_FRICTION{ 0.99f };
+	static constexpr float s_DAMAGED_SPEED_LIMIT{ 100.0f };
+	static constexpr float s_DAMAGED_TURN_SPEED{ 0.4f };
+
+	// Vehicle handling variables
+	float m_friction;
+	float m_speedLimit;
+	float m_turnSpeed;
 
 	// Tank sprites and textures
 	sf::Texture const& m_texture;
