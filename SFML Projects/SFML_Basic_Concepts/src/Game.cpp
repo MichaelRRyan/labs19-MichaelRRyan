@@ -119,6 +119,7 @@ void Game::run()
 			update(MS_PER_UPDATE);
 			lag -= static_cast<sf::Int32>(MS_PER_UPDATE);
 		}
+
 		update(MS_PER_UPDATE);
 
 		render();
@@ -363,6 +364,17 @@ void Game::generateWalls()
 		sprite.setPosition(obstacle.m_position);
 		sprite.setRotation(obstacle.m_rotation);
 		m_wallSprites.push_back(sprite);
+
+#ifdef COLLISION_DEBUG
+		OrientedBoundingBox wall{ sprite };
+
+		// Loop for each side of the wall
+		for (int i = 0; i < 4; i++)
+		{
+			m_wallBounds.append({ wall.Points[i], sf::Color::Red });
+			m_wallBounds.append({ wall.Points[(i + 1) % 4], sf::Color::Red });
+		}
+#endif // COLLISION_DEBUG
 	}
 }
 
@@ -481,6 +493,20 @@ void Game::update(double dt)
 		updateCollection(dt);
 		break;
 	}
+
+#ifdef COLLISION_DEBUG
+	for (int i = 0; i < m_numberOfPlayers; i++)
+	{
+		OrientedBoundingBox player{ m_tanks[i].getBase() };
+
+		// Loop for each side of the player
+		for (int j = 0; j < 4; j++)
+		{
+			m_wallBounds[(i * 8) + (j * 2)] = { player.Points[j], sf::Color::Red };
+			m_wallBounds[(i * 8) + (j * 2) + 1] = { player.Points[(j + 1) % 4], sf::Color::Red };
+		}
+	}
+#endif // COLLISION_DEBUG
 }
 
 ////////////////////////////////////////////////////////////
@@ -650,28 +676,30 @@ void Game::updateCollection(double dt)
 				collectable.setActive(false);
 			}
 		}
-
-		// Check how many collectables are left
-		int collectableCount = 0;
-
-		for (Collectable const& collectable : m_collectables)
+		else
 		{
-			if (collectable.isActive())
+			// Check how many collectables are left
+			int collectableCount = 0;
+
+			for (Collectable const& collectable : m_collectables)
 			{
-				collectableCount++;
+				if (collectable.isActive())
+				{
+					collectableCount++;
+				}
 			}
-		}
 
-		m_hud.updateCargoText(collectableCount);
+			m_hud.updateCargoText(collectableCount);
 
-		// Check if no cargo remains
-		if (collectableCount == 0)
-		{
-			m_gamePaused = true;
+			// Check if no cargo remains
+			if (collectableCount == 0)
+			{
+				m_gamePaused = true;
 
-			// Setup the game over text
-			m_endGameText.setString("You Won! You collected all the cargo!\nPress Escape to exit");
-			m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+				// Setup the game over text
+				m_endGameText.setString("You Won! You collected all the cargo!\nPress Escape to exit");
+				m_endGameText.setOrigin(m_endGameText.getGlobalBounds().width / 2.0f, m_endGameText.getGlobalBounds().height / 2.0f);
+			}
 		}
 	}
 
@@ -945,6 +973,11 @@ void Game::render()
 
 		break;
 	}
+
+#ifdef COLLISION_DEBUG
+	m_window.draw(m_wallBounds);
+	m_window.draw(m_playerBounds);
+#endif // COLLISION_DEBUG
 
 	m_window.display();
 }

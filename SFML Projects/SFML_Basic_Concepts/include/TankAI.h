@@ -10,6 +10,7 @@
 #include "GameConfig.h"
 #include "ProjectilePool.h"
 #include "AssetManager.h"
+#include "Raycast.h"
 
 class Tank; // forward reference
 
@@ -155,6 +156,7 @@ private:
 
 	// A container of circles that represent the obstacles to avoid.
 	std::vector<sf::CircleShape> m_obstacles;
+	std::vector<sf::Vector2f> m_wallLines;
 
 	enum class AiBehaviour
 	{
@@ -173,10 +175,14 @@ private:
 
 	AIState m_state;
 
-	sf::VertexArray m_visionCone{ sf::Lines };
+	static int const s_visionLinePoints{ 51 };
+	sf::VertexArray m_visionCone{ sf::TriangleFan, s_visionLinePoints };
+	sf::Color m_coneColour;
 
 	const float m_VISION_CONE_SPREAD;
 	const float m_VISION_CONE_RADIUS;
+
+	float m_currentVisionRadius;
 
 	sf::Vector2f m_goalLocation;
 

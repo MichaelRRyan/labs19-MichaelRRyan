@@ -5,6 +5,11 @@
 
 #pragma once
 
+#ifdef _DEBUG
+//#define COLLISION_DEBUG
+#endif // _DEBUG
+
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
@@ -223,4 +228,9 @@ protected:
 	GameState m_previousGameState;
 
 	bool m_gamePaused;
+
+#ifdef COLLISION_DEBUG
+	sf::VertexArray m_playerBounds{ sf::Lines, MAX_PLAYERS * 8 };
+	sf::VertexArray m_wallBounds{ sf::Lines };
+#endif // COLLISION_DEBUG
 };

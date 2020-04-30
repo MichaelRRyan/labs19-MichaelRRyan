@@ -16,7 +16,8 @@ TankAi::TankAi(std::vector<sf::Sprite>& wallSprites) :
 	m_fireRequested{ false },
 	m_shootTimer{ s_TIME_BETWEEN_SHOTS },
 	m_BULLET_DAMAGE{ 10.0f },
-	m_enemyWithinRange{ false }
+	m_enemyWithinRange{ false },
+	m_coneColour{ sf::Color::Green }
 {
 	// Initialises the tank base and turret sprites.
 	initSprites();
@@ -144,13 +145,11 @@ void TankAi::update(Tank playerTanks[], const int t_numberOfPlayers, double dt)
 ////////////////////////////////////////////////////////////
 void TankAi::render(sf::RenderWindow & window)
 {
-	// TODO: Don't draw if off-screen...
-	
 	if (m_active)
 	{
+		window.draw(m_visionCone);
 		window.draw(m_tankBase);
 		window.draw(m_turret);
-		window.draw(m_visionCone);
 	}
 
 	m_pool.render(window);
@@ -169,6 +168,16 @@ void TankAi::init(sf::Vector2f position)
 		circle.setOrigin(circle.getRadius(), circle.getRadius());
 		circle.setPosition(wallSprite.getPosition());
 		m_obstacles.push_back(circle);
+
+		// Fill the wall lines vector
+		OrientedBoundingBox wall{ wallSprite };
+
+		// Loop for each side of the wall
+		for (int i = 0; i < 4; i++)
+		{
+			m_wallLines.push_back(wall.Points[i]);
+			m_wallLines.push_back(wall.Points[(i + 1) % 4]);
+		}
 	}
 
 	m_healthIndicator.setFillColor(sf::Color{ 0, 255, 0, 100 });
@@ -263,13 +272,6 @@ void TankAi::initSprites()
 	sf::IntRect turretRect(120, 3, 87, 37);
 	m_turret.setTextureRect(turretRect);
 	m_turret.setOrigin(turretRect.width / 3.0, turretRect.height / 2.0);
-
-	// Setup the lines with zero values for position.
-	// Position of the lines will be updated in the updateMovement function.
-	for (int i = 0; i < 4; i++)
-	{
-		m_visionCone.append({ { 2.0f, 2.0 }, sf::Color::Green });
-	}
 }
 
 
@@ -368,27 +370,52 @@ void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
 			if (thor::length(vectorToPlayer) <= m_VISION_CONE_RADIUS)
 			{
 				// Get the vectors for the edge of the vision cone
-				sf::Vector2f visionVector1 = m_visionCone[1].position - m_visionCone[0].position;
-				sf::Vector2f visionVector2 = m_visionCone[3].position - m_visionCone[2].position;
+				sf::Vector2f visionVector1 = m_visionCone[1].position - m_tankBase.getPosition();
+				sf::Vector2f visionVector2 = m_visionCone[s_visionLinePoints - 1].position - m_tankBase.getPosition();
 
 				// Check the player is within the vision cone
 				if (thor::crossProduct(vectorToPlayer, visionVector1) < 0.0
 					&& thor::crossProduct(vectorToPlayer, visionVector2) > 0.0f)
 				{
-					// Set each vertex of the vision cone to red
-					for (int j = 0; j < 4; j++)
+					OrientedBoundingBox player{ playerTanks[i].getBase() };
+
+					// Loop for each side of the player bounds
+					for (int i = 0; i < 4; i++)
 					{
-						m_visionCone[j].color = sf::Color::Red;
+						for (int j = 1; j < s_visionLinePoints; j++)
+						{
+							float x1 = m_visionCone[0].position.x;
+							float y1 = m_visionCone[0].position.y;
+							float x2 = m_visionCone[j].position.x;
+							float y2 = m_visionCone[j].position.y;
+
+							// If the collision point is not a 0, 0 vector (no collision)
+							if (Raycast::castRay(x1, y1, x2, y2, player.Points[i].x, player.Points[i].y, player.Points[(i + 1) % 4].x, player.Points[(i + 1) % 4].y) != sf::Vector2f())
+							{
+								inSight = true;
+								break;
+							}
+						}
+
+						if (inSight)
+						{
+							break;
+						}
 					}
 
-					inSight = true; // Player is now in sight
-					m_goalLocation = playerTanks[i].getPosition(); // The player position is the new goal location
-
-					// If not already attacking player
-					if (AIState::AttackPlayer != m_state)
+					if (inSight)
 					{
-						m_state = AIState::AttackPlayer; // State is not attack player state
-						m_enemyWithinRange = false; // The enemy is not yet in attack range
+						// Set the cone colour to red
+						m_coneColour = sf::Color::Red;
+
+						m_goalLocation = playerTanks[i].getPosition(); // The player position is the new goal location
+
+						// If not already attacking player
+						if (AIState::AttackPlayer != m_state)
+						{
+							m_state = AIState::AttackPlayer; // State is not attack player state
+							m_enemyWithinRange = false; // The enemy is not yet in attack range
+						}
 					}
 				}
 			}
@@ -398,11 +425,8 @@ void TankAi::lookForPlayer(Tank playerTanks[], const int t_numberOfPlayers)
 	// If the player is not in sight
 	if (!inSight)
 	{
-		// Colour each vertex of the vision cone green
-		for (int j = 0; j < 4; j++)
-		{
-			m_visionCone[j].color = sf::Color::Green;
-		}
+		// Set the cone colour to green
+		m_coneColour = sf::Color::Green;
 
 		pickNewPatrolLocation(); // Pick a new position to patrol to
 		m_state = AIState::PatrolMap; // Switch state to patrol state
@@ -420,29 +444,68 @@ void TankAi::updateVisionCone(float dt)
 {
 	// Set the base of the cone to the tank body position
 	m_visionCone[0].position = m_tankBase.getPosition();
-	m_visionCone[2].position = m_tankBase.getPosition();
+	m_visionCone[0].color = m_coneColour;
 
 	updateScanAngle(dt);
+
+	float currentSpread;
+	float angle;
 
 	// If attacking the player and the player is halfway inside the vision cone
 	if (AIState::AttackPlayer == m_state
 		&& thor::length(m_goalLocation - m_tankBase.getPosition()) < m_VISION_CONE_RADIUS / 2.0f)
 	{
 		// Set the ends of the cone with a wider range and shorter radius
-		m_visionCone[1].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)),
-			sinf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD - 10.0f)) } *(m_VISION_CONE_RADIUS * 0.666f);
-
-		m_visionCone[3].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)),
-			sinf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD + 10.0f)) } *(m_VISION_CONE_RADIUS * 0.666f);
+		currentSpread = (thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD + 10.0f) - thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD - 10.0f));
+		angle = thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD - 10.0f);
+		m_currentVisionRadius = m_VISION_CONE_RADIUS * 0.666f;
 	}
 	else
 	{
 		// Set the ends of the cone with the preset range and radius
-		m_visionCone[1].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)),
-			sinf(thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD)) } * m_VISION_CONE_RADIUS;
+		currentSpread = (thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD) - thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD));
+		angle = thor::toRadian(m_scanAngle - m_VISION_CONE_SPREAD);
+		m_currentVisionRadius = m_VISION_CONE_RADIUS;
+	}
+	
+	float turnIncrement = currentSpread / (s_visionLinePoints - 2);
 
-		m_visionCone[3].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)),
-			sinf(thor::toRadian(m_scanAngle + m_VISION_CONE_SPREAD)) } * m_VISION_CONE_RADIUS;
+	for (int i = 1; i < s_visionLinePoints; i += 1)
+	{
+		sf::Vector2f direction = { cosf(angle), sinf(angle) };
+
+		float x1 = m_tankBase.getPosition().x;
+		float y1 = m_tankBase.getPosition().y;
+		float x2 = x1 + direction.x * m_currentVisionRadius;
+		float y2 = y1 + direction.y * m_currentVisionRadius;
+
+		float rangeSquared = m_currentVisionRadius * m_currentVisionRadius;
+
+		// Check if colliding with a wall
+		for (int j = 0; j < m_wallLines.size(); j += 2)
+		{
+			float x3 = m_wallLines.at(j).x;
+			float y3 = m_wallLines.at(j).y;
+			float x4 = m_wallLines.at((j + 1)).x;
+			float y4 = m_wallLines.at((j + 1)).y;
+
+			sf::Vector2f const collisionPoint = Raycast::castRay(x1, y1, x2, y2, x3, y3, x4, y4);
+
+			if (collisionPoint != sf::Vector2f{ 0.0f, 0.0f })
+			{
+				if (thor::squaredLength(collisionPoint - m_tankBase.getPosition()) < rangeSquared)
+				{
+					rangeSquared = thor::squaredLength(collisionPoint - m_tankBase.getPosition());
+				}
+			}
+		}
+
+		m_visionCone[i].position = m_tankBase.getPosition() + sf::Vector2f{ cosf(angle),
+			sinf(angle) } * sqrt(rangeSquared);
+
+		m_visionCone[i].color = sf::Color{ m_coneColour.r, m_coneColour.g, m_coneColour.b, static_cast<sf::Uint8>((1.0f - thor::length(m_visionCone[i].position - m_tankBase.getPosition()) / m_currentVisionRadius) * 255) };
+
+		angle += turnIncrement;
 	}
 }
 

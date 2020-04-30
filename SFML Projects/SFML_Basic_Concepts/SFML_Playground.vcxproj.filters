@@ -122,6 +122,9 @@
     <ClInclude Include="include\HUD.h">
       <Filter>Header Files\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="include\Raycast.h">
+      <Filter>Header Files\Abstract</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Game.cpp">
@@ -195,6 +198,9 @@
     </ClCompile>
     <ClCompile Include="src\HUD.cpp">
       <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Raycast.cpp">
+      <Filter>Source Files\Abstract</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
