@@ -1,4 +1,5 @@
 #ifndef RAYCAST_H
+#define RAYCAST_H
 
 /// <summary>
 /// @Author Michael Rainsford Ryan
